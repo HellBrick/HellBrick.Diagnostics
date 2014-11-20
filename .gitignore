@@ -1,0 +1,6 @@
+/HellBrick.Diagnostics.sln.ide/
+/packages/
+/TestResults/
+*.suo
+bin/
+obj/
