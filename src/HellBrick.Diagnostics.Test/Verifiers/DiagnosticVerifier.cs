@@ -14,6 +14,7 @@ namespace TestHelper
 	public abstract partial class DiagnosticVerifier
 	{
 		#region To be implemented by Test classes
+
 		/// <summary>
 		/// Get the CSharp analyzer being tested - to be implemented in non-abstract class
 		/// </summary>
@@ -22,13 +23,6 @@ namespace TestHelper
 			return null;
 		}
 
-		/// <summary>
-		/// Get the Visual Basic analyzer being tested (C#) - to be implemented in non-abstract class
-		/// </summary>
-		protected virtual DiagnosticAnalyzer GetBasicDiagnosticAnalyzer()
-		{
-			return null;
-		}
 		#endregion
 
 		#region Verifier wrappers
@@ -45,17 +39,6 @@ namespace TestHelper
 		}
 
 		/// <summary>
-		/// Called to test a VB DiagnosticAnalyzer when applied on the single inputted string as a source
-		/// Note: input a DiagnosticResult for each Diagnostic expected
-		/// </summary>
-		/// <param name="source">A class in the form of a string to run the analyzer on</param>
-		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the source</param>
-		protected void VerifyBasicDiagnostic( string source, params DiagnosticResult[] expected )
-		{
-			VerifyDiagnostics( new[ ] { source }, LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), expected );
-		}
-
-		/// <summary>
 		/// Called to test a C# DiagnosticAnalyzer when applied on the inputted strings as a source
 		/// Note: input a DiagnosticResult for each Diagnostic expected
 		/// </summary>
@@ -64,17 +47,6 @@ namespace TestHelper
 		protected void VerifyCSharpDiagnostic( string[] sources, params DiagnosticResult[] expected )
 		{
 			VerifyDiagnostics( sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected );
-		}
-
-		/// <summary>
-		/// Called to test a VB DiagnosticAnalyzer when applied on the inputted strings as a source
-		/// Note: input a DiagnosticResult for each Diagnostic expected
-		/// </summary>
-		/// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
-		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-		protected void VerifyBasicDiagnostic( string[] sources, params DiagnosticResult[] expected )
-		{
-			VerifyDiagnostics( sources, LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), expected );
 		}
 
 		/// <summary>
@@ -119,54 +91,16 @@ namespace TestHelper
 				var actual = actualResults.ElementAt( i );
 				var expected = expectedResults[ i ];
 
-				if ( expected.Line == -1 && expected.Column == -1 )
-				{
-					if ( actual.Location != Location.None )
-					{
-						Assert.IsTrue( false,
-							string.Format( "Expected:\nA project diagnostic with No location\nActual:\n{0}",
-							FormatDiagnostics( analyzer, actual ) ) );
-					}
-				}
-				else
-				{
-					VerifyDiagnosticLocation( analyzer, actual, actual.Location, expected.Locations.First() );
-					var additionalLocations = actual.AdditionalLocations.ToArray();
-
-					if ( additionalLocations.Length != expected.Locations.Length - 1 )
-					{
-						Assert.IsTrue( false,
-							string.Format( "Expected {0} additional locations but got {1} for Diagnostic:\r\n    {2}\r\n",
-								expected.Locations.Length - 1, additionalLocations.Length,
-								FormatDiagnostics( analyzer, actual ) ) );
-					}
-
-					for ( int j = 0; j < additionalLocations.Length; ++j )
-					{
-						VerifyDiagnosticLocation( analyzer, actual, additionalLocations[ j ], expected.Locations[ j + 1 ] );
-					}
-				}
-
 				if ( actual.Id != expected.Id )
-				{
-					Assert.IsTrue( false,
-						string.Format( "Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+					Assert.Fail( string.Format( "Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 							expected.Id, actual.Id, FormatDiagnostics( analyzer, actual ) ) );
-				}
 
 				if ( actual.Severity != expected.Severity )
-				{
-					Assert.IsTrue( false,
-						string.Format( "Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+					Assert.Fail( string.Format( "Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 							expected.Severity, actual.Severity, FormatDiagnostics( analyzer, actual ) ) );
-				}
 
-				if ( actual.GetMessage() != expected.Message )
-				{
-					Assert.IsTrue( false,
-						string.Format( "Expected diagnostic message to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-							expected.Message, actual.GetMessage(), FormatDiagnostics( analyzer, actual ) ) );
-				}
+				if ( expected.Message != null && !actual.GetMessage().Contains( expected.Message ) )
+					Assert.Fail( "The diagnostic message was expected to contain '\{expected.Message}'. The actual message was '\{actual.GetMessage()}'" );
 			}
 		}
 
