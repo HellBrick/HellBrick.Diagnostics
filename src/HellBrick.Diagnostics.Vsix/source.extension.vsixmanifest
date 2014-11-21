@@ -3,7 +3,9 @@
 	<Metadata>
 		<Identity Id="HellBrick.Diagnostics.Vsix..6dd90cde-b508-4031-b0d2-a65754a20f77" Version="1.0" Language="en-US" Publisher="HellBrick"/>
 		<DisplayName>HellBrick.Diagnostics.Vsix</DisplayName>
-		<Description xml:space="preserve">This is a sample diagnostic extension for the .NET Compiler Platform ("Roslyn").</Description>
+		<Description xml:space="preserve">This is the extension that provides the following code fixes:
+
+* enforcing missing readonly modifier;This is the extension</Description>
 	</Metadata>
 	<Installation>
 		<InstallationTarget Version="[14.0,]" Id="Microsoft.VisualStudio.Pro" />
