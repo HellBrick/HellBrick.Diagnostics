@@ -20,7 +20,7 @@ namespace HellBrick.Diagnostics
 
 		private static DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _messageFormat, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get ; } = ImmutableArray.Create( _rule );
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _rule );
 
 		public override void Initialize( AnalysisContext context )
 		{
@@ -33,47 +33,42 @@ namespace HellBrick.Diagnostics
 			if ( classNode.Modifiers.Any( mod => mod.IsKind( SyntaxKind.PartialKeyword ) ) )
 				return;
 
+			HashSet<ISymbol> fieldSymbols = FindFieldSymbols( context, classNode );
+			if ( fieldSymbols.Count == 0 )
+				return;
+
+			var assignees = EnumerateAssignees( classNode );
+
+			foreach ( var assignee in assignees )
+			{
+				if ( !IsAssignmentAllowed( classNode, assignee ) )
+				{
+					var symbol = context.SemanticModel.GetSymbolInfo( assignee ).Symbol?.OriginalDefinition;
+					if ( symbol != null )
+						fieldSymbols.Remove( symbol );
+				}
+
+				if ( fieldSymbols.Count == 0 )
+					return;
+			}
+
+			foreach ( var fieldSymbol in fieldSymbols )
+				context.ReportDiagnostic( Diagnostic.Create( _rule, fieldSymbol.Locations[ 0 ], fieldSymbol.Name ) );
+		}
+
+		private HashSet<ISymbol> FindFieldSymbols( SyntaxNodeAnalysisContext context, ClassDeclarationSyntax classNode )
+		{
 			var fieldNodes = classNode.Members
 				.OfType<FieldDeclarationSyntax>()
 				.Where( f => IsReadOnlyCandidate( f ) )
 				.ToList();
-
-			if ( fieldNodes.Count == 0 )
-				return;
 
 			var fieldSymbols = fieldNodes
 				.SelectMany( field => field.DescendantNodes().OfType<VariableDeclaratorSyntax>() )
 				.Select( declarator => context.SemanticModel.GetDeclaredSymbol( declarator, context.CancellationToken ) );
 
 			var fieldSymbolMap = new HashSet<ISymbol>( fieldSymbols );
-
-			var assignees = EnumerateAssignees( classNode );
-
-			foreach ( var assignee in assignees )
-			{
-				var ownerNode = assignee.FirstAncestorOrSelf<CSharpSyntaxNode>( n =>
-					n is MethodDeclarationSyntax ||
-					n is ConstructorDeclarationSyntax ||
-					n is ParenthesizedLambdaExpressionSyntax ||
-					n is SimpleLambdaExpressionSyntax );
-
-				bool isAssignmentAllowed =
-					ownerNode is ConstructorDeclarationSyntax &&
-					ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class.
-
-				if ( !isAssignmentAllowed )
-				{
-					var symbol = context.SemanticModel.GetSymbolInfo( assignee ).Symbol?.OriginalDefinition;
-					if ( symbol != null )
-						fieldSymbolMap.Remove( symbol );
-				}
-
-				if ( fieldSymbolMap.Count == 0 )
-					return;
-			}
-
-			foreach ( var fieldSymbol in fieldSymbolMap )
-				context.ReportDiagnostic( Diagnostic.Create( _rule, fieldSymbol.Locations[ 0 ], fieldSymbol.Name ) );
+			return fieldSymbolMap;
 		}
 
 		private bool IsReadOnlyCandidate( FieldDeclarationSyntax field )
@@ -108,6 +103,19 @@ namespace HellBrick.Diagnostics
 
 			var assigneeExpressions = Enumerable.Concat( assigned, passedByRef );
 			return assigneeExpressions;
+		}
+
+		private static bool IsAssignmentAllowed( ClassDeclarationSyntax classNode, ExpressionSyntax assignee )
+		{
+			var ownerNode = assignee.FirstAncestorOrSelf<CSharpSyntaxNode>( n =>
+				n is MethodDeclarationSyntax ||
+				n is ConstructorDeclarationSyntax ||
+				n is ParenthesizedLambdaExpressionSyntax ||
+				n is SimpleLambdaExpressionSyntax );
+
+			return
+				ownerNode is ConstructorDeclarationSyntax &&
+				ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class.
 		}
 	}
 }
