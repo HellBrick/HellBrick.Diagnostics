@@ -69,6 +69,9 @@ namespace HellBrick.Diagnostics
 
 		private bool IsReadOnlyCandidate( FieldDeclarationSyntax field )
 		{
+			if ( field.DescendantNodes().OfType<VariableDeclaratorSyntax>().Count() > 1 )
+				return false;
+
 			foreach ( var modifier in field.Modifiers )
 			{
 				//	Is already const or read-only.
