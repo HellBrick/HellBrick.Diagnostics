@@ -94,9 +94,17 @@ namespace HellBrick.Diagnostics
 
 		private static IEnumerable<ExpressionSyntax> EnumerateAssignees( SyntaxNode method )
 		{
-			return method.DescendantNodes()
+			var assigned = method.DescendantNodes()
 				.OfType<AssignmentExpressionSyntax>()
 				.Select( ass => ass.Left );
+
+			var passedByRef = method.DescendantNodes()
+				.OfType<ArgumentSyntax>()
+				.Where( arg => !arg.RefOrOutKeyword.IsKind( SyntaxKind.None ) )
+				.Select( arg => arg.Expression );
+
+			var assigneeExpressions = Enumerable.Concat( assigned, passedByRef );
+			return assigneeExpressions;
 		}
 	}
 }
