@@ -194,6 +194,29 @@ namespace NS
 		}
 
 		[TestMethod]
+		public void FiedAssignedToInNestedClassIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int _x;
+		
+		private class NestedClass
+		{
+			public NestedClass( ClassName parent )
+			{
+				parent._x = 42;
+			}
+		}
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
 		public void MultiDeclaratorIsNotFixed()
 		{
 			var sourceCode = @"

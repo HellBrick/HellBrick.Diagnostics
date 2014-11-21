@@ -57,7 +57,10 @@ namespace HellBrick.Diagnostics
 					n is ParenthesizedLambdaExpressionSyntax ||
 					n is SimpleLambdaExpressionSyntax );
 
-				bool isAssignmentAllowed = ownerNode is ConstructorDeclarationSyntax;
+				bool isAssignmentAllowed =
+					ownerNode is ConstructorDeclarationSyntax &&
+					ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class.
+
 				if ( !isAssignmentAllowed )
 				{
 					var symbol = context.SemanticModel.GetSymbolInfo( assignee ).Symbol?.OriginalDefinition;
