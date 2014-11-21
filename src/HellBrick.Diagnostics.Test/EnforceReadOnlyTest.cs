@@ -96,6 +96,30 @@ namespace NS
 		}
 
 		[TestMethod]
+		public void FiedAssignedToInPropertyIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int _x;
+		
+		private int SomeProperty
+		{
+			get
+			{
+				_x = 42;
+				return _x;
+			}
+		}
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
 		public void FieldReferencedByRefInConstructorIsFixed()
 		{
 			var sourceCode = @"
