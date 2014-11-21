@@ -30,6 +30,9 @@ namespace HellBrick.Diagnostics
 		private void EnforceReadOnlyOnClassFields( SyntaxNodeAnalysisContext context )
 		{
 			var classNode = context.Node as ClassDeclarationSyntax;
+			if ( classNode.Modifiers.Any( mod => mod.IsKind( SyntaxKind.PartialKeyword ) ) )
+				return;
+
 			var fieldNodes = classNode.Members
 				.OfType<FieldDeclarationSyntax>()
 				.Where( f => IsReadOnlyCandidate( f ) )
