@@ -41,10 +41,16 @@ namespace HellBrick.Diagnostics
 
 			foreach ( var assignee in assignees )
 			{
-				if ( !IsAssignmentAllowed( classNode, assignee ) )
+				if ( !IsAssignedInsideConstructor( classNode, assignee ) )
 				{
-					var symbol = context.SemanticModel.GetSymbolInfo( assignee ).Symbol?.OriginalDefinition;
-					if ( symbol != null )
+					//	If this is an indexer assignment, the symbol located to the left of the [] should be looked up.
+					var underlyingAssignee = ( assignee as ElementAccessExpressionSyntax )?.Expression ?? assignee;
+					var symbol = context.SemanticModel.GetSymbolInfo( underlyingAssignee ).Symbol?.OriginalDefinition;
+
+					//	 The only chance for the assignment not to break the read-only limitations outside the ctor body is to make an indexer assignment to a reference type
+					bool isAssignmentAllowed = underlyingAssignee != assignee && ( symbol as IFieldSymbol )?.Type?.IsReferenceType == true;
+
+					if ( !isAssignmentAllowed )
 						fieldSymbols.Remove( symbol );
 				}
 
@@ -107,6 +113,13 @@ namespace HellBrick.Diagnostics
 
 		private static bool IsAssignmentAllowed( ClassDeclarationSyntax classNode, ExpressionSyntax assignee )
 		{
+			return
+				IsAssignedInsideConstructor( classNode, assignee ) ||
+				IsIndexerAssignmentToReferenceType( assignee );
+		}
+
+		private static bool IsAssignedInsideConstructor( ClassDeclarationSyntax classNode, ExpressionSyntax assignee )
+		{
 			var ownerNode = assignee.FirstAncestorOrSelf<CSharpSyntaxNode>( n =>
 				n is MethodDeclarationSyntax ||
 				n is ConstructorDeclarationSyntax ||
@@ -115,7 +128,13 @@ namespace HellBrick.Diagnostics
 
 			return
 				ownerNode is ConstructorDeclarationSyntax &&
-				ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class.
+				ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class
+		}
+
+		private static bool IsIndexerAssignmentToReferenceType( ExpressionSyntax assignee )
+		{
+			return
+				assignee is ElementAccessExpressionSyntax;
 		}
 	}
 }

@@ -120,6 +120,70 @@ namespace NS
 		}
 
 		[TestMethod]
+		public void ValueTypeFieldAssignedToByIndexerIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+using System.Collections.Specialized;
+namespace NS
+{
+	class ClassName
+	{
+		private StructName _struct;
+		
+		private void DoSomething()
+		{
+			_struct[ 0 ] = 53;
+		}
+	}
+
+	struct StructName
+	{
+		public int this[ int index ]
+		{
+			get { return 42; }
+			set { }
+		}
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
+		public void ReferenceTypeFieldAssignedToByIndexerIsFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int[] _array = new int[8];
+		
+		private void DoSomething()
+		{
+			_array[0] = 42;
+		}
+	}
+}";
+			var expectedCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private readonly int[] _array = new int[8];
+		
+		private void DoSomething()
+		{
+			_array[0] = 42;
+		}
+	}
+}";
+			VerifyFix( sourceCode, expectedCode, "_array" );
+		}
+
+		[TestMethod]
 		public void FieldReferencedByRefInConstructorIsFixed()
 		{
 			var sourceCode = @"
