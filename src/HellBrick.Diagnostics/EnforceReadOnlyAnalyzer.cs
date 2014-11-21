@@ -47,20 +47,26 @@ namespace HellBrick.Diagnostics
 
 			var fieldSymbolMap = new HashSet<ISymbol>( fieldSymbols );
 
-			var methods = classNode.Members
-				.OfType<MethodDeclarationSyntax>()
-				.ToList();
+			var assignees = EnumerateAssignees( classNode );
 
-			foreach ( var method in methods )
+			foreach ( var assignee in assignees )
 			{
-				var assignments = EnumerateMethodAssignements( method, context ).ToList();
-				foreach ( var targetSymbol in assignments )
-				{
-					fieldSymbolMap.Remove( targetSymbol );
+				var ownerNode = assignee.FirstAncestorOrSelf<CSharpSyntaxNode>( n =>
+					n is MethodDeclarationSyntax ||
+					n is ConstructorDeclarationSyntax ||
+					n is ParenthesizedLambdaExpressionSyntax ||
+					n is SimpleLambdaExpressionSyntax );
 
-					if ( fieldSymbolMap.Count == 0 )
-						return;
+				bool isAssignmentAllowed = ownerNode is ConstructorDeclarationSyntax;
+				if ( !isAssignmentAllowed )
+				{
+					var symbol = context.SemanticModel.GetSymbolInfo( assignee ).Symbol?.OriginalDefinition;
+					if ( symbol != null )
+						fieldSymbolMap.Remove( symbol );
 				}
+
+				if ( fieldSymbolMap.Count == 0 )
+					return;
 			}
 
 			foreach ( var fieldSymbol in fieldSymbolMap )
@@ -86,12 +92,11 @@ namespace HellBrick.Diagnostics
 			return true;
 		}
 
-		private IEnumerable<ISymbol> EnumerateMethodAssignements( BaseMethodDeclarationSyntax method, SyntaxNodeAnalysisContext context )
+		private static IEnumerable<ExpressionSyntax> EnumerateAssignees( SyntaxNode method )
 		{
 			return method.DescendantNodes()
 				.OfType<AssignmentExpressionSyntax>()
-				.Select( ass => context.SemanticModel.GetSymbolInfo( ass.Left ).Symbol?.OriginalDefinition )
-				.Where( s => s != null );
+				.Select( ass => ass.Left );
 		}
 	}
 }
