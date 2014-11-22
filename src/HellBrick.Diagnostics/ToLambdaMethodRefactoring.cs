@@ -24,8 +24,17 @@ namespace HellBrick.Diagnostics
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
 			var semanticModel = await context.Document.GetSemanticModelAsync( context.CancellationToken ).ConfigureAwait( false );
-			var oneLiners = root.DescendantNodes()
-				.OfType<MethodDeclarationSyntax>()
+
+			IEnumerable<MethodDeclarationSyntax> selectedMethods;
+			if ( context.Span.Length > 0 )
+				selectedMethods = root.DescendantNodes( context.Span ).OfType<MethodDeclarationSyntax>();
+			else
+			{
+				var node = root.FindNode( context.Span ).FirstAncestorOrSelf<MethodDeclarationSyntax>();
+				selectedMethods = node != null ? Enumerable.Repeat( node, 1 ) : Enumerable.Empty<MethodDeclarationSyntax>();
+			}
+
+			var oneLiners = selectedMethods
 				.Where( m => m.Body?.Statements.Count == 1 )
 				.Where( m => ( semanticModel.GetDeclaredSymbol( m ) as IMethodSymbol )?.ReturnsVoid != true );
 
