@@ -107,7 +107,15 @@ namespace HellBrick.Diagnostics
 				.Where( arg => !arg.RefOrOutKeyword.IsKind( SyntaxKind.None ) )
 				.Select( arg => arg.Expression );
 
-			var assigneeExpressions = Enumerable.Concat( assigned, passedByRef );
+			var preIncremented = method.DescendantNodes()
+				.OfType<PrefixUnaryExpressionSyntax>()
+				.Select( ex => ex.Operand );
+
+			var postIncremented = method.DescendantNodes()
+				.OfType<PostfixUnaryExpressionSyntax>()
+				.Select( ex => ex.Operand );
+
+			var assigneeExpressions = assigned.Concat( passedByRef ).Concat( preIncremented ).Concat( postIncremented );
 			return assigneeExpressions;
 		}
 

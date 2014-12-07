@@ -282,6 +282,28 @@ namespace NS
 		}
 
 		[TestMethod]
+		public void IncrementedFieldIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int _x;
+		private int _y;
+		
+		public void Method()
+		{
+			_x++;
+			_y--;
+		}
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
 		public void FiedAssignedToInNestedClassIsNotFixed()
 		{
 			var sourceCode = @"
