@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics
 {
@@ -33,7 +33,7 @@ namespace HellBrick.Diagnostics
 
 				var newDocument = context.Document.WithSyntaxRoot( root.ReplaceNode( method, newMethod ) );
 				var methodName = semanticModel.GetDeclaredSymbol( method, context.CancellationToken )?.Name ?? method.ToString();
-				context.RegisterRefactoring( CodeAction.Create( "Convert '\{methodName}' to expression method", newDocument, RefactoringID ) );
+				context.RegisterRefactoring( CodeAction.Create( $"Convert '{methodName}' to expression method", newDocument, RefactoringID ) );
 			}
 		}
 

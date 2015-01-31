@@ -100,7 +100,7 @@ namespace TestHelper
 							expected.Severity, actual.Severity, FormatDiagnostics( analyzer, actual ) ) );
 
 				if ( expected.Message != null && !actual.GetMessage().Contains( expected.Message ) )
-					Assert.Fail( "The diagnostic message was expected to contain '\{expected.Message}'. The actual message was '\{actual.GetMessage()}'" );
+					Assert.Fail( $"The diagnostic message was expected to contain '{expected.Message}'. The actual message was '{actual.GetMessage()}'" );
 			}
 		}
 
