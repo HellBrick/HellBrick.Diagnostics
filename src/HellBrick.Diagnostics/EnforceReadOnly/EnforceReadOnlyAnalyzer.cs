@@ -115,6 +115,12 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				return _fieldCandidates;
 			}
 
+			public override void DefaultVisit( SyntaxNode node )
+			{
+				if ( _fieldCandidates.Count > 0 )
+					base.DefaultVisit( node );
+			}
+
 			public override void VisitAssignmentExpression( AssignmentExpressionSyntax node )
 			{
 				base.VisitAssignmentExpression( node );
