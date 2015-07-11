@@ -20,7 +20,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( EnforceReadOnlyCodeFixProvider ) ), Shared]
 	public class EnforceReadOnlyCodeFixProvider : CodeFixProvider
 	{
-		private SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
+		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( EnforceReadOnlyAnalyzer.DiagnosticID );
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;

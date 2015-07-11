@@ -20,7 +20,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 		private const string _messageFormat = "Field '{0}' can be made read-only";
 		private const string _category = "Design";
 
-		private static DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _messageFormat, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
+		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _messageFormat, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _rule );
 
@@ -46,7 +46,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 		{
 			private readonly SemanticModel _semanticModel;
 			private readonly CancellationToken _cancellationToken;
-			private HashSet<IFieldSymbol> _fields;
+			private readonly HashSet<IFieldSymbol> _fields;
 
 			public NonReadOnlyFieldFinder( SemanticModel semanticModel, CancellationToken cancellationToken )
 			{
