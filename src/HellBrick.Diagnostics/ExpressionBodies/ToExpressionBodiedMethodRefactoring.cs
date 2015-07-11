@@ -14,10 +14,10 @@ using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace HellBrick.Diagnostics
+namespace HellBrick.Diagnostics.ExpressionBodies
 {
-	[ExportCodeRefactoringProvider( LanguageNames.CSharp, Name = nameof( ToLambdaMethodRefactoring ) ), Shared]
-	internal class ToLambdaMethodRefactoring : CodeRefactoringProvider
+	[ExportCodeRefactoringProvider( LanguageNames.CSharp, Name = nameof( ToExpressionBodiedMethodRefactoring ) ), Shared]
+	internal class ToExpressionBodiedMethodRefactoring : CodeRefactoringProvider
 	{
 		public async sealed override Task ComputeRefactoringsAsync( CodeRefactoringContext context )
 		{
