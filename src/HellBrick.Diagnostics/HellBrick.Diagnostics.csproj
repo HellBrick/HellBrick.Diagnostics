@@ -32,9 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
     <Compile Include="EnforceReadOnlyCodeFix.cs" />
     <Compile Include="EnforceReadOnlyAnalyzer.cs" />
+    <Compile Include="IDPrefix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToLambdaMethodRefactoring.cs" />
     <Compile Include="Utils\TaskHelper.cs" />
