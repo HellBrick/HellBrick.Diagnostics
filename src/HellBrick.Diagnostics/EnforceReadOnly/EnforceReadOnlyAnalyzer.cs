@@ -157,20 +157,23 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			private void DiscardFieldFromExpression( ExpressionSyntax node )
 			{
 				var fieldSymbol = _semanticModel.GetSymbolInfo( node ).Symbol as IFieldSymbol;
-				if ( fieldSymbol == null || !_fieldCandidates.Contains( fieldSymbol ) || IsInsideConstructorOfType( node, fieldSymbol.ContainingType ) )
+				if ( fieldSymbol == null || !_fieldCandidates.Contains( fieldSymbol ) || IsInsideConstructorOfTypeThatContainsSymbol( node, fieldSymbol ) )
 					return;
 
 				_fieldCandidates.Remove( fieldSymbol );
 			}
 
-			private bool IsInsideConstructorOfType( ExpressionSyntax node, INamedTypeSymbol containingType )
+			private bool IsInsideConstructorOfTypeThatContainsSymbol( ExpressionSyntax node, IFieldSymbol fieldSymbol )
 			{
 				foreach ( var currentNode in node.Ancestors() )
 				{
 					switch ( currentNode.Kind() )
 					{
 						case SyntaxKind.ConstructorDeclaration:
-							return _semanticModel.GetDeclaredSymbol( currentNode ).ContainingType == containingType;
+							{
+								var constructorSymbol = _semanticModel.GetDeclaredSymbol( currentNode );
+								return constructorSymbol.ContainingType == fieldSymbol.ContainingType && constructorSymbol.IsStatic == fieldSymbol.IsStatic;
+							}
 
 						case SyntaxKind.ParenthesizedLambdaExpression:
 						case SyntaxKind.SimpleLambdaExpression:

@@ -413,5 +413,25 @@ namespace NS
 }";
 			VerifyNoFix( sourceCode );
 		}
+
+		[TestMethod]
+		public void StaticFieldAssignedToInNonStaticConstructorIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private static int _x;
+		
+		public ClassName()
+		{
+			_x = 42;
+		}
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
 	}
 }
