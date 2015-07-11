@@ -8,7 +8,9 @@
 		<owners>HellBrick</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
-		<releaseNotes></releaseNotes>
+		<releaseNotes>v1.0.0:
+		- enforce readonly modifier on fields
+		- convert one-line methods to expression-bodied methods</releaseNotes>
 		<tags></tags>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System" targetFramework="" />
