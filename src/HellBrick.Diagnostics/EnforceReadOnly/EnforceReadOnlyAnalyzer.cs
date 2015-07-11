@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,125 +26,165 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 		public override void Initialize( AnalysisContext context )
 		{
-			context.RegisterSyntaxNodeAction( EnforceReadOnlyOnClassFields, SyntaxKind.ClassDeclaration );
+			context.RegisterSemanticModelAction( EnforceReadOnlyOnClassFields );
 		}
 
-		private void EnforceReadOnlyOnClassFields( SyntaxNodeAnalysisContext context )
+		private void EnforceReadOnlyOnClassFields( SemanticModelAnalysisContext context )
 		{
-			var classNode = context.Node as ClassDeclarationSyntax;
-			if ( classNode.Modifiers.Any( mod => mod.IsKind( SyntaxKind.PartialKeyword ) ) )
+			NonReadOnlyFieldFinder fieldFinder = new NonReadOnlyFieldFinder( context.SemanticModel, context.CancellationToken );
+			var fieldCandidates = fieldFinder.RunAsync().GetAwaiter().GetResult();
+			if ( fieldCandidates.Count == 0 )
 				return;
 
-			HashSet<ISymbol> fieldSymbols = FindFieldSymbols( context, classNode );
-			if ( fieldSymbols.Count == 0 )
-				return;
+			FieldWriteFinder writeFinder = new FieldWriteFinder( fieldCandidates, context.SemanticModel, context.CancellationToken );
+			fieldCandidates = writeFinder.DiscardFieldsAssignedToAsync().GetAwaiter().GetResult();
+			foreach ( var enforceableField in fieldCandidates )
+				context.ReportDiagnostic( Diagnostic.Create( _rule, enforceableField.Locations[ 0 ], enforceableField.Name ) );
+		}
 
-			var assignees = EnumerateAssignees( classNode );
+		private class NonReadOnlyFieldFinder : CSharpSyntaxWalker
+		{
+			private readonly SemanticModel _semanticModel;
+			private readonly CancellationToken _cancellationToken;
+			private HashSet<IFieldSymbol> _fields;
 
-			foreach ( var assignee in assignees )
+			public NonReadOnlyFieldFinder( SemanticModel semanticModel, CancellationToken cancellationToken )
 			{
-				if ( !IsAssignedInsideConstructor( classNode, assignee ) )
+				_fields = new HashSet<IFieldSymbol>();
+
+				_semanticModel = semanticModel;
+				_cancellationToken = cancellationToken;
+			}
+
+			public async Task<HashSet<IFieldSymbol>> RunAsync()
+			{
+				var root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
+				Visit( root );
+				return _fields;
+			}
+
+			public override void VisitFieldDeclaration( FieldDeclarationSyntax node )
+			{
+				//	The declaration that declares multiple variable is ignored.
+				if ( node.Declaration.Variables.Count != 1 )
+					return;
+
+				var fieldSymbol = _semanticModel.GetDeclaredSymbol( node.Declaration.Variables[ 0 ], _cancellationToken ) as IFieldSymbol;
+				if ( fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsExtern || fieldSymbol.DeclaredAccessibility > Accessibility.Private )
+					return;
+
+				_fields.Add( fieldSymbol );
+			}
+
+			public override void DefaultVisit( SyntaxNode node )
+			{
+				switch ( node.Kind() )
 				{
-					//	If this is an indexer assignment, the symbol located to the left of the [] should be looked up.
-					var underlyingAssignee = ( assignee as ElementAccessExpressionSyntax )?.Expression ?? assignee;
-					var symbol = context.SemanticModel.GetSymbolInfo( underlyingAssignee ).Symbol?.OriginalDefinition;
+					//	These nodes can't possibly contain field declarations, so there's not need to dive inside them.
+					case SyntaxKind.AttributeList:
+					case SyntaxKind.BaseList:
+					case SyntaxKind.PropertyDeclaration:
+					case SyntaxKind.MethodDeclaration:
+					case SyntaxKind.ConstructorDeclaration:
+						break;
 
-					//	 The only chance for the assignment not to break the read-only limitations outside the ctor body is to make an indexer assignment to a reference type
-					bool isAssignmentAllowed = underlyingAssignee != assignee && ( symbol as IFieldSymbol )?.Type?.IsReferenceType == true;
+					default:
+						base.DefaultVisit( node );
+						break;
+				}
+			}
+		}
 
-					if ( !isAssignmentAllowed )
-						fieldSymbols.Remove( symbol );
+		private class FieldWriteFinder : CSharpSyntaxWalker
+		{
+			private readonly HashSet<IFieldSymbol> _fieldCandidates;
+			private readonly SemanticModel _semanticModel;
+			private readonly CancellationToken _cancellationToken;
+
+			public FieldWriteFinder( HashSet<IFieldSymbol> fieldCandidates, SemanticModel semanticModel, CancellationToken cancellationToken )
+			{
+				_fieldCandidates = fieldCandidates;
+				_semanticModel = semanticModel;
+				_cancellationToken = cancellationToken;
+			}
+
+			public async Task<HashSet<IFieldSymbol>> DiscardFieldsAssignedToAsync()
+			{
+				var root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
+				Visit( root );
+				return _fieldCandidates;
+			}
+
+			public override void VisitAssignmentExpression( AssignmentExpressionSyntax node )
+			{
+				base.VisitAssignmentExpression( node );
+
+				var elementAccessExpression = node.Left as ElementAccessExpressionSyntax;
+				if ( elementAccessExpression == null )
+					DiscardFieldFromExpression( node.Left );
+				else
+				{
+					//	This is a tricky case. The expression is something like x[ y ] = z;
+					//	It violates readonly modifier if x is an instance of a value type.
+					//	GetSymbolInfo() is required because GetDeclaredSymbol() doesn't work here for some reason.
+					var indexedSymbol = _semanticModel.GetSymbolInfo( elementAccessExpression.Expression ).Symbol as IFieldSymbol;
+					var indexedFieldSymbol = indexedSymbol;
+					if ( indexedFieldSymbol != null && indexedFieldSymbol.Type.IsValueType )
+						DiscardFieldFromExpression( elementAccessExpression.Expression );
+				}
+			}
+
+			public override void VisitPrefixUnaryExpression( PrefixUnaryExpressionSyntax node )
+			{
+				base.VisitPrefixUnaryExpression( node );
+				DiscardFieldFromExpression( node.Operand );
+			}
+
+			public override void VisitPostfixUnaryExpression( PostfixUnaryExpressionSyntax node )
+			{
+				base.VisitPostfixUnaryExpression( node );
+				DiscardFieldFromExpression( node.Operand );
+			}
+
+			public override void VisitArgument( ArgumentSyntax node )
+			{
+				base.VisitArgument( node );
+
+				if ( !node.RefOrOutKeyword.IsKind( SyntaxKind.None ) )
+					DiscardFieldFromExpression( node.Expression );
+			}
+
+			private void DiscardFieldFromExpression( ExpressionSyntax node )
+			{
+				var fieldSymbol = _semanticModel.GetSymbolInfo( node ).Symbol as IFieldSymbol;
+				if ( fieldSymbol == null || !_fieldCandidates.Contains( fieldSymbol ) || IsInsideConstructorOfType( node, fieldSymbol.ContainingType ) )
+					return;
+
+				_fieldCandidates.Remove( fieldSymbol );
+			}
+
+			private bool IsInsideConstructorOfType( ExpressionSyntax node, INamedTypeSymbol containingType )
+			{
+				foreach ( var currentNode in node.Ancestors() )
+				{
+					switch ( currentNode.Kind() )
+					{
+						case SyntaxKind.ConstructorDeclaration:
+							return _semanticModel.GetDeclaredSymbol( currentNode ).ContainingType == containingType;
+
+						case SyntaxKind.ParenthesizedLambdaExpression:
+						case SyntaxKind.SimpleLambdaExpression:
+						case SyntaxKind.AnonymousMethodExpression:
+						case SyntaxKind.MethodDeclaration:
+							return false;
+
+						default:
+							continue;
+					}
 				}
 
-				if ( fieldSymbols.Count == 0 )
-					return;
-			}
-
-			foreach ( var fieldSymbol in fieldSymbols )
-				context.ReportDiagnostic( Diagnostic.Create( _rule, fieldSymbol.Locations[ 0 ], fieldSymbol.Name ) );
-		}
-
-		private HashSet<ISymbol> FindFieldSymbols( SyntaxNodeAnalysisContext context, ClassDeclarationSyntax classNode )
-		{
-			var fieldNodes = classNode.Members
-				.OfType<FieldDeclarationSyntax>()
-				.Where( f => IsReadOnlyCandidate( f ) )
-				.ToList();
-
-			var fieldSymbols = fieldNodes
-				.SelectMany( field => field.DescendantNodes().OfType<VariableDeclaratorSyntax>() )
-				.Select( declarator => context.SemanticModel.GetDeclaredSymbol( declarator, context.CancellationToken ) );
-
-			var fieldSymbolMap = new HashSet<ISymbol>( fieldSymbols );
-			return fieldSymbolMap;
-		}
-
-		private bool IsReadOnlyCandidate( FieldDeclarationSyntax field )
-		{
-			if ( field.DescendantNodes().OfType<VariableDeclaratorSyntax>().Count() > 1 )
 				return false;
-
-			foreach ( var modifier in field.Modifiers )
-			{
-				//	Is already const or read-only.
-				if ( modifier.IsKind( SyntaxKind.ConstKeyword ) || modifier.IsKind( SyntaxKind.ReadOnlyKeyword ) )
-					return false;
-
-				//	The field is not private => its value can be set outside the class.
-				if ( modifier.IsKind( SyntaxKind.PublicKeyword ) || modifier.IsKind( SyntaxKind.InternalKeyword ) || modifier.IsKind( SyntaxKind.ProtectedKeyword ) )
-					return false;
 			}
-
-			return true;
-		}
-
-		private static IEnumerable<ExpressionSyntax> EnumerateAssignees( SyntaxNode method )
-		{
-			var assigned = method.DescendantNodes()
-				.OfType<AssignmentExpressionSyntax>()
-				.Select( ass => ass.Left );
-
-			var passedByRef = method.DescendantNodes()
-				.OfType<ArgumentSyntax>()
-				.Where( arg => !arg.RefOrOutKeyword.IsKind( SyntaxKind.None ) )
-				.Select( arg => arg.Expression );
-
-			var preIncremented = method.DescendantNodes()
-				.OfType<PrefixUnaryExpressionSyntax>()
-				.Select( ex => ex.Operand );
-
-			var postIncremented = method.DescendantNodes()
-				.OfType<PostfixUnaryExpressionSyntax>()
-				.Select( ex => ex.Operand );
-
-			var assigneeExpressions = assigned.Concat( passedByRef ).Concat( preIncremented ).Concat( postIncremented );
-			return assigneeExpressions;
-		}
-
-		private static bool IsAssignmentAllowed( ClassDeclarationSyntax classNode, ExpressionSyntax assignee )
-		{
-			return
-				IsAssignedInsideConstructor( classNode, assignee ) ||
-				IsIndexerAssignmentToReferenceType( assignee );
-		}
-
-		private static bool IsAssignedInsideConstructor( ClassDeclarationSyntax classNode, ExpressionSyntax assignee )
-		{
-			var ownerNode = assignee.FirstAncestorOrSelf<CSharpSyntaxNode>( n =>
-				n is MethodDeclarationSyntax ||
-				n is ConstructorDeclarationSyntax ||
-				n is ParenthesizedLambdaExpressionSyntax ||
-				n is SimpleLambdaExpressionSyntax );
-
-			return
-				ownerNode is ConstructorDeclarationSyntax &&
-				ownerNode.FirstAncestorOrSelf<ClassDeclarationSyntax>() == classNode;	//	this check ensures that we're not dealing with a nested class
-		}
-
-		private static bool IsIndexerAssignmentToReferenceType( ExpressionSyntax assignee )
-		{
-			return
-				assignee is ElementAccessExpressionSyntax;
 		}
 	}
 }
