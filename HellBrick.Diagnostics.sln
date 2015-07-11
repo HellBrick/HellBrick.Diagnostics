@@ -1,18 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22310.1
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "src\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj", "{D8BD17FA-DFAB-481F-AC94-DA5811DBC909}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "src\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj", "{1B542F07-FCC4-452E-AFB4-7176711D5724}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B6AA5436-5189-40F4-B917-A66A9586C05E}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{B8AF8CD3-C6D4-4A9D-98D2-E46A59636427}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{100978FF-D590-4CDC-AED8-A0DA7AF6BE7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D8BD17FA-DFAB-481F-AC94-DA5811DBC909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8BD17FA-DFAB-481F-AC94-DA5811DBC909}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8BD17FA-DFAB-481F-AC94-DA5811DBC909}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8BD17FA-DFAB-481F-AC94-DA5811DBC909}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8AF8CD3-C6D4-4A9D-98D2-E46A59636427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8AF8CD3-C6D4-4A9D-98D2-E46A59636427}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8AF8CD3-C6D4-4A9D-98D2-E46A59636427}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8AF8CD3-C6D4-4A9D-98D2-E46A59636427}.Release|Any CPU.Build.0 = Release|Any CPU
-		{100978FF-D590-4CDC-AED8-A0DA7AF6BE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{100978FF-D590-4CDC-AED8-A0DA7AF6BE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{100978FF-D590-4CDC-AED8-A0DA7AF6BE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{100978FF-D590-4CDC-AED8-A0DA7AF6BE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B542F07-FCC4-452E-AFB4-7176711D5724}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B542F07-FCC4-452E-AFB4-7176711D5724}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B542F07-FCC4-452E-AFB4-7176711D5724}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B542F07-FCC4-452E-AFB4-7176711D5724}.Release|Any CPU.Build.0 = Release|Any CPU
+		{802F7F69-3347-4004-A80D-62986BB586DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802F7F69-3347-4004-A80D-62986BB586DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802F7F69-3347-4004-A80D-62986BB586DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802F7F69-3347-4004-A80D-62986BB586DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
