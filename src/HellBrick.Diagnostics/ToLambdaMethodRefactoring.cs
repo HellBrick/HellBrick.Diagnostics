@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Composition;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,11 +16,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics
 {
-	[ExportCodeRefactoringProvider(ToLambdaMethodRefactoring.RefactoringID, LanguageNames.CSharp)]
-	internal class ToLambdaMethodRefactoring: CodeRefactoringProvider
+	[ExportCodeRefactoringProvider( LanguageNames.CSharp, Name = nameof( ToLambdaMethodRefactoring ) ), Shared]
+	internal class ToLambdaMethodRefactoring : CodeRefactoringProvider
 	{
-		public const string RefactoringID = Common.RulePrefix + "RefactorToLambdaMethod";
-
 		public async sealed override Task ComputeRefactoringsAsync( CodeRefactoringContext context )
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
@@ -29,11 +28,9 @@ namespace HellBrick.Diagnostics
 
 			foreach ( var method in oneLiners )
 			{
-				MethodDeclarationSyntax newMethod = BuildNewMethod( method );
-
-				var newDocument = context.Document.WithSyntaxRoot( root.ReplaceNode( method, newMethod ) );
 				var methodName = semanticModel.GetDeclaredSymbol( method, context.CancellationToken )?.Name ?? method.ToString();
-				context.RegisterRefactoring( CodeAction.Create( $"Convert '{methodName}' to expression method", newDocument, RefactoringID ) );
+				var codeFix = CodeAction.Create( $"Convert '{methodName}' to expression method", c => ConvertToExpressionBodiedMethodAsync( method, context, root, c ) );
+				context.RegisterRefactoring( codeFix );
 			}
 		}
 
@@ -51,6 +48,13 @@ namespace HellBrick.Diagnostics
 			return selectedMethods
 				.Where( m => m.Body?.Statements.Count == 1 )
 				.Where( m => ( semanticModel.GetDeclaredSymbol( m ) as IMethodSymbol )?.ReturnsVoid != true );
+		}
+
+		private Task<Document> ConvertToExpressionBodiedMethodAsync( MethodDeclarationSyntax method, CodeRefactoringContext context, SyntaxNode root, CancellationToken cancellationToken )
+		{
+			MethodDeclarationSyntax newMethod = BuildNewMethod( method );
+			var newDocument = context.Document.WithSyntaxRoot( root.ReplaceNode( method, newMethod ) );
+			return Task.FromResult( newDocument );
 		}
 
 		private static MethodDeclarationSyntax BuildNewMethod( MethodDeclarationSyntax method )

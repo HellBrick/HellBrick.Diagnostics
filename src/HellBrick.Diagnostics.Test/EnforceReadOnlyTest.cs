@@ -9,7 +9,7 @@ using System.Linq;
 namespace HellBrick.Diagnostics.Test
 {
 	[TestClass]
-	public class EnforceReadOnlyTest: CodeFixVerifier
+	public class EnforceReadOnlyTest : CodeFixVerifier
 	{
 		#region Common
 

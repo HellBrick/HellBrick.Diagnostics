@@ -10,8 +10,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace HellBrick.Diagnostics
 {
-	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class EnforceReadOnlyAnalyzer: DiagnosticAnalyzer
+	[DiagnosticAnalyzer( LanguageNames.CSharp )]
+	public class EnforceReadOnlyAnalyzer : DiagnosticAnalyzer
 	{
 		public const string DiagnosticID = Common.RulePrefix + "EnforceReadOnly";
 		private const string _title = "Field can be made read-only";
