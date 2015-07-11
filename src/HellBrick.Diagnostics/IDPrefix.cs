@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace HellBrick.Diagnostics
 {
-	class Common
+	public static class IDPrefix
 	{
-		public const string RulePrefix = "HellBrick.";
-		public const string CodeFixSuffix = ".CodeFix";
+		public const string Value = "HB.";
 	}
 }

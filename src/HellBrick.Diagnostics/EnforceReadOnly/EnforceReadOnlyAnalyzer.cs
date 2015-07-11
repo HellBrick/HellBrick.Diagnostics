@@ -8,12 +8,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace HellBrick.Diagnostics
+namespace HellBrick.Diagnostics.EnforceReadOnly
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
 	public class EnforceReadOnlyAnalyzer : DiagnosticAnalyzer
 	{
-		public const string DiagnosticID = Common.RulePrefix + "EnforceReadOnly";
+		public const string DiagnosticID = IDPrefix.Value + "EnforceReadOnly";
+
 		private const string _title = "Field can be made read-only";
 		private const string _messageFormat = "Field '{0}' can be made read-only";
 		private const string _category = "Design";

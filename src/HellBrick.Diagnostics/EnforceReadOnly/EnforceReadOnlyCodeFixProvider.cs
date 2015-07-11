@@ -15,10 +15,10 @@ using Microsoft.CodeAnalysis.Text;
 using HellBrick.Diagnostics.Utils;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace HellBrick.Diagnostics
+namespace HellBrick.Diagnostics.EnforceReadOnly
 {
-	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( EnforceReadOnlyCodeFix ) ), Shared]
-	public class EnforceReadOnlyCodeFix : CodeFixProvider
+	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( EnforceReadOnlyCodeFixProvider ) ), Shared]
+	public class EnforceReadOnlyCodeFixProvider : CodeFixProvider
 	{
 		private SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
 

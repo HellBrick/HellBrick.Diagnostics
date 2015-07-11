@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
 using System.Linq;
+using HellBrick.Diagnostics.EnforceReadOnly;
 
 namespace HellBrick.Diagnostics.Test
 {
@@ -13,7 +14,7 @@ namespace HellBrick.Diagnostics.Test
 	{
 		#region Common
 
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new EnforceReadOnlyCodeFix();
+		protected override CodeFixProvider GetCSharpCodeFixProvider() => new EnforceReadOnlyCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new EnforceReadOnlyAnalyzer();
 
 		private void VerifyFix( string sourceCode, string expectedCode, params string[] variableNames )
