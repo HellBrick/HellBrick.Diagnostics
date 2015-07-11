@@ -16,7 +16,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace HellBrick.Diagnostics
 {
 	[ExportCodeRefactoringProvider(ToLambdaMethodRefactoring.RefactoringID, LanguageNames.CSharp)]
-	internal class ToLambdaMethodRefactoring: CodeRefactoringProvider
+	internal class ToLambdaMethodRefactoring : CodeRefactoringProvider
 	{
 		public const string RefactoringID = Common.RulePrefix + "RefactorToLambdaMethod";
 

@@ -14,7 +14,7 @@ namespace TestHelper
 	/// Superclass of all Unit tests made for diagnostics with codefixes.
 	/// Contains methods used to verify correctness of codefixes
 	/// </summary>
-	public abstract partial class CodeFixVerifier: DiagnosticVerifier
+	public abstract partial class CodeFixVerifier : DiagnosticVerifier
 	{
 		/// <summary>
 		/// Returns the codefix being tested (C#) - to be implemented in non-abstract class
@@ -62,7 +62,7 @@ namespace TestHelper
 		private void VerifyFix( string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics )
 		{
 			var document = CreateDocument( oldSource, language );
-			var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[ ] { document } );
+			var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[] { document } );
 			var compilerDiagnostics = GetCompilerDiagnostics( document );
 			var attempts = analyzerDiagnostics.Length;
 
@@ -84,7 +84,7 @@ namespace TestHelper
 				}
 
 				document = ApplyFix( document, actions.ElementAt( 0 ) );
-				analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[ ] { document } );
+				analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[] { document } );
 
 				var newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 

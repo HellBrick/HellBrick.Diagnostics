@@ -17,7 +17,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace HellBrick.Diagnostics
 {
 	[ExportCodeFixProvider(Common.RulePrefix + EnforceReadOnlyAnalyzer.DiagnosticID + Common.CodeFixSuffix, LanguageNames.CSharp), Shared]
-	public class EnforceReadOnlyCodeFix: CodeFixProvider
+	public class EnforceReadOnlyCodeFix : CodeFixProvider
 	{
 		private SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
 
