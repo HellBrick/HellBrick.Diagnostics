@@ -29,7 +29,7 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 			foreach ( var method in oneLiners )
 			{
 				var methodName = semanticModel.GetDeclaredSymbol( method, context.CancellationToken )?.Name ?? method.ToString();
-				var codeFix = CodeAction.Create( $"Convert '{methodName}' to expression method", c => ConvertToExpressionBodiedMethodAsync( method, context, root, c ) );
+				var codeFix = CodeAction.Create( $"Convert '{methodName}' to an expression-bodied method", c => ConvertToExpressionBodiedMethodAsync( method, context, root, c ) );
 				context.RegisterRefactoring( codeFix );
 			}
 		}
