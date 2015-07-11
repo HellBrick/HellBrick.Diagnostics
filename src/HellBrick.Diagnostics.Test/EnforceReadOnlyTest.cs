@@ -185,6 +185,78 @@ namespace NS
 		}
 
 		[TestMethod]
+		public void ValueTypeFieldThatHasFieldAssignedToIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+using System.Collections.Specialized;
+namespace NS
+{
+	class ClassName
+	{
+		private StructName _struct;
+		
+		private void DoSomething()
+		{
+			_struct.X = 53;
+		}
+	}
+
+	struct StructName
+	{
+		public int X;
+	}
+}";
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
+		public void ReferenceTypeFieldThatHasFieldAssignedToIsFixed()
+		{
+			var sourceCode = @"
+using System;
+using System.Collections.Specialized;
+namespace NS
+{
+	class ClassName
+	{
+		private AnotherClass _class;
+		
+		private void DoSomething()
+		{
+			_class.X = 53;
+		}
+	}
+
+	class AnotherClass
+	{
+		public int X;
+	}
+}";
+			var expectedCode = @"
+using System;
+using System.Collections.Specialized;
+namespace NS
+{
+	class ClassName
+	{
+		private readonly AnotherClass _class;
+		
+		private void DoSomething()
+		{
+			_class.X = 53;
+		}
+	}
+
+	class AnotherClass
+	{
+		public int X;
+	}
+}";
+			VerifyFix( sourceCode, expectedCode, "_class" );
+		}
+
+		[TestMethod]
 		public void FieldReferencedByRefInConstructorIsFixed()
 		{
 			var sourceCode = @"

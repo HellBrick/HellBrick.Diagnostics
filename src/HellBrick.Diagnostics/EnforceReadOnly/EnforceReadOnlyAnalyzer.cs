@@ -124,19 +124,36 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			public override void VisitAssignmentExpression( AssignmentExpressionSyntax node )
 			{
 				base.VisitAssignmentExpression( node );
+				DiscardFieldFromExpression( node.Left );
 
-				var elementAccessExpression = node.Left as ElementAccessExpressionSyntax;
-				if ( elementAccessExpression == null )
-					DiscardFieldFromExpression( node.Left );
-				else
+				//	This is a tricky case.
+				//	Expressions 'like x[ y ] = z' or 'x.Y = z' violate readonly modifier if x is an instance of a value type.
+				//	GetSymbolInfo() is required because GetDeclaredSymbol() doesn't work here for some reason.
+				var accessedExpression = TryGetAccessedExpression( node.Left );
+				if ( accessedExpression != null )
 				{
-					//	This is a tricky case. The expression is something like x[ y ] = z;
-					//	It violates readonly modifier if x is an instance of a value type.
-					//	GetSymbolInfo() is required because GetDeclaredSymbol() doesn't work here for some reason.
-					var indexedSymbol = _semanticModel.GetSymbolInfo( elementAccessExpression.Expression ).Symbol as IFieldSymbol;
+					var indexedSymbol = _semanticModel.GetSymbolInfo( accessedExpression ).Symbol as IFieldSymbol;
 					var indexedFieldSymbol = indexedSymbol;
 					if ( indexedFieldSymbol != null && indexedFieldSymbol.Type.IsValueType )
-						DiscardFieldFromExpression( elementAccessExpression.Expression );
+						DiscardFieldFromExpression( accessedExpression );
+				}
+			}
+
+			private ExpressionSyntax TryGetAccessedExpression( ExpressionSyntax assignmentTarget )
+			{
+				switch ( assignmentTarget.Kind() )
+				{
+					case SyntaxKind.ElementAccessExpression:
+						return ( assignmentTarget as ElementAccessExpressionSyntax ).Expression;
+
+					case SyntaxKind.SimpleMemberAccessExpression:
+						return ( assignmentTarget as MemberAccessExpressionSyntax ).Expression;
+
+					case SyntaxKind.ConditionalAccessExpression:
+						return ( assignmentTarget as ConditionalAccessExpressionSyntax ).Expression;
+
+					default:
+						return null;
 				}
 			}
 
