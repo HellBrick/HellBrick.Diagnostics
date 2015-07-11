@@ -505,5 +505,44 @@ namespace NS
 }";
 			VerifyNoFix( sourceCode );
 		}
+
+		[TestMethod]
+		public void FieldAssignedToByOperatorAssignmentIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int _a;
+		private int _b;
+		private int _c;
+		private int _d;
+		private int _e;
+		private int _f;
+		private int _g;
+		private int _h;
+		private int _i;
+		private int _j;
+		
+		public SomeMethod()
+		{
+			_a += 1;
+			_b &= 1;
+			_c /= 1;
+			_d ^= 1;
+			_e <<= 1;
+			_f %= 1;
+			_g *= 1;
+			_h |= 1;
+			_i >>= 1;
+			_j -= 1;
+		}
+	}
+}";
+
+			VerifyNoFix( sourceCode );
+		}
 	}
 }
