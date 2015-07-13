@@ -50,11 +50,11 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		public ClassName()
 		{
-			_x = 42;
+			_x = ""42"";
 		}
 	}
 }";
@@ -65,11 +65,11 @@ namespace NS
 {
 	class ClassName
 	{
-		private readonly int _x;
+		private readonly string _x;
 		
 		public ClassName()
 		{
-			_x = 42;
+			_x = ""42"";
 		}
 	}
 }";
@@ -85,11 +85,11 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		private void DoStuff()
 		{
-			_x = 42;
+			_x = ""42"";
 		}
 	}
 }";
@@ -105,13 +105,13 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		private int SomeProperty
 		{
 			get
 			{
-				_x = 42;
+				_x = ""42"";
 				return _x;
 			}
 		}
@@ -134,15 +134,15 @@ namespace NS
 		
 		private void DoSomething()
 		{
-			_struct[ 0 ] = 53;
+			_struct[ 0 ] = ""53"";
 		}
 	}
 
 	struct StructName
 	{
-		public int this[ int index ]
+		public string this[ int index ]
 		{
-			get { return 42; }
+			get { return ""42""; }
 			set { }
 		}
 	}
@@ -163,7 +163,7 @@ namespace NS
 		
 		private void DoSomething()
 		{
-			_array[0] = 42;
+			_array[0] = ""42"";
 		}
 	}
 }";
@@ -177,37 +177,11 @@ namespace NS
 		
 		private void DoSomething()
 		{
-			_array[0] = 42;
+			_array[0] = ""42"";
 		}
 	}
 }";
 			VerifyFix( sourceCode, expectedCode, "_array" );
-		}
-
-		[TestMethod]
-		public void ValueTypeFieldThatHasFieldAssignedToIsNotFixed()
-		{
-			var sourceCode = @"
-using System;
-using System.Collections.Specialized;
-namespace NS
-{
-	class ClassName
-	{
-		private StructName _struct;
-		
-		private void DoSomething()
-		{
-			_struct.X = 53;
-		}
-	}
-
-	struct StructName
-	{
-		public int X;
-	}
-}";
-			VerifyNoFix( sourceCode );
 		}
 
 		[TestMethod]
@@ -266,13 +240,13 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
-		private int _y;
+		private string _x;
+		private string _y;
 		
 		public ClassName()
 		{
 			Interlocked.Increment( ref _x );
-			Set( 42, out _y );
+			Set( ""42"", out _y );
 		}
 
 		public void Set( int value, out int reference )
@@ -288,13 +262,13 @@ namespace NS
 {
 	class ClassName
 	{
-		private readonly int _x;
-		private readonly int _y;
+		private readonly string _x;
+		private readonly string _y;
 		
 		public ClassName()
 		{
 			Interlocked.Increment( ref _x );
-			Set( 42, out _y );
+			Set( ""42"", out _y );
 		}
 
 		public void Set( int value, out int reference )
@@ -316,13 +290,13 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
-		private int _y;
+		private string _x;
+		private string _y;
 		
 		public void DoStuff()
 		{
 			Interlocked.Increment( ref _x );
-			Set( 42, out _y );
+			Set( ""42"", out _y );
 		}
 
 		public void Set( int value, out int reference )
@@ -343,11 +317,11 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		public ClassName()
 		{
-			Action lambda = () => _x = 42;
+			Action lambda = () => _x = ""42"";
 		}
 	}
 }";
@@ -363,8 +337,8 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
-		private int _y;
+		private string _x;
+		private string _y;
 		
 		public void Method()
 		{
@@ -385,13 +359,13 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		private class NestedClass
 		{
 			public NestedClass( ClassName parent )
 			{
-				parent._x = 42;
+				parent._x = ""42"";
 			}
 		}
 	}
@@ -408,7 +382,7 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _x, _y;
+		private string _x, _y;
 		
 		public ClassName()
 		{
@@ -427,7 +401,7 @@ namespace NS
 {
 	partial class ClassName
 	{
-		private int _x;
+		private string _x;
 		
 		public ClassName()
 		{
@@ -438,7 +412,7 @@ namespace NS
 	{		
 		public DoStuff()
 		{
-			_x = 42;
+			_x = ""42"";
 		}
 	}
 }";
@@ -454,9 +428,9 @@ namespace NS
 {
 	class ClassName
 	{
-		public int _x;
-		internal int _y;
-		protected int _z;
+		public string _x;
+		internal string _y;
+		protected string _z;
 		
 		public ClassName()
 		{
@@ -475,8 +449,8 @@ namespace NS
 {
 	class ClassName
 	{
-		private readonly int _x;
-		private const int _y = 53;
+		private readonly string _x;
+		private const string _y = ""53"";
 		
 		public ClassName()
 		{
@@ -495,11 +469,11 @@ namespace NS
 {
 	class ClassName
 	{
-		private static int _x;
+		private static string _x;
 		
 		public ClassName()
 		{
-			_x = 42;
+			_x = ""42"";
 		}
 	}
 }";
@@ -515,16 +489,16 @@ namespace NS
 {
 	class ClassName
 	{
-		private int _a;
-		private int _b;
-		private int _c;
-		private int _d;
-		private int _e;
-		private int _f;
-		private int _g;
-		private int _h;
-		private int _i;
-		private int _j;
+		private string _a;
+		private string _b;
+		private string _c;
+		private string _d;
+		private string _e;
+		private string _f;
+		private string _g;
+		private string _h;
+		private string _i;
+		private string _j;
 		
 		public SomeMethod()
 		{
@@ -539,6 +513,31 @@ namespace NS
 			_i >>= 1;
 			_j -= 1;
 		}
+	}
+}";
+
+			VerifyNoFix( sourceCode );
+		}
+
+		[TestMethod]
+		public void ValueTypeFieldIsNotFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private StructName _a;
+		
+		public ClassName()
+		{
+			_a = default(StructName);
+		}
+	}
+
+	struct StructName
+	{
 	}
 }";
 
