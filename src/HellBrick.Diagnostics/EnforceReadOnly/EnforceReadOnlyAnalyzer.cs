@@ -70,7 +70,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 					return;
 
 				var fieldSymbol = _semanticModel.GetDeclaredSymbol( node.Declaration.Variables[ 0 ], _cancellationToken ) as IFieldSymbol;
-				if ( fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsExtern || fieldSymbol.DeclaredAccessibility > Accessibility.Private )
+				if ( fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsExtern || fieldSymbol.Type.IsValueType || fieldSymbol.DeclaredAccessibility > Accessibility.Private )
 					return;
 
 				_fields.Add( fieldSymbol );
