@@ -6,6 +6,7 @@
 		<title>HellBrick.Diagnostics</title>
 		<authors>HellBrick</authors>
 		<owners>HellBrick</owners>
+		<projectUrl>https://github.com/HellBrick/HellBrick.Diagnostics</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
