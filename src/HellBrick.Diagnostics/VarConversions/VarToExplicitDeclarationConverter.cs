@@ -19,7 +19,10 @@ namespace HellBrick.Diagnostics.VarConversions
 				GetTypeSymbol( declaration.Type, semanticModel )?.IsAnonymousType == false;
 		}
 
-		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel ) => GetTypeSymbol( typeSyntax, semanticModel ).Name;
+		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel )
+		{
+			return GetTypeSymbol( typeSyntax, semanticModel ).ToMinimalDisplayString( semanticModel, typeSyntax.SpanStart );
+		}
 
 		private static ITypeSymbol GetTypeSymbol( TypeSyntax typeSyntax, SemanticModel semanticModel ) => semanticModel.GetSymbolInfo( typeSyntax ).Symbol as ITypeSymbol;
 	}
