@@ -30,9 +30,10 @@ namespace HellBrick.Diagnostics.VarConversions
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
 			var semanticModel = await context.Document.GetSemanticModelAsync( context.CancellationToken ).ConfigureAwait( false );
-			var declarationTypes = root
-				.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span )
-				.Select( d => d.Declaration.Type )
+			var declarationTypes =
+				Enumerable.Concat(
+					root.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span ).Select( d => d.Declaration.Type ),
+					root.EnumerateSelectedNodes<ForEachStatementSyntax>( context.Span ).Select( f => f.Type ) )
 				.ToArray();
 
 			foreach ( var converter in converters )
