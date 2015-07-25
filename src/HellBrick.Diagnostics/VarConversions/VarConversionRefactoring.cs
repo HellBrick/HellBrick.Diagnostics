@@ -30,37 +30,34 @@ namespace HellBrick.Diagnostics.VarConversions
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
 			var semanticModel = await context.Document.GetSemanticModelAsync( context.CancellationToken ).ConfigureAwait( false );
-			var declarations = root
+			var declarationTypes = root
 				.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span )
-				.Select( d => d.Declaration )
+				.Select( d => d.Declaration.Type )
 				.ToArray();
 
 			foreach ( var converter in converters )
 			{
-				var supportedDeclarations = declarations.Where( d => converter.CanConvert( d, semanticModel ) ).ToArray();
+				var supportedDeclarations = declarationTypes.Where( d => converter.CanConvert( d, semanticModel ) ).ToArray();
 				if ( supportedDeclarations.Length > 0 )
 				{
-					CodeAction refactoring = CodeAction.Create( converter.Title, cancelToken => ConvertDocumentAsync( converter, context.Document, root, semanticModel, declarations ) );
+					CodeAction refactoring = CodeAction.Create( converter.Title, cancelToken => ConvertDocumentAsync( converter, context.Document, root, semanticModel, declarationTypes ) );
 					context.RegisterRefactoring( refactoring );
 				}
 			}
 		}
 
-		private Task<Document> ConvertDocumentAsync( IDeclarationConverter converter, Document document, SyntaxNode root, SemanticModel semanticModel, VariableDeclarationSyntax[] declarations )
+		private Task<Document> ConvertDocumentAsync( IDeclarationConverter converter, Document document, SyntaxNode root, SemanticModel semanticModel, TypeSyntax[] declarations )
 		{
-			var newRoot = root.ReplaceNodes( declarations, ( original, second ) => ConvertDeclaration( converter, semanticModel, original ) );
+			var newRoot = root.ReplaceNodes( declarations, ( original, second ) => ConvertType( converter, semanticModel, original ) );
 			var newDocument = document.WithSyntaxRoot( newRoot );
 			return Task.FromResult( newDocument );
 		}
 
-		private SyntaxNode ConvertDeclaration( IDeclarationConverter converter, SemanticModel semanticModel, VariableDeclarationSyntax original )
+		private SyntaxNode ConvertType( IDeclarationConverter converter, SemanticModel semanticModel, TypeSyntax original )
 		{
-			var newType = SyntaxFactory.IdentifierName( converter.ConvertTypeName( original.Type, semanticModel ) )
-				.WithLeadingTrivia( original.Type.GetLeadingTrivia() )
-				.WithTrailingTrivia( original.Type.GetTrailingTrivia() );
-
-			var newDeclaration = original.WithType( newType );
-			return newDeclaration;
+			return SyntaxFactory.IdentifierName( converter.ConvertTypeName( original, semanticModel ) )
+				.WithLeadingTrivia( original.GetLeadingTrivia() )
+				.WithTrailingTrivia( original.GetTrailingTrivia() );
 		}
 	}
 }

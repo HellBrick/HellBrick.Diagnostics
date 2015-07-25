@@ -12,7 +12,7 @@ namespace HellBrick.Diagnostics.VarConversions
 	{
 		string Title { get; }
 
-		bool CanConvert( VariableDeclarationSyntax declaration, SemanticModel semanticModel );
+		bool CanConvert( TypeSyntax declarationType, SemanticModel semanticModel );
 		string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel );
 	}
 }

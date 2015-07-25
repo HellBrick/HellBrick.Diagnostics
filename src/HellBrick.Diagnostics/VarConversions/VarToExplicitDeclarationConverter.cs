@@ -12,11 +12,11 @@ namespace HellBrick.Diagnostics.VarConversions
 	{
 		public string Title => "Convert 'var' to explicit declaration";
 
-		public bool CanConvert( VariableDeclarationSyntax declaration, SemanticModel semanticModel )
+		public bool CanConvert( TypeSyntax declarationType, SemanticModel semanticModel )
 		{
 			return
-				declaration.Type.IsVar &&
-				GetTypeSymbol( declaration.Type, semanticModel )?.IsAnonymousType == false;
+				declarationType.IsVar &&
+				GetTypeSymbol( declarationType, semanticModel )?.IsAnonymousType == false;
 		}
 
 		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel )
