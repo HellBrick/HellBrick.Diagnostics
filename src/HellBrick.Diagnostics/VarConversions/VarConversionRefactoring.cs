@@ -22,6 +22,7 @@ namespace HellBrick.Diagnostics.VarConversions
 	{
 		private IDeclarationConverter[] converters = new IDeclarationConverter[]
 		{
+			new VarToExplicitDeclarationConverter(),
 			new ExplicitToVarDeclarationConverter()
 		};
 
