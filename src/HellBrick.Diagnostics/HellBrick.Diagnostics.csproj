@@ -40,6 +40,10 @@
     <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
     <Compile Include="Utils\TaskHelper.cs" />
     <Compile Include="Utils\TimeMeasure.cs" />
+    <Compile Include="VarConversions\ExplicitToVarDeclarationConverter.cs" />
+    <Compile Include="VarConversions\IDeclarationConverter.cs" />
+    <Compile Include="VarConversions\VarConversionRefactoring.cs" />
+    <Compile Include="VarConversions\VarToExplicitDeclarationConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Diagnostic.nuspec">
@@ -54,6 +58,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="Utils\IEnumerable.ToHashSet.cs" />
+    <Compile Include="Utils\SyntaxNode.EnumerateSelectedNodes.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
