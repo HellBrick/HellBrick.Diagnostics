@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using System.Diagnostics;
+using HellBrick.Diagnostics.Utils;
 
 namespace HellBrick.Diagnostics.VarConversions
 {
@@ -22,29 +23,34 @@ namespace HellBrick.Diagnostics.VarConversions
 		public sealed override async Task ComputeRefactoringsAsync( CodeRefactoringContext context )
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
-			var spanNode = root.FindNode( context.Span );
-			var declaration = spanNode.AncestorsAndSelf().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
+			var declarations = root
+				.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span )
+				.Select( d => d.Declaration )
+				.ToArray();
 
-			if ( declaration == null )
-				return;
-
-			if ( !declaration.Declaration.Type.IsVar )
-				return;
-
-			CodeAction refactoring = CodeAction.Create( "Convert explicit type to 'var'", cancelToken => ConvertExplicitTypeToVarAsync( context.Document, root, declaration, cancelToken ) );
-			context.RegisterRefactoring( refactoring );
+			var explicitDeclarations = declarations.Where( d => !d.Type.IsVar ).ToArray();
+			if ( explicitDeclarations.Length > 0 )
+			{
+				CodeAction refactoring = CodeAction.Create( "Convert explicit type to 'var'", cancelToken => ConvertExplicitTypeToVarAsync( context.Document, root, explicitDeclarations ) );
+				context.RegisterRefactoring( refactoring );
+			}
 		}
 
-		private Task<Document> ConvertExplicitTypeToVarAsync( Document document, SyntaxNode root, LocalDeclarationStatementSyntax enclosingDeclaration, CancellationToken cancellationToken )
+		private Task<Document> ConvertExplicitTypeToVarAsync( Document document, SyntaxNode root, VariableDeclarationSyntax[] explicitDeclarations )
 		{
-			var newType = SyntaxFactory.IdentifierName( "var" )
-				.WithLeadingTrivia( enclosingDeclaration.Declaration.Type.GetLeadingTrivia() )
-				.WithTrailingTrivia( enclosingDeclaration.Declaration.Type.GetTrailingTrivia() );
-
-			var newDeclaration = enclosingDeclaration.Declaration.WithType( newType );
-			var newRoot = root.ReplaceNode( enclosingDeclaration.Declaration, newDeclaration );
+			var newRoot = root.ReplaceNodes( explicitDeclarations, ConvertExplicitDeclarationToVar );
 			var newDocument = document.WithSyntaxRoot( newRoot );
 			return Task.FromResult( newDocument );
+		}
+
+		private SyntaxNode ConvertExplicitDeclarationToVar( VariableDeclarationSyntax original, VariableDeclarationSyntax second )
+		{
+			var newType = SyntaxFactory.IdentifierName( "var" )
+				.WithLeadingTrivia( original.Type.GetLeadingTrivia() )
+				.WithTrailingTrivia( original.Type.GetTrailingTrivia() );
+
+			var newDeclaration = original.WithType( newType );
+			return newDeclaration;
 		}
 	}
 }
