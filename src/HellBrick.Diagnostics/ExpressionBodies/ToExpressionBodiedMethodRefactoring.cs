@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using HellBrick.Diagnostics.Utils;
 
 namespace HellBrick.Diagnostics.ExpressionBodies
 {
@@ -36,16 +37,8 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 
 		private static IEnumerable<MethodDeclarationSyntax> EnumerateSelectedOneLiners( CodeRefactoringContext context, SyntaxNode root, SemanticModel semanticModel )
 		{
-			IEnumerable<MethodDeclarationSyntax> selectedMethods;
-			if ( context.Span.Length > 0 )
-				selectedMethods = root.DescendantNodes( context.Span ).OfType<MethodDeclarationSyntax>();
-			else
-			{
-				var node = root.FindNode( context.Span ).FirstAncestorOrSelf<MethodDeclarationSyntax>();
-				selectedMethods = node != null ? Enumerable.Repeat( node, 1 ) : Enumerable.Empty<MethodDeclarationSyntax>();
-			}
-
-			return selectedMethods
+			return root
+				.EnumerateSelectedNodes<MethodDeclarationSyntax>( context.Span )
 				.Where( m => m.Body?.Statements.Count == 1 )
 				.Where( m => ( semanticModel.GetDeclaredSymbol( m ) as IMethodSymbol )?.ReturnsVoid != true );
 		}

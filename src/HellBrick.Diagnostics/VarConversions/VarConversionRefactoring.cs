@@ -32,6 +32,7 @@ namespace HellBrick.Diagnostics.VarConversions
 				return;
 
 			CodeAction refactoring = CodeAction.Create( "Convert explicit type to 'var'", cancelToken => ConvertExplicitTypeToVarAsync( context.Document, root, declaration, cancelToken ) );
+			context.RegisterRefactoring( refactoring );
 		}
 
 		private Task<Document> ConvertExplicitTypeToVarAsync( Document document, SyntaxNode root, LocalDeclarationStatementSyntax enclosingDeclaration, CancellationToken cancellationToken )
