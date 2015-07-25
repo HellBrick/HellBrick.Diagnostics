@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>HellBrick.Diagnostics</id>
-		<version>1.0.2</version>
+		<version>1.1.0</version>
 		<title>HellBrick.Diagnostics</title>
 		<authors>HellBrick</authors>
 		<owners>HellBrick</owners>
@@ -10,9 +10,12 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.1.0:
+			- unused project references are reported to the error/information list
+			
 			v1.0.2:
 			- upgraded to VS 2015 RTM
-			
+
 			v1.0.1:
 			- readonly modifier is no longer enforced on value type fields (to avoid SpinLock-like issues)
 
