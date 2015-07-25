@@ -16,11 +16,11 @@ namespace HellBrick.Diagnostics.VarConversions
 		{
 			return
 				declaration.Type.IsVar &&
-				GetNamedSymbol( declaration.Type, semanticModel ) != null;
+				GetTypeSymbol( declaration.Type, semanticModel )?.IsAnonymousType == false;
 		}
 
-		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel ) => GetNamedSymbol( typeSyntax, semanticModel ).Name;
+		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel ) => GetTypeSymbol( typeSyntax, semanticModel ).Name;
 
-		private static INamedTypeSymbol GetNamedSymbol( TypeSyntax typeSyntax, SemanticModel semanticModel ) => semanticModel.GetSymbolInfo( typeSyntax ).Symbol as INamedTypeSymbol;
+		private static ITypeSymbol GetTypeSymbol( TypeSyntax typeSyntax, SemanticModel semanticModel ) => semanticModel.GetSymbolInfo( typeSyntax ).Symbol as ITypeSymbol;
 	}
 }
