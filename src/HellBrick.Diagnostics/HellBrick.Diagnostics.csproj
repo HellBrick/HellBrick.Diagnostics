@@ -40,6 +40,8 @@
     <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
     <Compile Include="Utils\TaskHelper.cs" />
     <Compile Include="Utils\TimeMeasure.cs" />
+    <Compile Include="VarConversions\ExplicitToVarDeclarationConverter.cs" />
+    <Compile Include="VarConversions\IDeclarationConverter.cs" />
     <Compile Include="VarConversions\VarConversionRefactoring.cs" />
   </ItemGroup>
   <ItemGroup>

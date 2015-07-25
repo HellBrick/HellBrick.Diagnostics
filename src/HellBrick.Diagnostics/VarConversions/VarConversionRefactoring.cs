@@ -20,32 +20,41 @@ namespace HellBrick.Diagnostics.VarConversions
 	[ExportCodeRefactoringProvider( LanguageNames.CSharp, Name = nameof( VarConversionRefactoring ) ), Shared]
 	internal class VarConversionRefactoring : CodeRefactoringProvider
 	{
+		private IDeclarationConverter[] converters = new IDeclarationConverter[]
+		{
+			new ExplicitToVarDeclarationConverter()
+		};
+
 		public sealed override async Task ComputeRefactoringsAsync( CodeRefactoringContext context )
 		{
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
+			var semanticModel = await context.Document.GetSemanticModelAsync( context.CancellationToken ).ConfigureAwait( false );
 			var declarations = root
 				.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span )
 				.Select( d => d.Declaration )
 				.ToArray();
 
-			var explicitDeclarations = declarations.Where( d => !d.Type.IsVar ).ToArray();
-			if ( explicitDeclarations.Length > 0 )
+			foreach ( var converter in converters )
 			{
-				CodeAction refactoring = CodeAction.Create( "Convert explicit type to 'var'", cancelToken => ConvertExplicitTypeToVarAsync( context.Document, root, explicitDeclarations ) );
-				context.RegisterRefactoring( refactoring );
+				var supportedDeclarations = declarations.Where( d => converter.CanConvert( d, semanticModel ) ).ToArray();
+				if ( supportedDeclarations.Length > 0 )
+				{
+					CodeAction refactoring = CodeAction.Create( converter.Title, cancelToken => ConvertDocumentAsync( converter, context.Document, root, semanticModel, declarations ) );
+					context.RegisterRefactoring( refactoring );
+				}
 			}
 		}
 
-		private Task<Document> ConvertExplicitTypeToVarAsync( Document document, SyntaxNode root, VariableDeclarationSyntax[] explicitDeclarations )
+		private Task<Document> ConvertDocumentAsync( IDeclarationConverter converter, Document document, SyntaxNode root, SemanticModel semanticModel, VariableDeclarationSyntax[] declarations )
 		{
-			var newRoot = root.ReplaceNodes( explicitDeclarations, ConvertExplicitDeclarationToVar );
+			var newRoot = root.ReplaceNodes( declarations, ( original, second ) => ConvertDeclaration( converter, semanticModel, original ) );
 			var newDocument = document.WithSyntaxRoot( newRoot );
 			return Task.FromResult( newDocument );
 		}
 
-		private SyntaxNode ConvertExplicitDeclarationToVar( VariableDeclarationSyntax original, VariableDeclarationSyntax second )
+		private SyntaxNode ConvertDeclaration( IDeclarationConverter converter, SemanticModel semanticModel, VariableDeclarationSyntax original )
 		{
-			var newType = SyntaxFactory.IdentifierName( "var" )
+			var newType = SyntaxFactory.IdentifierName( converter.ConvertTypeName( original.Type, semanticModel ) )
 				.WithLeadingTrivia( original.Type.GetLeadingTrivia() )
 				.WithTrailingTrivia( original.Type.GetTrailingTrivia() );
 
