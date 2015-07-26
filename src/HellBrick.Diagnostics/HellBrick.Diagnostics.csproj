@@ -37,6 +37,9 @@
     <Compile Include="IDPrefix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExpressionBodies\ToExpressionBodiedMethodRefactoring.cs" />
+    <Compile Include="StringInterpolation\FormatStringParser.cs" />
+    <Compile Include="StringInterpolation\StringFormatConversion.cs" />
+    <Compile Include="StringInterpolation\StringFormatToStringInterpolationRefactoring.cs" />
     <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
     <Compile Include="Utils\TaskHelper.cs" />
     <Compile Include="Utils\TimeMeasure.cs" />
