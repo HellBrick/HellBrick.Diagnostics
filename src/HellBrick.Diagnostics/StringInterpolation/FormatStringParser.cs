@@ -173,10 +173,10 @@ namespace HellBrick.Diagnostics.StringInterpolation
 				pos++;
 
 				//	By this moment we've parsed everything we need to know about the current hole
-				var holeFormat = holeFormatBuilder?.ToString();
 				var argument = arguments[ argIndex ].WithLeadingTrivia( SyntaxTriviaList.Empty ).WithTrailingTrivia( SyntaxTriviaList.Empty );
 				var alignment = TryCreateAlignmentExpression( width, leftJustify );
-				var interpolationPart = SyntaxFactory.Interpolation( argument, alignment, null );
+				var formatClause = TryCreateFormatClauseExpression( holeFormatBuilder );
+				var interpolationPart = SyntaxFactory.Interpolation( argument, alignment, formatClause );
 				parts.Add( interpolationPart );
 			}
 
@@ -195,6 +195,32 @@ namespace HellBrick.Diagnostics.StringInterpolation
 
 			InterpolationAlignmentClauseSyntax alignmentClause = SyntaxFactory.InterpolationAlignmentClause( SyntaxFactory.Token( SyntaxKind.CommaToken ), alignmentValueExpression );
 			return alignmentClause;
+		}
+
+		private static InterpolationFormatClauseSyntax TryCreateFormatClauseExpression( StringBuilder holeFormatBuilder )
+		{
+			try
+			{
+				if ( holeFormatBuilder == null )
+					return null;
+
+				return SyntaxFactory.InterpolationFormatClause
+				(
+					SyntaxFactory.Token( SyntaxKind.ColonToken ),
+					SyntaxFactory.Token
+					(
+						SyntaxTriviaList.Empty,
+						SyntaxKind.InterpolatedStringTextToken,
+						holeFormatBuilder.ToString(),
+						holeFormatBuilder.ToString(),
+						SyntaxTriviaList.Empty
+					)
+				);
+			}
+			catch
+			{
+				throw;
+			}
 		}
 	}
 }
