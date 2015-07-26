@@ -11,8 +11,6 @@ namespace HellBrick.Diagnostics.StringInterpolation
 {
 	internal static class FormatStringParser
 	{
-		private static readonly SyntaxTrivia _spaceTrivia = SyntaxFactory.SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " );
-
 		/// <remarks>
 		/// This is based on http://referencesource.microsoft.com/#mscorlib/system/text/stringbuilder.cs,2c3b4c2e7c43f5a4
 		/// </remarks>
@@ -176,7 +174,7 @@ namespace HellBrick.Diagnostics.StringInterpolation
 
 				//	By this moment we've parsed everything we need to know about the current hole
 				string holeFormat = holeFormatBuilder?.ToString();
-				ExpressionSyntax argument = arguments[ argIndex ].WithLeadingTrivia( _spaceTrivia ).WithTrailingTrivia( _spaceTrivia );
+				ExpressionSyntax argument = arguments[ argIndex ].WithLeadingTrivia( SyntaxTriviaList.Empty ).WithTrailingTrivia( SyntaxTriviaList.Empty );
 				var interpolationPart = SyntaxFactory.Interpolation( argument );
 				parts.Add( interpolationPart );
 			}
