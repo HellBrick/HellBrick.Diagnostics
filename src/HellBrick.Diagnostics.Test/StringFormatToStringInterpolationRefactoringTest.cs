@@ -28,6 +28,14 @@ namespace HellBrick.Diagnostics.Test
 		}
 
 		[TestMethod]
+		public void BracesAreProperlyEscaped()
+		{
+			const string sourceCode = @"var x = System.String.Format( ""{{ {0} }}"", 42 );";
+			const string expectedCode = @"var x = $""{{ {42} }}"";";
+			_refactoringProvider.ShouldProvideRefactoring( sourceCode, expectedCode );
+		}
+
+		[TestMethod]
 		public void CallWithFormatIsConverted()
 		{
 			const string sourceCode = @"var x = System.String.Format( ""{0:g2}"", 42 );";

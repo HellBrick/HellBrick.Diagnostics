@@ -37,7 +37,10 @@ namespace HellBrick.Diagnostics.StringInterpolation
 					if ( ch == '}' )
 					{
 						if ( pos < len && formatString[ pos ] == '}' ) // Treat as escape character for }}
+						{
+							currentTextBuilder.Append( ch );
 							pos++;
+						}
 						else
 							return null;
 					}
@@ -45,7 +48,10 @@ namespace HellBrick.Diagnostics.StringInterpolation
 					if ( ch == '{' )
 					{
 						if ( pos < len && formatString[ pos ] == '{' ) // Treat as escape character for {{
+						{
+							currentTextBuilder.Append( ch );
 							pos++;
+						}
 						else
 						{
 							pos--;
