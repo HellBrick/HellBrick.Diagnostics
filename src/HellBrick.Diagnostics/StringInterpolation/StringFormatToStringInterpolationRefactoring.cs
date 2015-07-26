@@ -17,7 +17,7 @@ using HellBrick.Diagnostics.Utils;
 namespace HellBrick.Diagnostics.StringInterpolation
 {
 	[ExportCodeRefactoringProvider( LanguageNames.CSharp, Name = nameof( StringFormatToStringInterpolationRefactoring ) ), Shared]
-	internal class StringFormatToStringInterpolationRefactoring : CodeRefactoringProvider
+	public class StringFormatToStringInterpolationRefactoring : CodeRefactoringProvider
 	{
 		public sealed override async Task ComputeRefactoringsAsync( CodeRefactoringContext context )
 		{
