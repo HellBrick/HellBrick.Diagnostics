@@ -97,6 +97,10 @@ namespace HellBrick.Diagnostics.UnusedReferences
 				var returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
 				TryDiscard( returnTypeSymbol );
 
+				var genericArgumentTypes = ( returnTypeSymbol as INamedTypeSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+				foreach ( var genericArgumentType in genericArgumentTypes )
+					TryDiscard( genericArgumentType );
+
 				base.DefaultVisit( node );
 			}
 
