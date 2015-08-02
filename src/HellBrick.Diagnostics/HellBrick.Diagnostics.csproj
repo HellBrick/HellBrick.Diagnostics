@@ -62,6 +62,7 @@
     </None>
     <Compile Include="Utils\IEnumerable.ToHashSet.cs" />
     <Compile Include="Utils\SyntaxNode.EnumerateSelectedNodes.cs" />
+    <Compile Include="Utils\EnumerableExtensions.Concat.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
