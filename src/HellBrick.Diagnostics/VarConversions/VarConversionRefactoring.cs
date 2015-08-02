@@ -34,8 +34,10 @@ namespace HellBrick.Diagnostics.VarConversions
 				EnumerableExtensions.Concat
 				(
 					root.EnumerateSelectedNodes<LocalDeclarationStatementSyntax>( context.Span ).Select( d => d.Declaration.Type ),
-					root.EnumerateSelectedNodes<ForEachStatementSyntax>( context.Span ).Select( f => f.Type )
+					root.EnumerateSelectedNodes<ForEachStatementSyntax>( context.Span ).Select( f => f.Type ),
+					root.EnumerateSelectedNodes<UsingStatementSyntax>( context.Span ).Select( u => u.Declaration?.Type )
 				)
+				.Where( t => t != null )
 				.ToArray();
 
 			foreach ( var converter in converters )
