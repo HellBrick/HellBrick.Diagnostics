@@ -20,6 +20,21 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 		private const string _messageFormat = "Field '{0}' can be made read-only";
 		private const string _category = "Design";
 
+		private static readonly SpecialType[] _primitiveValueTypes =
+		{
+			SpecialType.System_Boolean,
+			SpecialType.System_Byte,
+			SpecialType.System_Int16,
+			SpecialType.System_Int32,
+			SpecialType.System_Int64,
+			SpecialType.System_SByte,
+			SpecialType.System_UInt16,
+			SpecialType.System_UInt32,
+			SpecialType.System_UInt64,
+			SpecialType.System_Single,
+			SpecialType.System_Double
+		};
+
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _messageFormat, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _rule );
@@ -70,11 +85,23 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 					return;
 
 				var fieldSymbol = _semanticModel.GetDeclaredSymbol( node.Declaration.Variables[ 0 ], _cancellationToken ) as IFieldSymbol;
-				if ( fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsExtern || fieldSymbol.Type.IsValueType || fieldSymbol.DeclaredAccessibility > Accessibility.Private )
+				if ( ShouldIgnore( fieldSymbol ) )
 					return;
 
 				_fields.Add( fieldSymbol );
 			}
+
+			private bool ShouldIgnore( IFieldSymbol fieldSymbol )
+			{
+				return
+					fieldSymbol.IsReadOnly ||
+					fieldSymbol.IsConst ||
+					fieldSymbol.IsExtern ||
+					fieldSymbol.Type.IsValueType && !IsPrimitiveValueType( fieldSymbol.Type ) ||
+					fieldSymbol.DeclaredAccessibility > Accessibility.Private;
+			}
+
+			private bool IsPrimitiveValueType( ITypeSymbol type ) => _primitiveValueTypes.Any( t => type.SpecialType == t );
 
 			public override void DefaultVisit( SyntaxNode node )
 			{
