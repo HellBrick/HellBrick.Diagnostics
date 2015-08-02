@@ -94,6 +94,9 @@ namespace HellBrick.Diagnostics.UnusedReferences
 				var symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
 				TryDiscard( symbol );
 
+				var returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
+				TryDiscard( returnTypeSymbol );
+
 				base.DefaultVisit( node );
 			}
 
