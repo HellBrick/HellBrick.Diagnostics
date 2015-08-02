@@ -543,5 +543,40 @@ namespace NS
 
 			VerifyNoFix( sourceCode );
 		}
+
+		[TestMethod]
+		public void PrimitiveTypeFieldIsFixed()
+		{
+			var sourceCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private int _a;
+		
+		public ClassName()
+		{
+			_a = 42;
+		}
+	}
+}";
+			var expectedCode = @"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private readonly int _a;
+		
+		public ClassName()
+		{
+			_a = 42;
+		}
+	}
+}";
+
+			VerifyFix( sourceCode, expectedCode, "_a" );
+		}
 	}
 }
