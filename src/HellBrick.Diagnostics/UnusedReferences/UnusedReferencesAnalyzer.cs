@@ -92,6 +92,20 @@ namespace HellBrick.Diagnostics.UnusedReferences
 			public override void DefaultVisit( SyntaxNode node )
 			{
 				var symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
+				TryDiscard( symbol );
+
+				var returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
+				TryDiscard( returnTypeSymbol );
+
+				var genericArgumentTypes = ( returnTypeSymbol as INamedTypeSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+				foreach ( var genericArgumentType in genericArgumentTypes )
+					TryDiscard( genericArgumentType );
+
+				base.DefaultVisit( node );
+			}
+
+			private void TryDiscard( ISymbol symbol )
+			{
 				var symbolAssembly = symbol?.ContainingAssembly?.Identity;
 				if ( symbolAssembly != null )
 				{
@@ -99,8 +113,6 @@ namespace HellBrick.Diagnostics.UnusedReferences
 					if ( removed )
 						Debug.WriteLine( $"Removed {symbolAssembly} because of {symbol}" );
 				}
-
-				base.DefaultVisit( node );
 			}
 
 			public override void VisitUsingDirective( UsingDirectiveSyntax node )
