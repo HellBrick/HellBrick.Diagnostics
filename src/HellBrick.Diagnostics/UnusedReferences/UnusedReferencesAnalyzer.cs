@@ -27,16 +27,16 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 		private void FindUnusedReferences( CompilationAnalysisContext context )
 		{
-			using ( TimeMeasure.ToDebug( $"Finding the references not used by {context.Compilation.AssemblyName}" ) )
+			Debug.WriteLine( $"----------------------------------------" );
+			Debug.WriteLine( $"Analyzing {context.Compilation.AssemblyName}..." );
+
+			HashSet<AssemblyIdentity> compilationReferences = context.Compilation.ExternalReferences
+				.OfType<CompilationReference>()
+				.Select( r => r.Compilation.Assembly.Identity )
+				.ToHashSet();
+
+			try
 			{
-				Debug.WriteLine( $"----------------------------------------" );
-				Debug.WriteLine( $"Analyzing {context.Compilation.AssemblyName}..." );
-
-				HashSet<AssemblyIdentity> compilationReferences = context.Compilation.ExternalReferences
-					.OfType<CompilationReference>()
-					.Select( r => r.Compilation.Assembly.Identity )
-					.ToHashSet();
-
 				using ( var syntaxTreeEnumerator = context.Compilation.SyntaxTrees.GetEnumerator() )
 				{
 					while ( compilationReferences.Count > 0 && syntaxTreeEnumerator.MoveNext() && !context.CancellationToken.IsCancellationRequested )
@@ -47,17 +47,21 @@ namespace HellBrick.Diagnostics.UnusedReferences
 						referenceFinder.DiscardUsedReferencesAsync().GetAwaiter().GetResult();
 					}
 				}
-
-				//	I've no idea when this happens, but if it does, it means we haven't discarded all the used references.
-				//	Thus the results can't be trusted and we shouldn't report any diagnostics.
-				if ( context.CancellationToken.IsCancellationRequested )
-					return;
-
-				Debug.WriteLine( $"{compilationReferences.Count} unused references" );
-
-				foreach ( var assembly in compilationReferences )
-					context.ReportDiagnostic( Diagnostic.Create( _rule, null, assembly.Name ) );
 			}
+			catch ( TaskCanceledException )
+			{
+				//	ReferenceDiscarder can throw on cancellation if it occurs during getting the root.
+			}
+
+			//	I've no idea when this happens, but if it does, it means we haven't discarded all the used references.
+			//	Thus the results can't be trusted and we shouldn't report any diagnostics.
+			if ( context.CancellationToken.IsCancellationRequested )
+				return;
+
+			Debug.WriteLine( $"{compilationReferences.Count} unused references" );
+
+			foreach ( var assembly in compilationReferences )
+				context.ReportDiagnostic( Diagnostic.Create( _rule, null, assembly.Name ) );
 		}
 
 		private class ReferenceDiscarder : CSharpSyntaxWalker
