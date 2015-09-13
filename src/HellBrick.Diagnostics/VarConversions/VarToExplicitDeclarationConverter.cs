@@ -16,7 +16,7 @@ namespace HellBrick.Diagnostics.VarConversions
 		{
 			return
 				declarationType.IsVar &&
-				GetTypeSymbol( declarationType, semanticModel )?.IsAnonymousType == false;
+				GetTypeSymbol( declarationType, semanticModel ).IsProperlyNamedType();
 		}
 
 		public string ConvertTypeName( TypeSyntax typeSyntax, SemanticModel semanticModel )
@@ -25,5 +25,14 @@ namespace HellBrick.Diagnostics.VarConversions
 		}
 
 		private static ITypeSymbol GetTypeSymbol( TypeSyntax typeSyntax, SemanticModel semanticModel ) => semanticModel.GetSymbolInfo( typeSyntax ).Symbol as ITypeSymbol;
+	}
+
+	internal static class TypeSymbolExtensions
+	{
+		public static bool IsProperlyNamedType( this ITypeSymbol typeSymbol ) =>
+			typeSymbol != null &&
+			!typeSymbol.IsAnonymousType &&
+			( typeSymbol as IArrayTypeSymbol )?.ElementType.IsProperlyNamedType() != false &&
+			( typeSymbol as INamedTypeSymbol )?.TypeArguments.All( argument => IsProperlyNamedType( argument ) ) != false;
 	}
 }
