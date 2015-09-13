@@ -39,6 +39,7 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 			from method in root.EnumerateSelectedNodes<MethodDeclarationSyntax>( context.Span )
 			where method.Body?.Statements.Count == 1
 			let returnStatement = method.Body.Statements[ 0 ] as ReturnStatementSyntax
+			where returnStatement != null
 			where ( semanticModel.GetDeclaredSymbol( method ) as IMethodSymbol )?.ReturnsVoid != true
 			select new OneLiner( method, returnStatement );
 
