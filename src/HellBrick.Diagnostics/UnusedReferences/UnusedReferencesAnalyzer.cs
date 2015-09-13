@@ -35,15 +35,22 @@ namespace HellBrick.Diagnostics.UnusedReferences
 				.Select( r => r.Compilation.Assembly.Identity )
 				.ToHashSet();
 
-			using ( var syntaxTreeEnumerator = context.Compilation.SyntaxTrees.GetEnumerator() )
+			try
 			{
-				while ( compilationReferences.Count > 0 && syntaxTreeEnumerator.MoveNext() && !context.CancellationToken.IsCancellationRequested )
+				using ( var syntaxTreeEnumerator = context.Compilation.SyntaxTrees.GetEnumerator() )
 				{
-					var syntaxTree = syntaxTreeEnumerator.Current;
-					var semanticModel = context.Compilation.GetSemanticModel( syntaxTree );
-					ReferenceDiscarder referenceFinder = new ReferenceDiscarder( compilationReferences, syntaxTree, semanticModel, context.CancellationToken );
-					referenceFinder.DiscardUsedReferencesAsync().GetAwaiter().GetResult();
+					while ( compilationReferences.Count > 0 && syntaxTreeEnumerator.MoveNext() && !context.CancellationToken.IsCancellationRequested )
+					{
+						var syntaxTree = syntaxTreeEnumerator.Current;
+						var semanticModel = context.Compilation.GetSemanticModel( syntaxTree );
+						ReferenceDiscarder referenceFinder = new ReferenceDiscarder( compilationReferences, syntaxTree, semanticModel, context.CancellationToken );
+						referenceFinder.DiscardUsedReferencesAsync().GetAwaiter().GetResult();
+					}
 				}
+			}
+			catch ( TaskCanceledException )
+			{
+				//	ReferenceDiscarder can throw on cancellation if it occurs during getting the root.
 			}
 
 			//	I've no idea when this happens, but if it does, it means we haven't discarded all the used references.
