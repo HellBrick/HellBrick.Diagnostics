@@ -25,38 +25,38 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 			var root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
 			var semanticModel = await context.Document.GetSemanticModelAsync( context.CancellationToken ).ConfigureAwait( false );
 
-			IEnumerable<MethodDeclarationSyntax> oneLiners = EnumerateSelectedOneLiners( context, root, semanticModel );
+			IEnumerable<OneLiner> oneLiners = EnumerateSelectedOneLiners( context, root, semanticModel );
 
-			foreach ( var method in oneLiners )
+			foreach ( var oneLiner in oneLiners )
 			{
-				var methodName = semanticModel.GetDeclaredSymbol( method, context.CancellationToken )?.Name ?? method.ToString();
-				var codeFix = CodeAction.Create( $"Convert '{methodName}' to an expression-bodied method", c => ConvertToExpressionBodiedMethodAsync( method, context, root, c ) );
+				var methodName = semanticModel.GetDeclaredSymbol( oneLiner.Declaration, context.CancellationToken )?.Name ?? oneLiner.Declaration.ToString();
+				var codeFix = CodeAction.Create( $"Convert '{methodName}' to an expression-bodied method", c => ConvertToExpressionBodiedMethodAsync( oneLiner, context, root, c ) );
 				context.RegisterRefactoring( codeFix );
 			}
 		}
 
-		private static IEnumerable<MethodDeclarationSyntax> EnumerateSelectedOneLiners( CodeRefactoringContext context, SyntaxNode root, SemanticModel semanticModel )
-		{
-			return root
-				.EnumerateSelectedNodes<MethodDeclarationSyntax>( context.Span )
-				.Where( m => m.Body?.Statements.Count == 1 )
-				.Where( m => ( semanticModel.GetDeclaredSymbol( m ) as IMethodSymbol )?.ReturnsVoid != true );
-		}
+		private static IEnumerable<OneLiner> EnumerateSelectedOneLiners( CodeRefactoringContext context, SyntaxNode root, SemanticModel semanticModel ) =>
+			from method in root.EnumerateSelectedNodes<MethodDeclarationSyntax>( context.Span )
+			where method.Body?.Statements.Count == 1
+			let returnStatement = method.Body.Statements[ 0 ] as ReturnStatementSyntax
+			where returnStatement != null
+			where ( semanticModel.GetDeclaredSymbol( method ) as IMethodSymbol )?.ReturnsVoid != true
+			select new OneLiner( method, returnStatement );
 
-		private Task<Document> ConvertToExpressionBodiedMethodAsync( MethodDeclarationSyntax method, CodeRefactoringContext context, SyntaxNode root, CancellationToken cancellationToken )
+		private Task<Document> ConvertToExpressionBodiedMethodAsync( OneLiner oneLiner, CodeRefactoringContext context, SyntaxNode root, CancellationToken cancellationToken )
 		{
-			MethodDeclarationSyntax newMethod = BuildNewMethod( method );
-			var newDocument = context.Document.WithSyntaxRoot( root.ReplaceNode( method, newMethod ) );
+			MethodDeclarationSyntax newMethod = BuildNewMethod( oneLiner );
+			var newDocument = context.Document.WithSyntaxRoot( root.ReplaceNode( oneLiner.Declaration, newMethod ) );
 			return Task.FromResult( newDocument );
 		}
 
-		private static MethodDeclarationSyntax BuildNewMethod( MethodDeclarationSyntax method )
+		private static MethodDeclarationSyntax BuildNewMethod( OneLiner oneLiner )
 		{
-			var oldBody = method.Body;
-			var newMethod = method;
+			var oldBody = oneLiner.Declaration.Body;
+			var newMethod = oneLiner.Declaration;
 
 			//	Remove the \r\n if it's the only trailing trivia
-			var beforeBody = method.FindNode( TextSpan.FromBounds( oldBody.FullSpan.Start - 1, oldBody.FullSpan.Start - 1 ) );
+			var beforeBody = oneLiner.Declaration.FindNode( TextSpan.FromBounds( oldBody.FullSpan.Start - 1, oldBody.FullSpan.Start - 1 ) );
 			var beforeBodyTrivia = beforeBody.GetTrailingTrivia();
 			if ( beforeBodyTrivia.Count == 1 && beforeBodyTrivia[ 0 ].IsKind( SyntaxKind.EndOfLineTrivia ) )
 			{
@@ -65,10 +65,7 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 					beforeBody.ReplaceTrivia( beforeBodyTrivia[ 0 ], SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) ) );
 			}
 
-			var expression = oldBody.Statements[ 0 ].ChildNodes()
-				.OfType<ExpressionSyntax>()
-				.FirstOrDefault()
-				.WithLeadingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
+			var expression = oneLiner.ReturnStatement.Expression.WithLeadingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
 
 			var arrow = ArrowExpressionClause( expression );
 			return newMethod
