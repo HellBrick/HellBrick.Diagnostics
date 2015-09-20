@@ -26,12 +26,10 @@
 			- enforce readonly modifier on fields
 			- convert one-line methods to expression-bodied methods</releaseNotes>
 		<tags></tags>
-		<frameworkAssemblies>
-			<frameworkAssembly assemblyName="System" targetFramework="" />
-		</frameworkAssemblies>
 	</metadata>
+	<!-- The convention for analyzers is to put language agnostic dlls in analyzers\dotnet and language specific analyzers in either analyzers\dotnet\cs or analyzers\dotnet\vb -->
 	<files>
-		<file src="*.dll" target="tools\analyzers\" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*" />
+		<file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
 		<file src="tools\*.ps1" target="tools\" />
 	</files>
 </package>
