@@ -10,8 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
-			v 1.2.0:
+			v1.2.0:
 			- a refactoring to convert String.Format() call to an interpolated string
+			- a refactoring to convert var to explicit type name and back
 			
 			v1.1.0:
 			- unused project references are reported to the error/information list
