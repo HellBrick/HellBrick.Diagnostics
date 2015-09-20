@@ -17,14 +17,14 @@ using HellBrick.Diagnostics.Utils;
 
 namespace HellBrick.Diagnostics.Formatting
 {
-	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( IndentCodeFixProvider ) ), Shared]
-	public class IndentCodeFixProvider : CodeFixProvider
+	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( FormattingCodeFixProvider ) ), Shared]
+	public class FormattingCodeFixProvider : CodeFixProvider
 	{
-		private const string _fixTitle = "Format the indents";
-		private const string _key = nameof( IndentCodeFixProvider );
+		private const string _fixTitle = "Format the code";
+		private const string _key = nameof( FormattingCodeFixProvider );
 		private static readonly MultiFormatterProvider _fixAllProvider = new MultiFormatterProvider();
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( IndentAnalyzer.DiagnosticID );
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( FormattingAnalyzer.DiagnosticID );
 		public sealed override FixAllProvider GetFixAllProvider() => _fixAllProvider;
 
 		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )
@@ -62,7 +62,7 @@ namespace HellBrick.Diagnostics.Formatting
 						return CodeAction.Create( _fixTitle, c => FormatSolutionAsync( fixAllContext, c ) );
 
 					default:
-						throw new NotSupportedException( $"{fixAllContext.Scope} is not supported by {nameof( IndentCodeFixProvider )}" );
+						throw new NotSupportedException( $"{fixAllContext.Scope} is not supported by {nameof( FormattingCodeFixProvider )}" );
 				}
 			}
 
