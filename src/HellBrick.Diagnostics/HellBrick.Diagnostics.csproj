@@ -34,6 +34,7 @@
   <ItemGroup>
     <Compile Include="EnforceReadOnly\EnforceReadOnlyCodeFixProvider.cs" />
     <Compile Include="EnforceReadOnly\EnforceReadOnlyAnalyzer.cs" />
+    <Compile Include="ExpressionBodies\AbstractExpressionBodyRefactoring.cs" />
     <Compile Include="ExpressionBodies\OneLiner.cs" />
     <Compile Include="Formatting\ProperFormattingOptions.cs" />
     <Compile Include="Formatting\FormattingAnalyzer.cs" />
