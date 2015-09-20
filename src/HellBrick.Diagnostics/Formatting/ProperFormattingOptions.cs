@@ -56,7 +56,7 @@ namespace HellBrick.Diagnostics.Formatting
 
 			.WithChangedOption( CSharpFormattingOptions.SpacesIgnoreAroundVariableDeclaration, false )
 
-			.WithChangedOption( CSharpFormattingOptions.SpaceWithinCastParentheses, true )
+			.WithChangedOption( CSharpFormattingOptions.SpaceWithinCastParentheses, false )
 			.WithChangedOption( CSharpFormattingOptions.SpaceWithinExpressionParentheses, true )
 			.WithChangedOption( CSharpFormattingOptions.SpaceWithinMethodCallParentheses, true )
 			.WithChangedOption( CSharpFormattingOptions.SpaceWithinMethodDeclarationParenthesis, true )
