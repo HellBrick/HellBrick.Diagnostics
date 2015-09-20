@@ -10,6 +10,14 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.2.1:
+			- fixed Nuget package installation issues
+			- readonly modifier can now be enforced on fields of primitive types
+			- var can be converted to explicit type inside the using declaration block
+			- var can no longer be converted if it's generic type with anonymous arguments
+			- conversion to expression-bodied member is no longer suggested for the methods that can't be converted
+			- the reference is no longer considered unused if a method that returns a type declared in it is invoked
+			
 			v1.2.0:
 			- a refactoring to convert String.Format() call to an interpolated string
 			- a refactoring to convert var to explicit type name and back
