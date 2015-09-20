@@ -38,12 +38,8 @@ namespace HellBrick.Diagnostics.Formatting
 			{
 				SyntaxNode root = context.Tree.GetRoot( context.CancellationToken );
 				SourceText sourceText = root.GetText();
-				AttributeSyntax generatedCodeAttribute = root
-					.DescendantNodes()
-					.OfType<AttributeSyntax>()
-					.FirstOrDefault( attribute => attribute.Name.ToString().Contains( "GeneratedCode" ) );
 
-				if ( generatedCodeAttribute != null )
+				if ( HasGeneratedCodeAttribute( root ) )
 					return;
 
 				IList<TextChange> changes = Formatter.GetFormattedTextChanges( root, _workspace, ProperFormattingOptions.Instance, context.CancellationToken );
@@ -63,6 +59,14 @@ namespace HellBrick.Diagnostics.Formatting
 			catch ( OperationCanceledException )
 			{
 			}
+		}
+
+		private static bool HasGeneratedCodeAttribute( SyntaxNode root )
+		{
+			return root
+				.DescendantNodes()
+				.OfType<AttributeSyntax>()
+				.Any( attribute => attribute.Name.ToString().Contains( "GeneratedCode" ) );
 		}
 	}
 }
