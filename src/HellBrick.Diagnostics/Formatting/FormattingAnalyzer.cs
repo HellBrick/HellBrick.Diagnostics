@@ -20,7 +20,7 @@ namespace HellBrick.Diagnostics.Formatting
 		public const string DiagnosticID = IDPrefix.Value + "Formatting";
 
 		private const string _title = "Invalid code formatting";
-		private const string _category = "Style";
+		private const string _category = DiagnosticCategory.Style;
 
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _title, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
 		private static readonly AdhocWorkspace _workspace = new AdhocWorkspace();
