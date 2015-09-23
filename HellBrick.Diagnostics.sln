@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Async", "src\HellBrick.Diagnostics.Async\HellBrick.Diagnostics.Async.csproj", "{4170F4D7-DD65-4468-8088-AB942649FDE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.ConfigureAwait", "src\HellBrick.Diagnostics.ConfigureAwait\HellBrick.Diagnostics.ConfigureAwait.csproj", "{4170F4D7-DD65-4468-8088-AB942649FDE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

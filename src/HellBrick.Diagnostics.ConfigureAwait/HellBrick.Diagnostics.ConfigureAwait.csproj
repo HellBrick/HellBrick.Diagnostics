@@ -8,8 +8,8 @@
     <ProjectGuid>{4170F4D7-DD65-4468-8088-AB942649FDE9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HellBrick.Diagnostics.Async</RootNamespace>
-    <AssemblyName>HellBrick.Diagnostics.Async</AssemblyName>
+    <RootNamespace>HellBrick.Diagnostics.ConfigureAwait</RootNamespace>
+    <AssemblyName>HellBrick.Diagnostics.ConfigureAwait</AssemblyName>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
