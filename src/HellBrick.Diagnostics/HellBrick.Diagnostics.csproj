@@ -32,8 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DiagnosticCategory.cs" />
     <Compile Include="EnforceReadOnly\EnforceReadOnlyCodeFixProvider.cs" />
     <Compile Include="EnforceReadOnly\EnforceReadOnlyAnalyzer.cs" />
+    <Compile Include="AccessModifiers\DeclarationHandlers.cs" />
+    <Compile Include="AccessModifiers\IDeclarationHandler.cs" />
+    <Compile Include="AccessModifiers\AccessModifierAnalyzer.cs" />
+    <Compile Include="AccessModifiers\AccessModifierCodeFixProvider.cs" />
     <Compile Include="ExpressionBodies\AbstractExpressionBodyRefactoring.cs" />
     <Compile Include="ExpressionBodies\OneLiner.cs" />
     <Compile Include="ExpressionBodies\ToExpressionBodiedPropertyRefactoring.cs" />

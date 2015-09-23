@@ -18,7 +18,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 		private const string _title = "Field can be made read-only";
 		private const string _messageFormat = "Field '{0}' can be made read-only";
-		private const string _category = "Design";
+		private const string _category = DiagnosticCategory.Design;
 
 		private static readonly SpecialType[] _primitiveValueTypes =
 		{
