@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HellBrick.Diagnostics
 {
-	internal static class DiagnosticCategory
+	public static class DiagnosticCategory
 	{
 		public const string Design = "Design";
 		public const string Style = "Style";
