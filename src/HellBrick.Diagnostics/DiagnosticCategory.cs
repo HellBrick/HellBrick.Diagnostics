@@ -10,5 +10,6 @@ namespace HellBrick.Diagnostics
 	{
 		public const string Design = "Design";
 		public const string Style = "Style";
+		public const string Async = "Async";
 	}
 }
