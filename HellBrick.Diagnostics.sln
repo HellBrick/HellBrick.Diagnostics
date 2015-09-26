@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "src\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj", "{1B542F07-FCC4-452E-AFB4-7176711D5724}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.ConfigureAwait", "src\HellBrick.Diagnostics.ConfigureAwait\HellBrick.Diagnostics.ConfigureAwait.csproj", "{4170F4D7-DD65-4468-8088-AB942649FDE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
