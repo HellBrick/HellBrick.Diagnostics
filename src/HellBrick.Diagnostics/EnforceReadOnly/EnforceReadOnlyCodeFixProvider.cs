@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using HellBrick.Diagnostics.Utils;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using HellBrick.Diagnostics.StructDeclarations;
 
 namespace HellBrick.Diagnostics.EnforceReadOnly
 {
@@ -22,7 +23,13 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 	{
 		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( EnforceReadOnlyAnalyzer.DiagnosticID );
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create
+			(
+				EnforceReadOnlyAnalyzer.DiagnosticID,
+				ReadOnlyStructFieldsAnalyzer.DiagnosticID
+			);
+
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )
@@ -35,7 +42,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			context.RegisterCodeFix( codeFix, diagnostic );
 
 			return TaskHelper.CompletedTask;
-      }
+		}
 
 		private async Task<Document> MakeReadOnly( CodeFixContext context, Diagnostic diagnostic, CancellationToken cancellationToken )
 		{
