@@ -51,6 +51,7 @@
     <Compile Include="StringInterpolation\FormatStringParser.cs" />
     <Compile Include="StringInterpolation\StringFormatConversion.cs" />
     <Compile Include="StringInterpolation\StringFormatToStringInterpolationRefactoring.cs" />
+    <Compile Include="StructDeclarations\EquatabilityRules\ImplementEqualityOperatorRule.cs" />
     <Compile Include="StructDeclarations\EquatabilityRules\ImplementEquatableRule.cs" />
     <Compile Include="StructDeclarations\EquatabilityRules\OverrideEqualsRule.cs" />
     <Compile Include="StructDeclarations\IEquatabilityRule.cs" />

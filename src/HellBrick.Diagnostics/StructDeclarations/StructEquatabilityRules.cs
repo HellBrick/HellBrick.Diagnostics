@@ -15,7 +15,9 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			new IEquatabilityRule[]
 			{
 				new ImplementEquatableRule(),
-				new OverrideEqualsRule()
+				new OverrideEqualsRule(),
+				new ImplementEqualsOperatorRule(),
+				new ImplementNotEqualsOperatorRule()
 			}
 			.ToImmutableDictionary( rule => rule.ID );
 
