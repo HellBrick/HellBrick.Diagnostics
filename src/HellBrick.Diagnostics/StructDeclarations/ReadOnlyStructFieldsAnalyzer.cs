@@ -34,6 +34,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 				.ChildNodes()
 				.Where( node => node.IsKind( SyntaxKind.FieldDeclaration ) )
 				.Cast<FieldDeclarationSyntax>()
+				.Where( field => !field.Modifiers.Any( SyntaxKind.StaticKeyword ) )
 				.Where( field => !field.Modifiers.Any( SyntaxKind.ReadOnlyKeyword ) )
 				.ToArray();
 
