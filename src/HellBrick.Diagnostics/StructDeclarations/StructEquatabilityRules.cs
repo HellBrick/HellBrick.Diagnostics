@@ -14,6 +14,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		public static ImmutableDictionary<string, IEquatabilityRule> Rules { get; } =
 			new IEquatabilityRule[]
 			{
+				new ImplementEquatableRule()
 			}
 			.ToImmutableDictionary( rule => rule.ID );
 
