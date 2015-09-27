@@ -54,6 +54,7 @@
     <Compile Include="StructDeclarations\EquatabilityRules\ImplementEqualityOperatorRule.cs" />
     <Compile Include="StructDeclarations\EquatabilityRules\ImplementEquatableRule.cs" />
     <Compile Include="StructDeclarations\EquatabilityRules\OverrideEqualsRule.cs" />
+    <Compile Include="StructDeclarations\EquatabilityRules\OverrideGetHashCodeRule.cs" />
     <Compile Include="StructDeclarations\IEquatabilityRule.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructFieldsAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructPropertyAnalyzer.cs" />

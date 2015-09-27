@@ -15,6 +15,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			new IEquatabilityRule[]
 			{
 				new ImplementEquatableRule(),
+				new OverrideGetHashCodeRule(),
 				new OverrideEqualsRule(),
 				new ImplementEqualsOperatorRule(),
 				new ImplementNotEqualsOperatorRule()
