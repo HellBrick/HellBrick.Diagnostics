@@ -31,10 +31,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		{
 			StructDeclarationSyntax structDeclaration = context.Node as StructDeclarationSyntax;
 			FieldDeclarationSyntax[] mutableFields = structDeclaration
-				.ChildNodes()
-				.Where( node => node.IsKind( SyntaxKind.FieldDeclaration ) )
-				.Cast<FieldDeclarationSyntax>()
-				.Where( field => !field.Modifiers.Any( SyntaxKind.StaticKeyword ) )
+				.EnumerateDataFields()
 				.Where( field => !field.Modifiers.Any( SyntaxKind.ReadOnlyKeyword ) )
 				.ToArray();
 

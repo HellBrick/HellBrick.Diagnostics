@@ -29,12 +29,9 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		{
 			StructDeclarationSyntax structDeclaration = context.Node as StructDeclarationSyntax;
 			var mutablePropertyQuery =
-				from node in structDeclaration.ChildNodes()
-				where node.IsKind( SyntaxKind.PropertyDeclaration )
-				let property = node as PropertyDeclarationSyntax
-				where !property.Modifiers.Any( SyntaxKind.StaticKeyword )
-				let setter = property.AccessorList.Accessors.FirstOrDefault( accessor => accessor.Keyword.IsKind( SyntaxKind.SetKeyword ) )
-				where setter != null && setter.Body == null
+				from property in structDeclaration.EnumerateDataProperties()
+				let setter = property.AccessorList?.Accessors.FirstOrDefault( accessor => accessor.Keyword.IsKind( SyntaxKind.SetKeyword ) )
+				where setter != null
 				select new { Property = property, Setter = setter };
 
 			foreach ( var mutableProperty in mutablePropertyQuery )

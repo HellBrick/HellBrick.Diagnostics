@@ -54,6 +54,7 @@
     <Compile Include="StructDeclarations\ReadOnlyStructFieldsAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructPropertyAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructPropertyCodeFixProvider.cs" />
+    <Compile Include="StructDeclarations\StructDataFinder.cs" />
     <Compile Include="StructDeclarations\StructIDPrefix.cs" />
     <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
     <Compile Include="Utils\TaskHelper.cs" />
