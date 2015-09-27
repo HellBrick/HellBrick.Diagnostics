@@ -49,7 +49,7 @@ namespace HellBrick.Diagnostics.Formatting
 			.WithChangedOption( CSharpFormattingOptions.SpaceBeforeDot, false )
 			.WithChangedOption( CSharpFormattingOptions.SpaceBeforeOpenSquareBracket, false )
 			.WithChangedOption( CSharpFormattingOptions.SpaceBeforeSemicolonsInForStatement, false )
-			
+
 			.WithChangedOption( CSharpFormattingOptions.SpaceBetweenEmptyMethodCallParentheses, false )
 			.WithChangedOption( CSharpFormattingOptions.SpaceBetweenEmptyMethodDeclarationParentheses, false )
 			.WithChangedOption( CSharpFormattingOptions.SpaceBetweenEmptySquareBrackets, false )
@@ -64,7 +64,7 @@ namespace HellBrick.Diagnostics.Formatting
 			.WithChangedOption( CSharpFormattingOptions.SpaceWithinSquareBrackets, true )
 			.WithChangedOption( CSharpFormattingOptions.SpacingAfterMethodDeclarationName, false )
 			.WithChangedOption( CSharpFormattingOptions.SpacingAroundBinaryOperator, BinaryOperatorSpacingOptions.Single )
-			
+
 			.WithChangedOption( CSharpFormattingOptions.WrappingKeepStatementsOnSingleLine, true )
 			.WithChangedOption( CSharpFormattingOptions.WrappingPreserveSingleLine, true );
 	}
