@@ -41,7 +41,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExpressionBodies\AbstractExpressionBodyRefactoring.cs" />
+    <Compile Include="ExpressionBodies\OneLiner.cs" />
+    <Compile Include="ExpressionBodies\ToExpressionBodiedMethodRefactoring.cs" />
+    <Compile Include="ExpressionBodies\ToExpressionBodiedPropertyRefactoring.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringInterpolation\FormatStringParser.cs" />
+    <Compile Include="StringInterpolation\StringFormatConversion.cs" />
+    <Compile Include="StringInterpolation\StringFormatToStringInterpolationRefactoring.cs" />
+    <Compile Include="VarConversions\ExplicitToVarDeclarationConverter.cs" />
+    <Compile Include="VarConversions\IDeclarationConverter.cs" />
+    <Compile Include="VarConversions\VarConversionRefactoring.cs" />
+    <Compile Include="VarConversions\VarToExplicitDeclarationConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
