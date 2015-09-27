@@ -51,11 +51,16 @@ namespace HellBrick.Diagnostics.StructDeclarations
 
 			ISymbol[] fieldsAndProperties = Enumerable.Concat( fieldSymbols, propertySymbols ).ToArray();
 
-			ImmutableArray<Diagnostic>.Enumerator enumerator = context.Diagnostics.GetEnumerator();
-			while ( !cancellationToken.IsCancellationRequested && enumerator.MoveNext() )
+			IEquatabilityRule[] brokenRules = context.Diagnostics
+				.Select( diagnostic => StructEquatabilityRules.Rules[ diagnostic.Id ] )
+				.OrderBy( rule => rule, StructEquatabilityRules.RuleComparer )
+				.ToArray();
+
+			foreach ( IEquatabilityRule rule in brokenRules )
 			{
-				Diagnostic diagnostic = enumerator.Current;
-				IEquatabilityRule rule = StructEquatabilityRules.Rules[ diagnostic.Id ];
+				if ( cancellationToken.IsCancellationRequested )
+					break;
+
 				newStructDeclaration = rule.Enforce( newStructDeclaration, semanticModel, fieldsAndProperties );
 			}
 

@@ -11,20 +11,32 @@ namespace HellBrick.Diagnostics.StructDeclarations
 {
 	internal static class StructEquatabilityRules
 	{
-		public static ImmutableDictionary<string, IEquatabilityRule> Rules { get; } =
-			new IEquatabilityRule[]
+		private static readonly List<IEquatabilityRule> _rulesSorted =
+			new List<IEquatabilityRule>
 			{
-				new ImplementEquatableRule(),
 				new OverrideGetHashCodeRule(),
+				new ImplementEquatableRule(),
 				new OverrideEqualsRule(),
 				new ImplementEqualsOperatorRule(),
 				new ImplementNotEqualsOperatorRule()
-			}
-			.ToImmutableDictionary( rule => rule.ID );
+			};
 
+		public static ImmutableDictionary<string, IEquatabilityRule> Rules { get; } = _rulesSorted.ToImmutableDictionary( rule => rule.ID );
 		public static ImmutableDictionary<string, DiagnosticDescriptor> Descriptors { get; } =
-			Rules.Values
+			_rulesSorted
 				.Select( rule => new DiagnosticDescriptor( rule.ID, "Structs " + rule.RuleText, "{0} " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) )
 				.ToImmutableDictionary( descriptor => descriptor.Id );
+
+		public static readonly IComparer<IEquatabilityRule> RuleComparer = new RuleOrderComparer();
+
+		private class RuleOrderComparer : IComparer<IEquatabilityRule>
+		{
+			public int Compare( IEquatabilityRule x, IEquatabilityRule y )
+			{
+				int xIndex = _rulesSorted.FindIndex( rule => rule.ID == x.ID );
+				int yIndex = _rulesSorted.FindIndex( rule => rule.ID == y.ID );
+				return xIndex.CompareTo( yIndex );
+			}
+		}
 	}
 }
