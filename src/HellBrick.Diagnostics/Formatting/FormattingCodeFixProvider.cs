@@ -74,7 +74,7 @@ namespace HellBrick.Diagnostics.Formatting
 					while ( !cancellationToken.IsCancellationRequested && projectIterator.MoveNext() )
 					{
 						Project project = projectIterator.Current;
-						newSolution = await FormatProjectAsync( fixAllContext, newSolution, project, cancellationToken );
+						newSolution = await FormatProjectAsync( fixAllContext, newSolution, project, cancellationToken ).ConfigureAwait( false );
 					}
 				}
 
@@ -83,7 +83,7 @@ namespace HellBrick.Diagnostics.Formatting
 
 			private static async Task<Solution> FormatProjectAsync( FixAllContext fixAllContext, Solution solution, Project project, CancellationToken cancellationToken )
 			{
-				ImmutableArray<Diagnostic> projectDiagnostics = await fixAllContext.GetAllDiagnosticsAsync( project );
+				ImmutableArray<Diagnostic> projectDiagnostics = await fixAllContext.GetAllDiagnosticsAsync( project ).ConfigureAwait( false );
 
 				Document[] documents = projectDiagnostics
 					.Select( d => d.Location.SourceTree )
@@ -94,8 +94,8 @@ namespace HellBrick.Diagnostics.Formatting
 				Solution newSolution = solution;
 				foreach ( Document document in documents )
 				{
-					var newDocument = await FormatAsync( document, cancellationToken );
-					newSolution = newSolution.WithDocumentText( document.Id, await newDocument.GetTextAsync() );
+					var newDocument = await FormatAsync( document, cancellationToken ).ConfigureAwait( false );
+					newSolution = newSolution.WithDocumentText( document.Id, await newDocument.GetTextAsync().ConfigureAwait( false ) );
 				}
 
 				return newSolution;
