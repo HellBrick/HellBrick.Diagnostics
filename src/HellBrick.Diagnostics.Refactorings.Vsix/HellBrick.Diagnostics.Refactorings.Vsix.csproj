@@ -56,6 +56,8 @@
     <ProjectReference Include="..\HellBrick.Diagnostics.Refactorings\HellBrick.Diagnostics.Refactorings.csproj">
       <Project>{4d36292e-d170-40d5-8d47-c4c867063de7}</Project>
       <Name>HellBrick.Diagnostics.Refactorings</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
