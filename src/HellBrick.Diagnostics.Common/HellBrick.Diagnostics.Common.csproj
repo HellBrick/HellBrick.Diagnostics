@@ -5,11 +5,13 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1B542F07-FCC4-452E-AFB4-7176711D5724}</ProjectGuid>
+    <ProjectGuid>{458D4E78-D73C-498A-B579-ED1B358CF1B8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HellBrick.Diagnostics</RootNamespace>
-    <AssemblyName>HellBrick.Diagnostics</AssemblyName>
+    <AssemblyName>HellBrick.Diagnostics.Common</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -32,61 +34,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DiagnosticCategory.cs" />
-    <Compile Include="EnforceReadOnly\EnforceReadOnlyCodeFixProvider.cs" />
-    <Compile Include="EnforceReadOnly\EnforceReadOnlyAnalyzer.cs" />
-    <Compile Include="AccessModifiers\DeclarationHandlers.cs" />
-    <Compile Include="AccessModifiers\IDeclarationHandler.cs" />
-    <Compile Include="AccessModifiers\AccessModifierAnalyzer.cs" />
-    <Compile Include="AccessModifiers\AccessModifierCodeFixProvider.cs" />
-    <Compile Include="ExpressionBodies\AbstractExpressionBodyRefactoring.cs" />
-    <Compile Include="ExpressionBodies\OneLiner.cs" />
-    <Compile Include="ExpressionBodies\ToExpressionBodiedPropertyRefactoring.cs" />
-    <Compile Include="Formatting\ProperFormattingOptions.cs" />
-    <Compile Include="Formatting\FormattingAnalyzer.cs" />
-    <Compile Include="Formatting\FormattingCodeFixProvider.cs" />
-    <Compile Include="IDPrefix.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExpressionBodies\ToExpressionBodiedMethodRefactoring.cs" />
-    <Compile Include="StringInterpolation\FormatStringParser.cs" />
-    <Compile Include="StringInterpolation\StringFormatConversion.cs" />
-    <Compile Include="StringInterpolation\StringFormatToStringInterpolationRefactoring.cs" />
-    <Compile Include="StructDeclarations\EquatabilityRules\ImplementEqualityOperatorRule.cs" />
-    <Compile Include="StructDeclarations\EquatabilityRules\ImplementEquatableRule.cs" />
-    <Compile Include="StructDeclarations\EquatabilityRules\OverrideEqualsRule.cs" />
-    <Compile Include="StructDeclarations\EquatabilityRules\OverrideGetHashCodeRule.cs" />
-    <Compile Include="StructDeclarations\IEquatabilityRule.cs" />
-    <Compile Include="StructDeclarations\ReadOnlyStructFieldsAnalyzer.cs" />
-    <Compile Include="StructDeclarations\ReadOnlyStructPropertyAnalyzer.cs" />
-    <Compile Include="StructDeclarations\ReadOnlyStructPropertyCodeFixProvider.cs" />
-    <Compile Include="StructDeclarations\StructDataFinder.cs" />
-    <Compile Include="StructDeclarations\StructEquatabilityAnalyzer.cs" />
-    <Compile Include="StructDeclarations\StructEquatabilityCodeFixProvider.cs" />
-    <Compile Include="StructDeclarations\StructEquatabilityRules.cs" />
-    <Compile Include="StructDeclarations\StructIDPrefix.cs" />
-    <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
-    <Compile Include="Utils\TaskHelper.cs" />
-    <Compile Include="Utils\TimeMeasure.cs" />
-    <Compile Include="VarConversions\ExplicitToVarDeclarationConverter.cs" />
-    <Compile Include="VarConversions\IDeclarationConverter.cs" />
-    <Compile Include="VarConversions\VarConversionRefactoring.cs" />
-    <Compile Include="VarConversions\VarToExplicitDeclarationConverter.cs" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Diagnostic.nuspec">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
-    <None Include="tools\install.ps1">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="tools\uninstall.ps1">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Compile Include="Utils\IEnumerable.ToHashSet.cs" />
-    <Compile Include="Utils\SyntaxNode.EnumerateSelectedNodes.cs" />
-    <Compile Include="Utils\EnumerableExtensions.Concat.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -111,48 +67,30 @@
     </Reference>
     <Reference Include="System.Composition.AttributedModel, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Composition.Convention, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Composition.Hosting, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Hosting.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Composition.Runtime, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Composition.TypedParts, Version=1.0.27.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Reflection.Metadata, Version=1.0.21.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Reflection.Metadata.1.0.21\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
-    <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HellBrick.Diagnostics.Common\HellBrick.Diagnostics.Common.csproj">
-      <Project>{458d4e78-d73c-498a-b579-ed1b358cf1b8}</Project>
-      <Name>HellBrick.Diagnostics.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\v4.6\Microsoft.Portable.CSharp.targets" />
-  <Target Name="AfterBuild">
-    <GetAssemblyIdentity AssemblyFiles="$(OutDir)\$(AssemblyName).dll">
-      <Output TaskParameter="Assemblies" ItemName="HellBrickDiagnosticsAssemblyInfo" />
-    </GetAssemblyIdentity>
-    <Exec Command="&quot;$(SolutionDir)packages\NuGet.CommandLine.2.8.5\tools\NuGet.exe&quot; pack Diagnostic.nuspec -NoPackageAnalysis -Version %(HellBrickDiagnosticsAssemblyInfo.Version) -OutputDirectory ." WorkingDirectory="$(OutDir)" LogStandardErrorAsError="true" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
-    </Exec>
-  </Target>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
