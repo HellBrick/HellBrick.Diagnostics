@@ -104,10 +104,6 @@
       <Project>{458d4e78-d73c-498a-b579-ed1b358cf1b8}</Project>
       <Name>HellBrick.Diagnostics.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj">
-      <Project>{1b542f07-fcc4-452e-afb4-7176711d5724}</Project>
-      <Name>HellBrick.Diagnostics</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\v4.6\Microsoft.Portable.CSharp.targets" />
   <Target Name="AfterBuild">
