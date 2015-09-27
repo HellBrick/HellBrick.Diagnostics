@@ -13,8 +13,8 @@
     <ProjectGuid>{FE03E80B-A4C7-498A-B35E-98DDB05D2743}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HellBrick.Diagnostics</RootNamespace>
-    <AssemblyName>HellBrick.Diagnostics</AssemblyName>
+    <RootNamespace>HellBrick.Diagnostics.Debug</RootNamespace>
+    <AssemblyName>HellBrick.Diagnostics.Debug</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>

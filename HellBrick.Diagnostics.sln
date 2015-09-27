@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Debug.Vsix", "src\HellBrick.Diagnostics.Debug.Vsix\HellBrick.Diagnostics.Debug.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.ConfigureAwait", "src\HellBrick.Diagnostics.ConfigureAwait\HellBrick.Diagnostics.ConfigureAwait.csproj", "{4170F4D7-DD65-4468-8088-AB942649FDE9}"
 EndProject
