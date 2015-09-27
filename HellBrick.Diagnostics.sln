@@ -7,9 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Vsix", "src\HellBrick.Diagnostics.Vsix\HellBrick.Diagnostics.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Debug.Vsix", "src\HellBrick.Diagnostics.Debug.Vsix\HellBrick.Diagnostics.Debug.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.ConfigureAwait", "src\HellBrick.Diagnostics.ConfigureAwait\HellBrick.Diagnostics.ConfigureAwait.csproj", "{4170F4D7-DD65-4468-8088-AB942649FDE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Common", "src\HellBrick.Diagnostics.Common\HellBrick.Diagnostics.Common.csproj", "{458D4E78-D73C-498A-B579-ED1B358CF1B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Refactorings.Vsix", "src\HellBrick.Diagnostics.Refactorings.Vsix\HellBrick.Diagnostics.Refactorings.Vsix.csproj", "{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Refactorings", "src\HellBrick.Diagnostics.Refactorings\HellBrick.Diagnostics.Refactorings.csproj", "{4D36292E-D170-40D5-8D47-C4C867063DE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,18 @@ Global
 		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4170F4D7-DD65-4468-8088-AB942649FDE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D36292E-D170-40D5-8D47-C4C867063DE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D36292E-D170-40D5-8D47-C4C867063DE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D36292E-D170-40D5-8D47-C4C867063DE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D36292E-D170-40D5-8D47-C4C867063DE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
