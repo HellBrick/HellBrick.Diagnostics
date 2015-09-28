@@ -38,7 +38,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsOperator;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			OperatorDeclarationSyntax operatorDeclaration = BuildOperatorDeclaration( structDeclaration );
 			return structDeclaration.AddMembers( operatorDeclaration );

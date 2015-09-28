@@ -43,7 +43,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !overridesGetHashCode;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );

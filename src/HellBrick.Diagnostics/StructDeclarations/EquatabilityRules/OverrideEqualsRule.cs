@@ -32,7 +32,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !overridesEquals;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax equalsOverrideDeclaration = BuldEqualsOverrideDeclaration( structDeclaration );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );

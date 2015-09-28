@@ -30,7 +30,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsEquatable;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
 			structDeclaration = AddInterfaceToBaseList( structDeclaration, semanticModel );

@@ -61,7 +61,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 				if ( cancellationToken.IsCancellationRequested )
 					break;
 
-				newStructDeclaration = rule.Enforce( newStructDeclaration, semanticModel, fieldsAndProperties );
+				newStructDeclaration = rule.Enforce( newStructDeclaration, structType, semanticModel, fieldsAndProperties );
 			}
 
 			SyntaxNode newRoot = root.ReplaceNode( oldStructDeclaration, newStructDeclaration );
