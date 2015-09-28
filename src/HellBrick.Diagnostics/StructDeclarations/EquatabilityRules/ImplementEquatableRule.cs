@@ -45,9 +45,11 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			//	If the struct implements no interfaces, we have to move the endline trivia from identifier to the base list.
 			if ( structDeclaration.BaseList == null )
 			{
-				SyntaxToken identifierToken = structDeclaration.Identifier;
-				SyntaxToken newIdentifierToken = identifierToken.WithTrailingTrivia();
-				structDeclaration = structDeclaration.ReplaceToken( identifierToken, newIdentifierToken );
+				//	lastTokenBeforeBrace may be either identifier name or > if the struct is generic.
+				//	So it's easier to just get the token before the {.
+				SyntaxToken lastTokenBeforeBrace = structDeclaration.OpenBraceToken.GetPreviousToken();
+				SyntaxToken withoutTrivia = lastTokenBeforeBrace.WithTrailingTrivia();
+				structDeclaration = structDeclaration.ReplaceToken( lastTokenBeforeBrace, withoutTrivia );
 			}
 
 			return structDeclaration;
