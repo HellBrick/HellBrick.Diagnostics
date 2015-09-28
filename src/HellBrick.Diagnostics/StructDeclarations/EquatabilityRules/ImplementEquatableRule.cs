@@ -102,16 +102,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// </summary>
 		private ExpressionSyntax BuildEqualsBodyExpression( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			IEnumerable<BinaryExpressionSyntax> fieldEqualityCallQuery =
-				from fieldSymbol in fieldsAndProperties
-				select BinaryExpression
-				(
-					SyntaxKind.EqualsExpression,
-					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
-					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
-				);
-
-			ExpressionSyntax[] fieldEqualityCalls = fieldEqualityCallQuery.ToArray();
+			ExpressionSyntax[] fieldEqualityCalls = fieldsAndProperties
+				.Select( fieldSymbol => BuildFieldEqualityCall( fieldSymbol ) )
+				.ToArray();
 
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
 			if ( fieldEqualityCalls.Length == 0 )
@@ -128,5 +121,13 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 			return fullBody;
 		}
+
+		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol ) =>
+			BinaryExpression
+			(
+				SyntaxKind.EqualsExpression,
+				MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
+				MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
+			);
 	}
 }
