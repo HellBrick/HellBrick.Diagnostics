@@ -115,22 +115,11 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private ExpressionSyntax BuildFieldHashCodeCall( ISymbol fieldSymbol )
 		{
 			ITypeSymbol fieldType = ( fieldSymbol as IFieldSymbol )?.Type ?? ( fieldSymbol as IPropertySymbol ).Type;
+			MemberAccessExpressionSyntax defaultComparer = DefaultEqualityComparer.AccessExpression( fieldType );
+			MemberAccessExpressionSyntax defaultGetHashCodeMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, defaultComparer, _getHashCodeName );
 			MemberAccessExpressionSyntax fieldAccess = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) );
-
-			if ( fieldType.IsValueType )
-			{
-				MemberAccessExpressionSyntax getHashCodeMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, fieldAccess, _getHashCodeName );
-				InvocationExpressionSyntax getHashCodeCall = InvocationExpression( getHashCodeMethod );
-				return getHashCodeCall;
-			}
-			else
-			{
-				MemberBindingExpressionSyntax getHashCodeBinding = MemberBindingExpression( _getHashCodeName );
-				InvocationExpressionSyntax getHashCodeCall = InvocationExpression( getHashCodeBinding );
-				ConditionalAccessExpressionSyntax elvisCall = ConditionalAccessExpression( fieldAccess, getHashCodeCall );
-				BinaryExpressionSyntax elvisFallback = BinaryExpression( SyntaxKind.CoalesceExpression, elvisCall, LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( 0 ) ) );
-				return elvisFallback;
-			}
+			InvocationExpressionSyntax getHashCodeCall = InvocationExpression( defaultGetHashCodeMethod ).AddArgumentListArguments( Argument( fieldAccess ) );
+			return getHashCodeCall;
 		}
 	}
 }
