@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Debug.Vsix", "src\HellBrick.Diagnostics.Debug.Vsix\HellBrick.Diagnostics.Debug.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Common", "src\HellBrick.Diagnostics.Common\HellBrick.Diagnostics.Common.csproj", "{458D4E78-D73C-498A-B579-ED1B358CF1B8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Refactorings.Vsix", "src\HellBrick.Diagnostics.Refactorings.Vsix\HellBrick.Diagnostics.Refactorings.Vsix.csproj", "{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Refactorings", "src\HellBrick.Diagnostics.Refactorings\HellBrick.Diagnostics.Refactorings.csproj", "{4D36292E-D170-40D5-8D47-C4C867063DE7}"
@@ -33,10 +31,6 @@ Global
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE03E80B-A4C7-498A-B35E-98DDB05D2743}.Release|Any CPU.Build.0 = Release|Any CPU
-		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{458D4E78-D73C-498A-B579-ED1B358CF1B8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E5FBA66-7DBC-43F6-B5FD-FF793F342199}.Release|Any CPU.ActiveCfg = Release|Any CPU
