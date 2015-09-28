@@ -58,8 +58,6 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			TypeSyntax interfaceTypeNode = ParseTypeName( $"System.IEquatable<{structType.ToDisplayString()}>" ).WithAdditionalAnnotations( Simplifier.Annotation );
 			SimpleBaseTypeSyntax interfaceImplementationNode = SimpleBaseType( interfaceTypeNode );
 			structDeclaration = structDeclaration.AddBaseListTypes( interfaceImplementationNode );
-			var bullshit = structDeclaration.DescendantNodes().OfType<IdentifierNameSyntax>().ToArray();
-
 			return structDeclaration;
 		}
 
