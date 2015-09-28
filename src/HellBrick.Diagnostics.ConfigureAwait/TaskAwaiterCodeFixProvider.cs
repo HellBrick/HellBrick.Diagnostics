@@ -29,6 +29,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )
 		{
 			RegisterConfigureAwaitCodeFix( context, false );
+			RegisterConfigureAwaitCodeFix( context, true );
 			return TaskHelper.CompletedTask;
 		}
 
