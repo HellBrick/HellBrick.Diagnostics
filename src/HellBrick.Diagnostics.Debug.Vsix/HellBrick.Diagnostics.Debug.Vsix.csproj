@@ -52,6 +52,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HellBrick.Diagnostics.ConfigureAwait\HellBrick.Diagnostics.ConfigureAwait.csproj">
+      <Project>{4170f4d7-dd65-4468-8088-ab942649fde9}</Project>
+      <Name>HellBrick.Diagnostics.ConfigureAwait</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
     <ProjectReference Include="..\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj">
       <Project>{1B542F07-FCC4-452E-AFB4-7176711D5724}</Project>
       <Name>HellBrick.Diagnostics</Name>

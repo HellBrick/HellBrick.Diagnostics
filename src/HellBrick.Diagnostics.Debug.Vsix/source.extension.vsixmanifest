@@ -17,5 +17,7 @@
 	<Assets>
 		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="HellBrick.Diagnostics" Path="|HellBrick.Diagnostics|"/>
 		<Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="HellBrick.Diagnostics" Path="|HellBrick.Diagnostics|"/>
+		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="HellBrick.Diagnostics.ConfigureAwait" Path="|HellBrick.Diagnostics.ConfigureAwait|" />
+		<Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="HellBrick.Diagnostics.ConfigureAwait" Path="|HellBrick.Diagnostics.ConfigureAwait|" />
 	</Assets>
 </PackageManifest>
