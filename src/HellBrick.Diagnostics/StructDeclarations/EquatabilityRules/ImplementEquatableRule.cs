@@ -122,12 +122,41 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return fullBody;
 		}
 
-		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol ) =>
-			BinaryExpression
-			(
-				SyntaxKind.EqualsExpression,
-				MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
-				MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
-			);
+		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol )
+		{
+			ITypeSymbol fieldType = ( fieldSymbol as IFieldSymbol )?.Type ?? ( fieldSymbol as IPropertySymbol ).Type;
+			bool declaresEqualityOperator = fieldType
+				.GetMembers()
+				.OfType<IMethodSymbol>()
+				.Where( m => m.MethodKind == MethodKind.BuiltinOperator || m.MethodKind == MethodKind.UserDefinedOperator )
+				.Where( m => m.Name == "op_Equality" )
+				.Any();
+
+			//	If the field type declares == operator, we can safely use it.
+			// This provides better readability in a lot of cases.
+			if ( declaresEqualityOperator )
+			{
+				return BinaryExpression
+				(
+					SyntaxKind.EqualsExpression,
+					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
+					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
+				);
+			}
+
+			//	Otherwise, we have to resort to EqualityComparer<T>.Default.Equals( this._field, other._field )
+			TypeSyntax comparerTypeNode = ParseTypeName( $"System.Collections.Generic.EqualityComparer<{fieldType.ToDisplayString()}>" );
+			MemberAccessExpressionSyntax defaultProperty = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, comparerTypeNode, IdentifierName( "Default" ) );
+			MemberAccessExpressionSyntax equalsMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, defaultProperty, IdentifierName( "Equals" ) );
+			InvocationExpressionSyntax invocation = InvocationExpression( equalsMethod );
+			invocation = invocation
+				.AddArgumentListArguments
+				(
+					Argument( MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ) ),
+					Argument( MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) ) )
+				);
+
+			return invocation;
+		}
 	}
 }
