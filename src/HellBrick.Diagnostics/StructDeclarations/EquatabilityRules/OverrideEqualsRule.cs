@@ -32,16 +32,16 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !overridesEquals;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			MethodDeclarationSyntax equalsOverrideDeclaration = BuldEqualsOverrideDeclaration( structDeclaration );
+			MethodDeclarationSyntax equalsOverrideDeclaration = BuldEqualsOverrideDeclaration( structDeclaration, structType );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldEqualsOverrideDeclaration( StructDeclarationSyntax structDeclaration )
+		private MethodDeclarationSyntax BuldEqualsOverrideDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			TypeSyntax structTypeName = ParseTypeName( structDeclaration.Identifier.ValueText );
+			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
 			ParameterSyntax parameter = Parameter( ParseToken( _objArg ) ).WithType( _objectTypeName );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
 			method = method.AddParameterListParameters( parameter );

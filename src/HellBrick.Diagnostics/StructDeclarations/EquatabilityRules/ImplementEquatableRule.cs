@@ -30,12 +30,12 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsEquatable;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
-			structDeclaration = AddInterfaceToBaseList( structDeclaration, semanticModel );
+			structDeclaration = AddInterfaceToBaseList( structDeclaration, structType );
 			structDeclaration = AddEndlineTriviaToBaseListIfHadNoInterfaces( structDeclaration );
-			structDeclaration = ImplementInterface( structDeclaration, semanticModel, fieldsAndProperties );
+			structDeclaration = ImplementInterface( structDeclaration, structType, semanticModel, fieldsAndProperties );
 
 			return structDeclaration;
 		}
@@ -45,21 +45,21 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			//	If the struct implements no interfaces, we have to move the endline trivia from identifier to the base list.
 			if ( structDeclaration.BaseList == null )
 			{
-				SyntaxToken identifierToken = structDeclaration.Identifier;
-				SyntaxToken newIdentifierToken = identifierToken.WithTrailingTrivia();
-				structDeclaration = structDeclaration.ReplaceToken( identifierToken, newIdentifierToken );
+				//	lastTokenBeforeBrace may be either identifier name or > if the struct is generic.
+				//	So it's easier to just get the token before the {.
+				SyntaxToken lastTokenBeforeBrace = structDeclaration.OpenBraceToken.GetPreviousToken();
+				SyntaxToken withoutTrivia = lastTokenBeforeBrace.WithTrailingTrivia();
+				structDeclaration = structDeclaration.ReplaceToken( lastTokenBeforeBrace, withoutTrivia );
 			}
 
 			return structDeclaration;
 		}
 
-		private static StructDeclarationSyntax AddInterfaceToBaseList( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel )
+		private static StructDeclarationSyntax AddInterfaceToBaseList( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType )
 		{
-			TypeSyntax interfaceTypeNode = ParseTypeName( $"System.IEquatable<{structDeclaration.Identifier.ValueText}>" ).WithAdditionalAnnotations( Simplifier.Annotation );
+			TypeSyntax interfaceTypeNode = ParseTypeName( $"System.IEquatable<{structType.ToDisplayString()}>" ).WithAdditionalAnnotations( Simplifier.Annotation );
 			SimpleBaseTypeSyntax interfaceImplementationNode = SimpleBaseType( interfaceTypeNode );
 			structDeclaration = structDeclaration.AddBaseListTypes( interfaceImplementationNode );
-			var bullshit = structDeclaration.DescendantNodes().OfType<IdentifierNameSyntax>().ToArray();
-
 			return structDeclaration;
 		}
 
@@ -76,16 +76,16 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return structDeclaration;
 		}
 
-		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, semanticModel, fieldsAndProperties );
+			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, structType, semanticModel, fieldsAndProperties );
 			return structDeclaration.AddMembers( equalsMethodDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			TypeSyntax structTypeName = ParseTypeName( structDeclaration.Identifier.ValueText );
+			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
 			ParameterSyntax parameter = Parameter( ParseToken( _otherArg ) ).WithType( structTypeName );
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
@@ -102,16 +102,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// </summary>
 		private ExpressionSyntax BuildEqualsBodyExpression( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			IEnumerable<BinaryExpressionSyntax> fieldEqualityCallQuery =
-				from fieldSymbol in fieldsAndProperties
-				select BinaryExpression
-				(
-					SyntaxKind.EqualsExpression,
-					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
-					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
-				);
-
-			ExpressionSyntax[] fieldEqualityCalls = fieldEqualityCallQuery.ToArray();
+			ExpressionSyntax[] fieldEqualityCalls = fieldsAndProperties
+				.Select( fieldSymbol => BuildFieldEqualityCall( fieldSymbol ) )
+				.ToArray();
 
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
 			if ( fieldEqualityCalls.Length == 0 )
@@ -127,6 +120,42 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 				fullBody = BinaryExpression( SyntaxKind.LogicalAndExpression, fullBody, fieldEqualityCall );
 
 			return fullBody;
+		}
+
+		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol )
+		{
+			ITypeSymbol fieldType = ( fieldSymbol as IFieldSymbol )?.Type ?? ( fieldSymbol as IPropertySymbol ).Type;
+			bool declaresEqualityOperator = fieldType
+				.GetMembers()
+				.OfType<IMethodSymbol>()
+				.Where( m => m.MethodKind == MethodKind.BuiltinOperator || m.MethodKind == MethodKind.UserDefinedOperator )
+				.Where( m => m.Name == "op_Equality" )
+				.Any();
+
+			//	If the field type declares == operator, we can safely use it.
+			// This provides better readability in a lot of cases.
+			if ( declaresEqualityOperator )
+			{
+				return BinaryExpression
+				(
+					SyntaxKind.EqualsExpression,
+					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ),
+					MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) )
+				);
+			}
+
+			//	Otherwise, we have to resort to EqualityComparer<T>.Default.Equals( this._field, other._field )
+			MemberAccessExpressionSyntax defaultProperty = DefaultEqualityComparer.AccessExpression( fieldType );
+			MemberAccessExpressionSyntax equalsMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, defaultProperty, IdentifierName( "Equals" ) );
+			InvocationExpressionSyntax invocation = InvocationExpression( equalsMethod );
+			invocation = invocation
+				.AddArgumentListArguments
+				(
+					Argument( MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) ) ),
+					Argument( MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, IdentifierName( _otherArg ), IdentifierName( fieldSymbol.Name ) ) )
+				);
+
+			return invocation;
 		}
 	}
 }
