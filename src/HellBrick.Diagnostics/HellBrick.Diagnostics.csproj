@@ -55,6 +55,8 @@
     <Compile Include="StructDeclarations\StructEquatabilityCodeFixProvider.cs" />
     <Compile Include="StructDeclarations\StructEquatabilityRules.cs" />
     <Compile Include="StructDeclarations\StructIDPrefix.cs" />
+    <Compile Include="ConfigureAwait\TaskAwaiterAnalyzer.cs" />
+    <Compile Include="ConfigureAwait\TaskAwaiterCodeFixProvider.cs" />
     <Compile Include="UnusedReferences\UnusedReferencesAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
