@@ -33,9 +33,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
-			structDeclaration = AddInterfaceToBaseList( structDeclaration, semanticModel );
+			structDeclaration = AddInterfaceToBaseList( structDeclaration, structType );
 			structDeclaration = AddEndlineTriviaToBaseListIfHadNoInterfaces( structDeclaration );
-			structDeclaration = ImplementInterface( structDeclaration, semanticModel, fieldsAndProperties );
+			structDeclaration = ImplementInterface( structDeclaration, structType, semanticModel, fieldsAndProperties );
 
 			return structDeclaration;
 		}
@@ -53,9 +53,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return structDeclaration;
 		}
 
-		private static StructDeclarationSyntax AddInterfaceToBaseList( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel )
+		private static StructDeclarationSyntax AddInterfaceToBaseList( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType )
 		{
-			TypeSyntax interfaceTypeNode = ParseTypeName( $"System.IEquatable<{structDeclaration.Identifier.ValueText}>" ).WithAdditionalAnnotations( Simplifier.Annotation );
+			TypeSyntax interfaceTypeNode = ParseTypeName( $"System.IEquatable<{structType.ToDisplayString()}>" ).WithAdditionalAnnotations( Simplifier.Annotation );
 			SimpleBaseTypeSyntax interfaceImplementationNode = SimpleBaseType( interfaceTypeNode );
 			structDeclaration = structDeclaration.AddBaseListTypes( interfaceImplementationNode );
 			var bullshit = structDeclaration.DescendantNodes().OfType<IdentifierNameSyntax>().ToArray();
@@ -76,16 +76,16 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return structDeclaration;
 		}
 
-		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, semanticModel, fieldsAndProperties );
+			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, structType, semanticModel, fieldsAndProperties );
 			return structDeclaration.AddMembers( equalsMethodDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			TypeSyntax structTypeName = ParseTypeName( structDeclaration.Identifier.ValueText );
+			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
 			ParameterSyntax parameter = Parameter( ParseToken( _otherArg ) ).WithType( structTypeName );
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
