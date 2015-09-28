@@ -145,8 +145,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			}
 
 			//	Otherwise, we have to resort to EqualityComparer<T>.Default.Equals( this._field, other._field )
-			TypeSyntax comparerTypeNode = ParseTypeName( $"System.Collections.Generic.EqualityComparer<{fieldType.ToDisplayString()}>" );
-			MemberAccessExpressionSyntax defaultProperty = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, comparerTypeNode, IdentifierName( "Default" ) );
+			MemberAccessExpressionSyntax defaultProperty = DefaultEqualityComparer.AccessExpression( fieldType );
 			MemberAccessExpressionSyntax equalsMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, defaultProperty, IdentifierName( "Equals" ) );
 			InvocationExpressionSyntax invocation = InvocationExpression( equalsMethod );
 			invocation = invocation
