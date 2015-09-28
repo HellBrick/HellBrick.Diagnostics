@@ -41,6 +41,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableExtensions.Concat.cs" />
     <Compile Include="ExpressionBodies\AbstractExpressionBodyRefactoring.cs" />
     <Compile Include="ExpressionBodies\OneLiner.cs" />
     <Compile Include="ExpressionBodies\ToExpressionBodiedMethodRefactoring.cs" />
