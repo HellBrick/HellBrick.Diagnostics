@@ -58,7 +58,11 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 		private FieldDeclarationSyntax WithReadOnlyAdded( FieldDeclarationSyntax fieldDeclaration )
 		{
-			return fieldDeclaration.AddModifiers( _readonlyModifier );
+			SyntaxTriviaList leadingTrivia = fieldDeclaration.GetLeadingTrivia();
+			fieldDeclaration = fieldDeclaration.WithLeadingTrivia();
+			fieldDeclaration = fieldDeclaration.AddModifiers( _readonlyModifier );
+			fieldDeclaration = fieldDeclaration.WithLeadingTrivia( leadingTrivia );
+			return fieldDeclaration;
 		}
 	}
 }
