@@ -33,6 +33,14 @@ namespace HellBrick.Diagnostics.AccessModifiers
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode node = root.FindNode( context.Span );
+			SyntaxNode newNode = WithMissingModifierAdded( node );
+			SyntaxNode newRoot = root.ReplaceNode( node, newNode );
+			Document newDocument = context.Document.WithSyntaxRoot( newRoot );
+			return newDocument;
+		}
+
+		private static SyntaxNode WithMissingModifierAdded( SyntaxNode node )
+		{
 			bool isClassMember = node.Ancestors().Any( n => n.IsKind( SyntaxKind.ClassDeclaration ) );
 			SyntaxToken missingKeyword = SyntaxFactory.Token( isClassMember ? SyntaxKind.PrivateKeyword : SyntaxKind.InternalKeyword );
 			IDeclarationHandler handler = DeclarationHandlers.HandlerLookup[ node.Kind() ];
@@ -40,9 +48,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 			SyntaxTokenList newModifiers = oldModifiers.Insert( 0, missingKeyword );
 			SyntaxNode newNode = handler.WithModifiers( node, newModifiers );
 			newNode = newNode.WithLeadingTrivia( node.GetLeadingTrivia() );
-			SyntaxNode newRoot = root.ReplaceNode( node, newNode );
-			Document newDocument = context.Document.WithSyntaxRoot( newRoot );
-			return newDocument;
+			return newNode;
 		}
 	}
 }
