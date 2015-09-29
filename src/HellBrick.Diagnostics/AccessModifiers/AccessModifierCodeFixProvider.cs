@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
+using HellBrick.Diagnostics.Utils;
 
 namespace HellBrick.Diagnostics.AccessModifiers
 {
@@ -21,9 +22,16 @@ namespace HellBrick.Diagnostics.AccessModifiers
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( AccessModifierAnalyzer.DiagnosticID );
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-		public sealed override async Task RegisterCodeFixesAsync( CodeFixContext context )
+		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )
 		{
-			SyntaxNode root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
+			CodeAction codeFix = CodeAction.Create( "Add missing access modifier", c => AddAccessModifierAsync( context, c ), nameof( AccessModifierCodeFixProvider ) );
+			context.RegisterCodeFix( codeFix, context.Diagnostics[ 0 ] );
+			return TaskHelper.CompletedTask;
+		}
+
+		private async Task<Document> AddAccessModifierAsync( CodeFixContext context, CancellationToken cancellationToken )
+		{
+			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode node = root.FindNode( context.Span );
 			bool isClassMember = node.Ancestors().Any( n => n.IsKind( SyntaxKind.ClassDeclaration ) );
 			SyntaxToken missingKeyword = SyntaxFactory.Token( isClassMember ? SyntaxKind.PrivateKeyword : SyntaxKind.InternalKeyword );
@@ -34,9 +42,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 			newNode = newNode.WithLeadingTrivia( node.GetLeadingTrivia() );
 			SyntaxNode newRoot = root.ReplaceNode( node, newNode );
 			Document newDocument = context.Document.WithSyntaxRoot( newRoot );
-
-			CodeAction codeFix = CodeAction.Create( "Add missing access modifier", c => Task.FromResult( newDocument ), nameof( AccessModifierCodeFixProvider ) );
-			context.RegisterCodeFix( codeFix, context.Diagnostics[ 0 ] );
+			return newDocument;
 		}
 	}
 }
