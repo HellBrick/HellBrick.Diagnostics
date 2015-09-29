@@ -21,7 +21,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( EnforceReadOnlyCodeFixProvider ) ), Shared]
 	public class EnforceReadOnlyCodeFixProvider : CodeFixProvider
 	{
-		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
+		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword );
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
 			ImmutableArray.Create
@@ -50,10 +50,19 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			var diagnosticSpan = diagnostic.Location.SourceSpan;
 			var fieldDeclaration = root.FindToken( diagnosticSpan.Start ).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
-			var newDeclaration = fieldDeclaration.AddModifiers( _readonlyModifier );
+			var newDeclaration = WithReadOnlyAdded( fieldDeclaration );
 			var newRoot = root.ReplaceNode( fieldDeclaration, newDeclaration );
 
 			return context.Document.WithSyntaxRoot( newRoot );
+		}
+
+		private FieldDeclarationSyntax WithReadOnlyAdded( FieldDeclarationSyntax fieldDeclaration )
+		{
+			SyntaxTriviaList leadingTrivia = fieldDeclaration.GetLeadingTrivia();
+			fieldDeclaration = fieldDeclaration.WithLeadingTrivia();
+			fieldDeclaration = fieldDeclaration.AddModifiers( _readonlyModifier );
+			fieldDeclaration = fieldDeclaration.WithLeadingTrivia( leadingTrivia );
+			return fieldDeclaration;
 		}
 	}
 }
