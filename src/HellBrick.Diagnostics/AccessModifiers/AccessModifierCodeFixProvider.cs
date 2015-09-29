@@ -45,10 +45,18 @@ namespace HellBrick.Diagnostics.AccessModifiers
 			SyntaxToken missingKeyword = SyntaxFactory.Token( isClassMember ? SyntaxKind.PrivateKeyword : SyntaxKind.InternalKeyword );
 			IDeclarationHandler handler = DeclarationHandlers.HandlerLookup[ node.Kind() ];
 			SyntaxTokenList oldModifiers = handler.GetModifiers( node );
+
+			//	We need to remove the leading trivia before attaching new modifier, otherwise the modifier will be added before the trivia.
+			SyntaxTriviaList leadingTrivia = node.GetLeadingTrivia();
+			node = node.WithLeadingTrivia();
+
+			//	Now add the modifier
 			SyntaxTokenList newModifiers = oldModifiers.Insert( 0, missingKeyword );
-			SyntaxNode newNode = handler.WithModifiers( node, newModifiers );
-			newNode = newNode.WithLeadingTrivia( node.GetLeadingTrivia() );
-			return newNode;
+			node = handler.WithModifiers( node, newModifiers );
+
+			//	And reattach the trivia
+			node = node.WithLeadingTrivia( leadingTrivia );
+			return node;
 		}
 	}
 }
