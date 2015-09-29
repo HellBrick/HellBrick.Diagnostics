@@ -50,10 +50,15 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			var diagnosticSpan = diagnostic.Location.SourceSpan;
 			var fieldDeclaration = root.FindToken( diagnosticSpan.Start ).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
-			var newDeclaration = fieldDeclaration.AddModifiers( _readonlyModifier );
+			var newDeclaration = WithReadOnlyAdded( fieldDeclaration );
 			var newRoot = root.ReplaceNode( fieldDeclaration, newDeclaration );
 
 			return context.Document.WithSyntaxRoot( newRoot );
+		}
+
+		private FieldDeclarationSyntax WithReadOnlyAdded( FieldDeclarationSyntax fieldDeclaration )
+		{
+			return fieldDeclaration.AddModifiers( _readonlyModifier );
 		}
 	}
 }
