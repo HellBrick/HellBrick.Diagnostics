@@ -21,7 +21,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( EnforceReadOnlyCodeFixProvider ) ), Shared]
 	public class EnforceReadOnlyCodeFixProvider : CodeFixProvider
 	{
-		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword ).WithTrailingTrivia( SyntaxTrivia( SyntaxKind.WhitespaceTrivia, " " ) );
+		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword );
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
 			ImmutableArray.Create
