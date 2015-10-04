@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="HellBrick.Diagnostics.Debug.Vsix..b4dfddbc-9227-4bbd-95e5-1149df4defca" Version="1.3.0" Language="en-US" Publisher="HellBrick"/>
+		<Identity Id="HellBrick.Diagnostics.Debug.Vsix..b4dfddbc-9227-4bbd-95e5-1149df4defca" Version="1.4.1" Language="en-US" Publisher="HellBrick"/>
 		<DisplayName>HellBrick.Diagnostics.Debug.Vsix</DisplayName>
 		<Description xml:space="preserve">This is the extension that provides a set of common diagnostics by HellBrick.</Description>
 	</Metadata>

@@ -10,6 +10,10 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.4.1:
+			- merged in the analyzer that enforces ConfigureAwait()
+			- fixed a bunch of bugs
+			
 			v1.4.0:
 			- an analyzer that enforces explicit access modifiers
 			- an analyzer that enforces immutability and equatability on structs
