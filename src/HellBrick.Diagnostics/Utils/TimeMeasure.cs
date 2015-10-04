@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.Utils
 		public static TimeMeasure ToDebug( string activityName )
 		{
 			return new TimeMeasure( activityName, ( activity, time ) => Debug.WriteLine( $"{time} - {activity}" ) );
-      }
+		}
 
 		public void Dispose()
 		{
