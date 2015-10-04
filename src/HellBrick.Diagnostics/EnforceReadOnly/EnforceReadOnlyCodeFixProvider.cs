@@ -38,7 +38,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				return TaskHelper.CanceledTask;
 
 			var diagnostic = context.Diagnostics.First();
-			var codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnly( context, diagnostic, cancellationToken ) );
+			var codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnly( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, diagnostic );
 
 			return TaskHelper.CompletedTask;
