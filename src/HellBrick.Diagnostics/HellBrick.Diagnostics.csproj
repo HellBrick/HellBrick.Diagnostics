@@ -126,9 +126,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\..\packages\HellBrick.Diagnostics.1.4.0.0\analyzers\dotnet\cs\HellBrick.Diagnostics.Common.dll" />
-    <Analyzer Include="..\..\packages\HellBrick.Diagnostics.1.4.0.0\analyzers\dotnet\cs\HellBrick.Diagnostics.dll" />
-    <Analyzer Include="..\..\packages\HellBrick.Diagnostics.ConfigureAwait.1.0.0.0\analyzers\dotnet\cs\HellBrick.Diagnostics.ConfigureAwait.dll" />
+    <Analyzer Include="..\..\packages\HellBrick.Diagnostics.1.4.1.0\analyzers\dotnet\cs\HellBrick.Diagnostics.dll" />
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
