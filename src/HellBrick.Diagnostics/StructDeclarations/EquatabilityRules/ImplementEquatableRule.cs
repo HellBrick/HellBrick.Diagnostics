@@ -17,7 +17,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private readonly TypeSyntax _boolTypeName = ParseTypeName( "bool" );
 		private const string _otherArg = "other";
 
-		public string ID => StructIDPrefix.Value + "Implement IEquatable<T>";
+		public string ID => StructIDPrefix.Value + "ImplementIEquatable";
 		public string RuleText => "should implement IEquatable<T>";
 
 		public bool IsViolatedBy( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SemanticModel semanticModel )

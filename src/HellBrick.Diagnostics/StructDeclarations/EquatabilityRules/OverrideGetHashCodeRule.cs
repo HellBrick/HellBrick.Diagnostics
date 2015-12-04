@@ -29,7 +29,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		private static readonly IdentifierNameSyntax _getHashCodeName = IdentifierName( "GetHashCode" );
 
-		public string ID => "Override GetHashCode()";
+		public string ID => "OverrideGetHashCode";
 		public string RuleText => "should override GetHashCode()";
 
 		public bool IsViolatedBy( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SemanticModel semanticModel )
