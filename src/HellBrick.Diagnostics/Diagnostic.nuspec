@@ -10,6 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.4.3:
+			- changed diagnsotic IDs to provide compatibility with VS 2015 update 1
+			
 			v1.4.2:
 			- an attempt to fix the FormattingAnalyzer warning issued on VS loading it from a nuget package
 			
