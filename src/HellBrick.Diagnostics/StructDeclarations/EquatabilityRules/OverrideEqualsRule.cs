@@ -18,7 +18,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private readonly IdentifierNameSyntax _equalsMethodName = IdentifierName( "Equals" );
 		private const string _objArg = "obj";
 
-		public string ID => "Override Equals()";
+		public string ID => "OverrideEquals";
 		public string RuleText => "should override Equals()";
 
 		public bool IsViolatedBy( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SemanticModel semanticModel )
