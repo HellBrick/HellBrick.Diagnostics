@@ -10,6 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.4.5:
+			- disabled formatting analyzer until it can be re-implemented properly
+			
 			v1.4.4:
 			- suppressed another format of auto-generated comments
 			
