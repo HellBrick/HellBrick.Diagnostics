@@ -34,18 +34,18 @@ namespace HellBrick.Diagnostics.DeadCode
 		private void StartAnalysis( CompilationStartAnalysisContext context )
 		{
 			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
-			context.RegisterSymbolAction( symbolContext => analysisContext.MarkDeclaredSymbols( symbolContext ), ImmutableArray.Create( SymbolKind.Event, SymbolKind.Field, SymbolKind.Method, SymbolKind.Property ) );
-			context.RegisterCompilationEndAction( compilationContext => analysisContext.AnalyzeUnusedSymbols( compilationContext ) );
+			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), ImmutableArray.Create( SymbolKind.Event, SymbolKind.Field, SymbolKind.Method, SymbolKind.Property ) );
+			context.RegisterCompilationEndAction( compilationContext => analysisContext.DiscardUsedSymbolsAndReportDiagnostics( compilationContext ) );
 		}
 
 		private class UnusedSymbolAnalysisContext
 		{
 			private HashSet<ISymbol> _symbols = new HashSet<ISymbol>();
 
-			public void MarkDeclaredSymbols( SymbolAnalysisContext context )
+			public void TrackSymbol( ISymbol symbol )
 			{
-				if ( IsCandidate( context.Symbol ) )
-					_symbols.Add( context.Symbol );
+				if ( IsCandidate( symbol ) )
+					_symbols.Add( symbol );
 			}
 
 			private static bool IsCandidate( ISymbol symbol ) =>
@@ -77,7 +77,7 @@ namespace HellBrick.Diagnostics.DeadCode
 					);
 			}
 
-			public void AnalyzeUnusedSymbols( CompilationAnalysisContext context )
+			public void DiscardUsedSymbolsAndReportDiagnostics( CompilationAnalysisContext context )
 			{
 				foreach ( SyntaxTree syntaxTree in context.Compilation.SyntaxTrees )
 				{
