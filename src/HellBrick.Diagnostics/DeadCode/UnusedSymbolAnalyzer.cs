@@ -16,6 +16,14 @@ namespace HellBrick.Diagnostics.DeadCode
 	public class UnusedSymbolAnalyzer : DiagnosticAnalyzer
 	{
 		public const string DiagnosticID = IDPrefix.Value + "UnusedSymbol";
+		private static readonly ImmutableArray<SymbolKind> _symbolKindsToTrack =
+			ImmutableArray.Create
+			(
+				SymbolKind.Event,
+				SymbolKind.Field,
+				SymbolKind.Method,
+				SymbolKind.Property
+			);
 
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor
 		(
@@ -34,7 +42,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		private void StartAnalysis( CompilationStartAnalysisContext context )
 		{
 			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
-			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), ImmutableArray.Create( SymbolKind.Event, SymbolKind.Field, SymbolKind.Method, SymbolKind.Property ) );
+			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
 			context.RegisterCompilationEndAction( compilationContext => analysisContext.DiscardUsedSymbolsAndReportDiagnostics( compilationContext ) );
 		}
 
