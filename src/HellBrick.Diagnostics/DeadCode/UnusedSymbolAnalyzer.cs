@@ -43,7 +43,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
 			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
-			context.RegisterSemanticModelAction( semanticContext => analysisContext.DiscardReferencedSymbols( semanticContext.SemanticModel ) );
+			context.RegisterSemanticModelAction( semanticContext => analysisContext.DiscardReferencedSymbols( semanticContext ) );
 			context.RegisterCompilationEndAction( compilationContext => analysisContext.ReportDiagnosticsForUnusedSymbols( compilationContext ) );
 		}
 
@@ -85,10 +85,10 @@ namespace HellBrick.Diagnostics.DeadCode
 					);
 			}
 
-			public void DiscardReferencedSymbols( SemanticModel semanticModel )
+			public void DiscardReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
-				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticModel );
-				referenceFinder.Visit( semanticModel.SyntaxTree.GetRoot() );
+				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
+				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
 				_symbolsToReportOnCompilationEnd.ExceptWith( referenceFinder.ReferencedSymbols );
 			}
 
