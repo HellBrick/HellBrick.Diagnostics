@@ -49,12 +49,28 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private class UnusedSymbolAnalysisContext
 		{
+			private Dictionary<SyntaxTree, HashSet<ISymbol>> _symbolsToReportOnSemanticModelBuilt = new Dictionary<SyntaxTree, HashSet<ISymbol>>();
 			private HashSet<ISymbol> _symbolsToReportOnCompilationEnd = new HashSet<ISymbol>();
 
 			public void TrackSymbol( ISymbol symbol )
 			{
 				if ( IsCandidate( symbol ) )
+				{
+					if ( symbol.DeclaredAccessibility == Accessibility.Private && symbol.DeclaringSyntaxReferences.Length == 1 )
+					{
+						SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
+						HashSet<ISymbol> currentTreeSymbols;
+						if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out currentTreeSymbols ) )
+						{
+							currentTreeSymbols = new HashSet<ISymbol>();
+							_symbolsToReportOnSemanticModelBuilt.Add( declaringTree, currentTreeSymbols );
+						}
+
+						currentTreeSymbols.Add( symbol );
+					}
+					else
 						_symbolsToReportOnCompilationEnd.Add( symbol );
+				}
 			}
 
 			private static bool IsCandidate( ISymbol symbol ) =>
@@ -90,6 +106,13 @@ namespace HellBrick.Diagnostics.DeadCode
 				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
 				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
 				_symbolsToReportOnCompilationEnd.ExceptWith( referenceFinder.ReferencedSymbols );
+
+				HashSet<ISymbol> currentTreeSymbols;
+				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out currentTreeSymbols ) )
+				{
+					currentTreeSymbols.ExceptWith( referenceFinder.ReferencedSymbols );
+					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
+				}
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
