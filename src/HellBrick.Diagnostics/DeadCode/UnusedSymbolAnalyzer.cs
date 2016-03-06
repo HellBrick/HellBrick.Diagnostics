@@ -95,29 +95,27 @@ namespace HellBrick.Diagnostics.DeadCode
 				foreach ( ISymbol unusedSymbol in _symbols )
 				{
 					ISymbol definition = unusedSymbol.OriginalDefinition;
-					foreach ( Location symbolLocation in definition.Locations )
+					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
 					{
-						Location diagnosticLocation = GetDiagnosticLocation( symbolLocation );
+						Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
 						Diagnostic diagnostic = Diagnostic.Create( _rule, diagnosticLocation, unusedSymbol.ToString() );
 						context.ReportDiagnostic( diagnostic );
 					}
 				}
 			}
 
-			private static Location GetDiagnosticLocation( Location symbolLocation )
+			private Location GetDiagnosticLocation( SyntaxReference declarationReference )
 			{
-				SyntaxNode root = symbolLocation.SourceTree.GetRoot();
-				SyntaxNode definitionNode = root.FindNode( symbolLocation.SourceSpan );
-				Location diagnosticLocation = definitionNode.GetLocation();
+				SyntaxNode definitionNode = declarationReference.GetSyntax();
 
 				if ( definitionNode.HasStructuredTrivia && definitionNode.HasLeadingTrivia )
 				{
 					SyntaxTrivia leadingTrivia = definitionNode.GetLeadingTrivia().FirstOrDefault( t => t.IsKind( SyntaxKind.SingleLineDocumentationCommentTrivia ) );
 					if ( leadingTrivia != default( SyntaxTrivia ) )
-						diagnosticLocation = Location.Create( symbolLocation.SourceTree, TextSpan.FromBounds( leadingTrivia.FullSpan.Start, diagnosticLocation.SourceSpan.End ) );
+						return Location.Create( declarationReference.SyntaxTree, TextSpan.FromBounds( leadingTrivia.FullSpan.Start, declarationReference.Span.End ) );
 				}
 
-				return diagnosticLocation;
+				return Location.Create( declarationReference.SyntaxTree, declarationReference.Span );
 			}
 		}
 	}
