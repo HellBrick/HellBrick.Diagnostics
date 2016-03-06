@@ -49,12 +49,12 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private class UnusedSymbolAnalysisContext
 		{
-			private HashSet<ISymbol> _symbols = new HashSet<ISymbol>();
+			private HashSet<ISymbol> _symbolsToReportOnCompilationEnd = new HashSet<ISymbol>();
 
 			public void TrackSymbol( ISymbol symbol )
 			{
 				if ( IsCandidate( symbol ) )
-					_symbols.Add( symbol );
+						_symbolsToReportOnCompilationEnd.Add( symbol );
 			}
 
 			private static bool IsCandidate( ISymbol symbol ) =>
@@ -87,13 +87,13 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void DiscardReferencedSymbols( SemanticModel semanticModel )
 			{
-				ReferencedSymbolDiscarder discarder = new ReferencedSymbolDiscarder( semanticModel, _symbols );
+				ReferencedSymbolDiscarder discarder = new ReferencedSymbolDiscarder( semanticModel, _symbolsToReportOnCompilationEnd );
 				discarder.Visit( semanticModel.SyntaxTree.GetRoot() );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
 			{
-				foreach ( ISymbol unusedSymbol in _symbols )
+				foreach ( ISymbol unusedSymbol in _symbolsToReportOnCompilationEnd )
 				{
 					ISymbol definition = unusedSymbol.OriginalDefinition;
 					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
