@@ -80,7 +80,6 @@ namespace HellBrick.Diagnostics.DeadCode
 					(
 						methodSymbol.MethodKind == MethodKind.PropertyGet ||
 						methodSymbol.MethodKind == MethodKind.PropertySet ||
-						methodSymbol.IsOverride ||
 						methodSymbol.MetadataName == ".cctor"
 					);
 			}
