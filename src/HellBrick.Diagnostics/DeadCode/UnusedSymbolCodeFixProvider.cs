@@ -19,12 +19,15 @@ namespace HellBrick.Diagnostics.DeadCode
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( UnusedSymbolCodeFixProvider ) ), Shared]
 	public class UnusedSymbolCodeFixProvider : CodeFixProvider
 	{
+		private const string _codeActionTitle = "Remove unused code";
+		private const SyntaxRemoveOptions _nodeRemovalOptions = SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.AddElasticMarker;
+
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( UnusedSymbolAnalyzer.DiagnosticID );
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )
 		{
-			CodeAction codeAction = CodeAction.Create( "Remove unused code", ct => UpdateDocumentAsync( context, ct ), nameof( UnusedSymbolCodeFixProvider ) );
+			CodeAction codeAction = CodeAction.Create( _codeActionTitle, ct => UpdateDocumentAsync( context, ct ), nameof( UnusedSymbolCodeFixProvider ) );
 			context.RegisterCodeFix( codeAction, context.Diagnostics[ 0 ] );
 			return TaskHelper.CompletedTask;
 		}
@@ -33,7 +36,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode removedNode = root.FindNode( context.Span );
-			SyntaxNode newRoot = root.RemoveNode( removedNode, SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.AddElasticMarker );
+			SyntaxNode newRoot = root.RemoveNode( removedNode, _nodeRemovalOptions );
 			Document newDocument = context.Document.WithSyntaxRoot( newRoot );
 			return newDocument;
 		}
