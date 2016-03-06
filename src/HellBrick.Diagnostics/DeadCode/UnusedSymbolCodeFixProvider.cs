@@ -33,7 +33,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode removedNode = root.FindNode( context.Span );
-			SyntaxNode newRoot = root.RemoveNode( removedNode, SyntaxRemoveOptions.AddElasticMarker );
+			SyntaxNode newRoot = root.RemoveNode( removedNode, SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.AddElasticMarker );
 			Document newDocument = context.Document.WithSyntaxRoot( newRoot );
 			return newDocument;
 		}
