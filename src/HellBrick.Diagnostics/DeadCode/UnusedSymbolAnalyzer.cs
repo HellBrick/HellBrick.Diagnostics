@@ -107,15 +107,21 @@ namespace HellBrick.Diagnostics.DeadCode
 			private Location GetDiagnosticLocation( SyntaxReference declarationReference )
 			{
 				SyntaxNode definitionNode = declarationReference.GetSyntax();
+				if ( definitionNode.IsKind( SyntaxKind.VariableDeclarator ) )
+				{
+					FieldDeclarationSyntax fieldDeclarationNode = definitionNode.FirstAncestorOrSelf<FieldDeclarationSyntax>();
+					if ( fieldDeclarationNode != null )
+						definitionNode = fieldDeclarationNode;
+				}
 
 				if ( definitionNode.HasStructuredTrivia && definitionNode.HasLeadingTrivia )
 				{
 					SyntaxTrivia leadingTrivia = definitionNode.GetLeadingTrivia().FirstOrDefault( t => t.IsKind( SyntaxKind.SingleLineDocumentationCommentTrivia ) );
 					if ( leadingTrivia != default( SyntaxTrivia ) )
-						return Location.Create( declarationReference.SyntaxTree, TextSpan.FromBounds( leadingTrivia.FullSpan.Start, declarationReference.Span.End ) );
+						return Location.Create( declarationReference.SyntaxTree, TextSpan.FromBounds( leadingTrivia.FullSpan.Start, definitionNode.Span.End ) );
 				}
 
-				return Location.Create( declarationReference.SyntaxTree, declarationReference.Span );
+				return definitionNode.GetLocation();
 			}
 		}
 	}
