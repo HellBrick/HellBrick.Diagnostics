@@ -43,7 +43,8 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
 			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
-			context.RegisterCompilationEndAction( compilationContext => analysisContext.DiscardUsedSymbolsAndReportDiagnostics( compilationContext ) );
+			context.RegisterSemanticModelAction( semanticContext => analysisContext.DiscardReferencedSymbols( semanticContext.SemanticModel ) );
+			context.RegisterCompilationEndAction( compilationContext => analysisContext.ReportDiagnosticsForUnusedSymbols( compilationContext ) );
 		}
 
 		private class UnusedSymbolAnalysisContext
@@ -84,14 +85,14 @@ namespace HellBrick.Diagnostics.DeadCode
 					);
 			}
 
-			public void DiscardUsedSymbolsAndReportDiagnostics( CompilationAnalysisContext context )
+			public void DiscardReferencedSymbols( SemanticModel semanticModel )
 			{
-				foreach ( SyntaxTree syntaxTree in context.Compilation.SyntaxTrees )
-				{
-					ReferencedSymbolDiscarder discarder = new ReferencedSymbolDiscarder( context.Compilation.GetSemanticModel( syntaxTree ), _symbols );
-					discarder.Visit( syntaxTree.GetRoot() );
-				}
+				ReferencedSymbolDiscarder discarder = new ReferencedSymbolDiscarder( semanticModel, _symbols );
+				discarder.Visit( semanticModel.SyntaxTree.GetRoot() );
+			}
 
+			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
+			{
 				foreach ( ISymbol unusedSymbol in _symbols )
 				{
 					ISymbol definition = unusedSymbol.OriginalDefinition;
