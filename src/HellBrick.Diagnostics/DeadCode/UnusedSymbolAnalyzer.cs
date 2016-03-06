@@ -87,8 +87,9 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void DiscardReferencedSymbols( SemanticModel semanticModel )
 			{
-				ReferencedSymbolDiscarder discarder = new ReferencedSymbolDiscarder( semanticModel, _symbolsToReportOnCompilationEnd );
-				discarder.Visit( semanticModel.SyntaxTree.GetRoot() );
+				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticModel );
+				referenceFinder.Visit( semanticModel.SyntaxTree.GetRoot() );
+				_symbolsToReportOnCompilationEnd.ExceptWith( referenceFinder.ReferencedSymbols );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
