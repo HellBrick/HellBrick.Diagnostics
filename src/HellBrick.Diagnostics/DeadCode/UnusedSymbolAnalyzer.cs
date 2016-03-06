@@ -94,14 +94,19 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
 			{
-				foreach ( ISymbol unusedSymbol in _symbolsToReportOnCompilationEnd )
+				ReportDiagnostics( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
+			}
+
+			private void ReportDiagnostics( IEnumerable<ISymbol> unusedSymbols, Action<Diagnostic> reportDiagnosticAction )
+			{
+				foreach ( ISymbol unusedSymbol in unusedSymbols )
 				{
 					ISymbol definition = unusedSymbol.OriginalDefinition;
 					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
 					{
 						Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
 						Diagnostic diagnostic = Diagnostic.Create( _rule, diagnosticLocation, unusedSymbol.ToString() );
-						context.ReportDiagnostic( diagnostic );
+						reportDiagnosticAction( diagnostic );
 					}
 				}
 			}
