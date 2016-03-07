@@ -10,6 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.5.0:
+			- an analyzer that detects unused class members (private and internal only)
+			
 			v1.4.5:
 			- disabled formatting analyzer until it can be re-implemented properly
 			
