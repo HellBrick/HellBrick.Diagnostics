@@ -40,7 +40,7 @@ namespace HellBrick.Diagnostics.ExpressionBodies
 
 		private AccessorDeclarationSyntax GetAccessor( PropertyDeclarationSyntax declaration, SyntaxKind accessorKind )
 		{
-			return declaration.AccessorList.Accessors.FirstOrDefault( a => a.IsKind( accessorKind ) );
+			return declaration.AccessorList?.Accessors.FirstOrDefault( a => a.IsKind( accessorKind ) );
 		}
 	}
 }
