@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="HellBrick.Diagnostics.Refactorings.Vsix.HellBrick.420a643f-61e0-4b35-8fb0-a195ea7d3fa3" Version="1.4.0" Language="en-US" Publisher="HellBrick" />
+		<Identity Id="HellBrick.Diagnostics.Refactorings.Vsix.HellBrick.420a643f-61e0-4b35-8fb0-a195ea7d3fa3" Version="1.5.1" Language="en-US" Publisher="HellBrick" />
 		<DisplayName>HellBrick.Diagnostics.Refactorings.Vsix</DisplayName>
 		<Description xml:space="preserve">A set of refactorings by HellBrick</Description>
 	</Metadata>
