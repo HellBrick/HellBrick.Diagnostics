@@ -100,8 +100,6 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\CodeRefactoringProviderExtensions.cs" />
-    <Compile Include="StringFormatToStringInterpolationRefactoringTest.cs" />
     <Compile Include="Verifiers\CodeFixVerifier.cs" />
     <Compile Include="Verifiers\DiagnosticVerifier.cs" />
     <Compile Include="Helpers\CodeFixVerifier.Helper.cs" />
@@ -114,10 +112,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HellBrick.Diagnostics.Refactorings\HellBrick.Diagnostics.Refactorings.csproj">
-      <Project>{4d36292e-d170-40d5-8d47-c4c867063de7}</Project>
-      <Name>HellBrick.Diagnostics.Refactorings</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj">
       <Project>{1B542F07-FCC4-452E-AFB4-7176711D5724}</Project>
       <Name>HellBrick.Diagnostics</Name>
