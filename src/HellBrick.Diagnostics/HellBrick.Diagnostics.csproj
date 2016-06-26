@@ -50,6 +50,7 @@
     <Compile Include="StructDeclarations\EquatabilityRules\OverrideEqualsRule.cs" />
     <Compile Include="StructDeclarations\EquatabilityRules\OverrideGetHashCodeRule.cs" />
     <Compile Include="StructDeclarations\IEquatabilityRule.cs" />
+    <Compile Include="StructDeclarations\IStructSyntaxNodeAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructFieldsAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructPropertyAnalyzer.cs" />
     <Compile Include="StructDeclarations\ReadOnlyStructPropertyCodeFixProvider.cs" />

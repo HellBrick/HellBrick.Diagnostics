@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace HellBrick.Diagnostics.StructDeclarations
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
-	public class ReadOnlyStructFieldsAnalyzer : DiagnosticAnalyzer
+	public class ReadOnlyStructFieldsAnalyzer : DiagnosticAnalyzer, IStructSyntaxNodeAnalyzer
 	{
 		public const string DiagnosticID = StructIDPrefix.Value + "ReadOnlyFields";
 		private const string _title = "Struct fields should be readonly";
@@ -34,6 +34,12 @@ namespace HellBrick.Diagnostics.StructDeclarations
 				return;
 
 			StructDeclarationSyntax structDeclaration = context.Node as StructDeclarationSyntax;
+			ITypeSymbol structType = context.SemanticModel.GetDeclaredSymbol( structDeclaration );
+			AnalyzeStructSyntaxNode( structDeclaration, structType, context );
+		}
+
+		public void AnalyzeStructSyntaxNode( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SyntaxNodeAnalysisContext context )
+		{
 			FieldDeclarationSyntax[] mutableFields = structDeclaration
 				.EnumerateDataFields()
 				.Where( field => !field.Modifiers.Any( SyntaxKind.ReadOnlyKeyword ) )

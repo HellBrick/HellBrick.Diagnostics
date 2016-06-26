@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace HellBrick.Diagnostics.StructDeclarations
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
-	public class StructEquatabilityAnalyzer : DiagnosticAnalyzer
+	public class StructEquatabilityAnalyzer : DiagnosticAnalyzer, IStructSyntaxNodeAnalyzer
 	{
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = StructEquatabilityRules.Descriptors.Values.ToImmutableArray();
 		public override void Initialize( AnalysisContext context ) => context.RegisterSyntaxNodeAction( ReportMissingEqualityMembers, SyntaxKind.StructDeclaration );
@@ -24,6 +24,11 @@ namespace HellBrick.Diagnostics.StructDeclarations
 
 			StructDeclarationSyntax structDeclaration = context.Node as StructDeclarationSyntax;
 			ITypeSymbol structType = context.SemanticModel.GetDeclaredSymbol( structDeclaration );
+			AnalyzeStructSyntaxNode( structDeclaration, structType, context );
+		}
+
+		public void AnalyzeStructSyntaxNode( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SyntaxNodeAnalysisContext context )
+		{
 			Location location = structDeclaration.Identifier.GetLocation();
 
 			foreach ( IEquatabilityRule rule in StructEquatabilityRules.Rules.Values )
