@@ -111,7 +111,8 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			private static bool CanReportOnSemanticModelBuilt( ISymbol symbol )
 				=> symbol.DeclaredAccessibility == Accessibility.Private
-				&& symbol.DeclaringSyntaxReferences.Length == 1;
+				&& symbol.DeclaringSyntaxReferences.Length == 1
+				&& symbol.ContainingSymbol?.DeclaringSyntaxReferences.Length == 1;
 
 			public void TrackReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
@@ -131,7 +132,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
 			{
 				if ( _hasInternalsVisibleTo )
-					return;
+					_symbolsToReportOnCompilationEnd.RemoveWhere( s => s.DeclaredAccessibility == Accessibility.Internal );
 
 				_symbolsToReportOnCompilationEnd.ExceptWith( _referencedSymbols );
 				ReportDiagnostics( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
