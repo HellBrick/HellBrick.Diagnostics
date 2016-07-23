@@ -35,6 +35,8 @@
     <Compile Include="DeadCode\IMethodSymbol.IsEntryPoint.cs" />
     <Compile Include="DeadCode\ISymbol.ImplementsInterface.cs" />
     <Compile Include="DeadCode\ReferencedSymbolFinder.cs" />
+    <Compile Include="DeadCode\UnusedParameterAnalyzer.cs" />
+    <Compile Include="DeadCode\UnusedParameterCodeFixProvider.cs" />
     <Compile Include="DeadCode\UnusedSymbolAnalyzer.cs" />
     <Compile Include="DeadCode\UnusedSymbolCodeFixProvider.cs" />
     <Compile Include="DiagnosticCategory.cs" />
