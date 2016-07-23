@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using HellBrick.Diagnostics.Test.Helpers;
 
 namespace TestHelper
 {
@@ -155,7 +156,10 @@ namespace TestHelper
 
 			var projectId = ProjectId.CreateNewId( debugName: TestProjectName );
 
-			var solution = new AdhocWorkspace()
+			var workspace = new AdhocWorkspace();
+			workspace.Options = workspace.Options.WithProperFormatting();
+
+			var solution = workspace
 				.CurrentSolution
 				.AddProject( projectId, TestProjectName, TestProjectName, language )
 				.AddMetadataReference( projectId, CorlibReference )
