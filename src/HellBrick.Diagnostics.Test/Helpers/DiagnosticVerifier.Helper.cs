@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using HellBrick.Diagnostics.Test.Helpers;
 
 namespace TestHelper
 {
@@ -148,14 +149,17 @@ namespace TestHelper
 		/// <param name="sources">Classes in the form of strings</param>
 		/// <param name="language">The language the source code is in</param>
 		/// <returns>A Project created out of the Documents created from the source strings</returns>
-		private static Project CreateProject( string[] sources, string language = LanguageNames.CSharp )
+		protected static Project CreateProject( string[] sources, string language = LanguageNames.CSharp )
 		{
 			string fileNamePrefix = DefaultFilePathPrefix;
 			string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
 
 			var projectId = ProjectId.CreateNewId( debugName: TestProjectName );
 
-			var solution = new AdhocWorkspace()
+			var workspace = new AdhocWorkspace();
+			workspace.Options = workspace.Options.WithProperFormatting();
+
+			var solution = workspace
 				.CurrentSolution
 				.AddProject( projectId, TestProjectName, TestProjectName, language )
 				.AddMetadataReference( projectId, CorlibReference )

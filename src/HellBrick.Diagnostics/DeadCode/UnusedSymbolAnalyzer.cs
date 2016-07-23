@@ -61,23 +61,23 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void TrackSymbol( ISymbol symbol )
 			{
-				if ( IsCandidate( symbol ) )
-				{
-					if ( symbol.DeclaredAccessibility == Accessibility.Private && symbol.DeclaringSyntaxReferences.Length == 1 )
-					{
-						SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
-						HashSet<ISymbol> currentTreeSymbols;
-						if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out currentTreeSymbols ) )
-						{
-							currentTreeSymbols = new HashSet<ISymbol>();
-							_symbolsToReportOnSemanticModelBuilt.Add( declaringTree, currentTreeSymbols );
-						}
+				if ( !IsCandidate( symbol ) )
+					return;
 
-						currentTreeSymbols.Add( symbol );
+				if ( CanReportOnSemanticModelBuilt( symbol ) )
+				{
+					SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
+					HashSet<ISymbol> currentTreeSymbols;
+					if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out currentTreeSymbols ) )
+					{
+						currentTreeSymbols = new HashSet<ISymbol>();
+						_symbolsToReportOnSemanticModelBuilt.Add( declaringTree, currentTreeSymbols );
 					}
-					else
-						_symbolsToReportOnCompilationEnd.Add( symbol );
+
+					currentTreeSymbols.Add( symbol );
 				}
+				else
+					_symbolsToReportOnCompilationEnd.Add( symbol );
 			}
 
 			private static bool IsCandidate( ISymbol symbol ) =>
@@ -109,6 +109,11 @@ namespace HellBrick.Diagnostics.DeadCode
 					);
 			}
 
+			private static bool CanReportOnSemanticModelBuilt( ISymbol symbol )
+				=> symbol.DeclaredAccessibility == Accessibility.Private
+				&& symbol.DeclaringSyntaxReferences.Length == 1
+				&& symbol.ContainingSymbol?.DeclaringSyntaxReferences.Length == 1;
+
 			public void TrackReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
 				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
@@ -127,7 +132,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
 			{
 				if ( _hasInternalsVisibleTo )
-					return;
+					_symbolsToReportOnCompilationEnd.RemoveWhere( s => s.DeclaredAccessibility == Accessibility.Internal );
 
 				_symbolsToReportOnCompilationEnd.ExceptWith( _referencedSymbols );
 				ReportDiagnostics( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
