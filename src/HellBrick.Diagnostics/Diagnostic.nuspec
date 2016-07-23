@@ -10,6 +10,12 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.5.1:
+			- equality and mutability warnings are no longer reported for the struct enumerators
+			- internal members are no longer considered unused if assembly has [InternalsVisibleTo] attribute
+			- private members referenced from other partial class definitions are no longer considered unused
+			- all analyzers use default heuristics to skip generated files
+			
 			v1.5.0:
 			- an analyzer that detects unused class members (private and internal only)
 			
