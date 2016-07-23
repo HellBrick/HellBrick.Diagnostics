@@ -34,6 +34,8 @@ namespace TestHelper
 			return null;
 		}
 
+		protected void VerifyNoFix( string source ) => VerifyCSharpFix( source, source );
+
 		/// <summary>
 		/// Called to test a C# codefix when applied on the inputted string as a source
 		/// </summary>
