@@ -98,7 +98,7 @@ namespace HellBrick.Diagnostics.DeadCode
 						methodSymbol.MethodKind == MethodKind.PropertyGet ||
 						methodSymbol.MethodKind == MethodKind.PropertySet ||
 						methodSymbol.MetadataName == ".cctor" ||
-						methodSymbol.IsStatic && methodSymbol.MetadataName == "Main" && methodSymbol.ContainingSymbol?.MetadataName == "Program"
+						methodSymbol.IsEntryPoint()
 					);
 			}
 
