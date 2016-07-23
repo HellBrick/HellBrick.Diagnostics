@@ -87,17 +87,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				( symbol.DeclaredAccessibility == Accessibility.Private || symbol.DeclaredAccessibility == Accessibility.Internal ) &&
 				!symbol.IsOverride &&
 				!IsIgnoredMethod( symbol ) &&
-				!ImplementsInterface( symbol );
-
-			private static bool ImplementsInterface( ISymbol symbol ) =>
-				(
-					from @interface in symbol.ContainingType.AllInterfaces
-					from interfaceMember in @interface.GetMembers()
-					let implementation = symbol.ContainingType.FindImplementationForInterfaceMember( interfaceMember )
-					where symbol == implementation
-					select 0
-				)
-				.Any();
+				!symbol.ImplementsInterface();
 
 			private static bool IsIgnoredMethod( ISymbol symbol )
 			{
