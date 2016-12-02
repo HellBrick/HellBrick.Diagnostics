@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\OptionsSet.WithProperFormatting.cs" />
+    <Compile Include="StructToNullComparingTest.cs" />
     <Compile Include="UnusedParameterTest.cs" />
     <Compile Include="UnusedSymbolTest.cs" />
     <Compile Include="Verifiers\CodeFixVerifier.cs" />
