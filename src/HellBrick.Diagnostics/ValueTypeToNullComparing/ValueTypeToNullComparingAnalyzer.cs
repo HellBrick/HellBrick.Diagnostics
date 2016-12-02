@@ -51,7 +51,12 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		}
 
 		private static bool NodesAreNullAndValueType( ExpressionSyntax left, ExpressionSyntax right, SemanticModel semanticModel )
-			=> left.IsKind( SyntaxKind.NullLiteralExpression )
-			&& semanticModel.GetTypeInfo( right ).Type.TypeKind == TypeKind.Struct;
+		{
+			var leftType = semanticModel.GetTypeInfo( right ).Type;
+			return left.IsKind( SyntaxKind.NullLiteralExpression )
+				&& leftType.TypeKind == TypeKind.Struct
+				&& !( leftType.ContainingNamespace.Name == "System" && leftType.Name == "Nullable" );
+		}
+
 	}
 }

@@ -153,5 +153,31 @@ namespace ThridParty
 			string result = string.Format( _externalStructFormat, "default( ValueTypes.EmptyStruct )" );
 			VerifyCSharpFix( new[] { test, _emptyStructFile, _emptyStructFactoryFile }, new[] { result, _emptyStructFile, _emptyStructFactoryFile } );
 		}
+
+		private const string _nullableTestCase = @"
+using System;
+using ValueTypes;
+
+namespace ConsoleApplication1
+{
+	class SomeClass
+	{
+		public void M()
+		{
+			EmptyStruct? target = new EmptyStruct()
+			var booooooool = target == null;
+		}
+	}
+
+	public struct EmptyStruct
+	{
+	}
+}";
+
+		[TestMethod]
+		public void NullableStructAnalysysSkipped()
+		{
+			VerifyCSharpFix( new[] { _nullableTestCase }, new[] { _nullableTestCase } );
+		}
 	}
 }
