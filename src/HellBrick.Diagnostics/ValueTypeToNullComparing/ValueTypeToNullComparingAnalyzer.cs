@@ -17,6 +17,8 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		public const string DiagnosticId = IDPrefix.Value + "ValueTypeToNullComparing";
 		private const string _title = "Value type to null comparing";
 
+		private static readonly ImmutableArray<SyntaxKind> _analysisTarget = ImmutableArray.Create( SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression );
+
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor
 		(
 			id: DiagnosticId,
@@ -32,7 +34,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		public override void Initialize( AnalysisContext context )
 		{
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
-			context.RegisterSyntaxNodeAction( FindFlagrantViolationOfCodeStyle, SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression );
+			context.RegisterSyntaxNodeAction( FindFlagrantViolationOfCodeStyle, _analysisTarget );
 		}
 
 		private void FindFlagrantViolationOfCodeStyle( SyntaxNodeAnalysisContext context )
