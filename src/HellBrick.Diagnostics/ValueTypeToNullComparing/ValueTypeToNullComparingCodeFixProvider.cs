@@ -46,20 +46,25 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 				.GetSyntaxRootAsync( token )
 				.ConfigureAwait( false );
 
-			SemanticModel model = await document
-				.GetSemanticModelAsync().ConfigureAwait( false );
-
 			BinaryExpressionSyntax equalStatement = documentRoot
 				.FindNode( diagnostic.Location.SourceSpan ) as BinaryExpressionSyntax;
 
-			BinaryExpressionSyntax newExpression = equalStatement.Right.IsKind( SyntaxKind.NullLiteralExpression )
-				? equalStatement.WithRight( CreateDefaultSyntax( equalStatement.Left, model, diagnostic.Location ) )
-				: equalStatement.WithLeft( CreateDefaultSyntax( equalStatement.Right, model, diagnostic.Location ) );
+			SemanticModel model = await document
+				.GetSemanticModelAsync()
+				.ConfigureAwait( false );
 
-			return document.WithSyntaxRoot( documentRoot.ReplaceNode( equalStatement, newExpression ) );
+			return document.WithSyntaxRoot
+			(
+				equalStatement.Right.IsKind( SyntaxKind.NullLiteralExpression )
+					? ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, model, equalStatement.Right, equalStatement.Left )
+					: ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, model, equalStatement.Left, equalStatement.Right )
+			);
 		}
 
-		private static DefaultExpressionSyntax CreateDefaultSyntax( ExpressionSyntax node, SemanticModel model, Location location )
+		private static SyntaxNode ReplaceNodeWithDefaultSyntax( Diagnostic diagnostic, SyntaxNode documentRoot, SemanticModel model, ExpressionSyntax nodeToReplace, ExpressionSyntax typeNode )
+			=> documentRoot.ReplaceNode( nodeToReplace, CreateDefaultSyntax( diagnostic.Location, model, typeNode ) );
+
+		private static DefaultExpressionSyntax CreateDefaultSyntax( Location location, SemanticModel model, ExpressionSyntax node )
 		{
 			string typeName = model.GetTypeInfo( node ).Type.ToMinimalDisplayString( model, location.SourceSpan.Start );
 			return SyntaxFactory.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) );
