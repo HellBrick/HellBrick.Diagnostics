@@ -10,6 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Diagnostics</description>
 		<releaseNotes>
+			v1.7.1:
+			- fixed an exception caused by the Roslyn type resolve bug
+
 			v1.7.0:
 			- an analyzer that detects struct null comparison
 
