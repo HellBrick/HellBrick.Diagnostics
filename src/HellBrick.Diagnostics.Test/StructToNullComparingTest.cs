@@ -179,5 +179,33 @@ namespace ConsoleApplication1
 		{
 			VerifyCSharpFix( new[] { _nullableTestCase }, new[] { _nullableTestCase } );
 		}
+
+		[TestMethod]
+		public void RoslynBugIsWorkedAround()
+		{
+			const string code = @"
+using System;
+
+namespace RoslynBug
+{
+	class SomeClass
+	{
+		private static bool Method()
+			=> Is
+			(
+				new Wrapper<int>(),
+				x => x.Value != null
+			);
+
+		private static bool Is<T>( T value, Func<T, bool> predicate ) => predicate( value );
+
+		private class Wrapper<T>
+		{
+			public T Value { get; set; }
+		}
+	}
+}";
+			VerifyNoFix( code );
+		}
 	}
 }
