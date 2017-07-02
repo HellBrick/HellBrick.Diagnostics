@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 
 namespace TestHelper
 {
@@ -91,16 +92,11 @@ namespace TestHelper
 				var actual = actualResults.ElementAt( i );
 				var expected = expectedResults[ i ];
 
-				if ( actual.Id != expected.Id )
-					Assert.Fail( string.Format( "Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-							expected.Id, actual.Id, FormatDiagnostics( analyzer, actual ) ) );
+				actual.Id.Should().Be( expected.Id, "Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n", expected.Id, actual.Id, FormatDiagnostics( analyzer, actual ) );
+				actual.Severity.Should().Be( expected.Severity, "Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n", expected.Severity, actual.Severity, FormatDiagnostics( analyzer, actual ) );
 
-				if ( actual.Severity != expected.Severity )
-					Assert.Fail( string.Format( "Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-							expected.Severity, actual.Severity, FormatDiagnostics( analyzer, actual ) ) );
-
-				if ( expected.Message != null && !actual.GetMessage().Contains( expected.Message ) )
-					Assert.Fail( $"The diagnostic message was expected to contain '{expected.Message}'. The actual message was '{actual.GetMessage()}'" );
+				if ( expected.Message != null )
+					actual.GetMessage().Should().Contain( expected.Message, $"The diagnostic message was expected to contain '{expected.Message}'. The actual message was '{actual.GetMessage()}'" );
 			}
 		}
 
