@@ -1,15 +1,14 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
 using System.Linq;
 using HellBrick.Diagnostics.EnforceReadOnly;
+using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	[TestClass]
 	public class EnforceReadOnlyTest : CodeFixVerifier
 	{
 		#region Common
@@ -41,7 +40,7 @@ namespace HellBrick.Diagnostics.Test
 
 		#endregion
 
-		[TestMethod]
+		[Fact]
 		public void FieldAssignedToInConstructorIsFixed()
 		{
 			var sourceCode = @"
@@ -76,7 +75,7 @@ namespace NS
 			VerifyFix( sourceCode, expectedCode, "_x" );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FiedAssignedToInMethodIsNotFixed()
 		{
 			var sourceCode = @"
@@ -96,7 +95,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FiedAssignedToInPropertyIsNotFixed()
 		{
 			var sourceCode = @"
@@ -120,7 +119,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ValueTypeFieldAssignedToByIndexerIsNotFixed()
 		{
 			var sourceCode = @"
@@ -150,7 +149,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ReferenceTypeFieldAssignedToByIndexerIsFixed()
 		{
 			var sourceCode = @"
@@ -184,7 +183,7 @@ namespace NS
 			VerifyFix( sourceCode, expectedCode, "_array" );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ReferenceTypeFieldThatHasFieldAssignedToIsFixed()
 		{
 			var sourceCode = @"
@@ -230,7 +229,7 @@ namespace NS
 			VerifyFix( sourceCode, expectedCode, "_class" );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FieldReferencedByRefInConstructorIsFixed()
 		{
 			var sourceCode = @"
@@ -280,7 +279,7 @@ namespace NS
 			VerifyFix( sourceCode, expectedCode, "_x", "_y" );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FieldReferencedByRefInMethodIsNotFixed()
 		{
 			var sourceCode = @"
@@ -308,7 +307,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FieldAssignedToInLambdaIsNotFixed()
 		{
 			var sourceCode = @"
@@ -328,7 +327,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void IncrementedFieldIsNotFixed()
 		{
 			var sourceCode = @"
@@ -350,7 +349,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FiedAssignedToInNestedClassIsNotFixed()
 		{
 			var sourceCode = @"
@@ -373,7 +372,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void MultiDeclaratorIsNotFixed()
 		{
 			var sourceCode = @"
@@ -392,7 +391,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void PartialClassIsNotFixed()
 		{
 			var sourceCode = @"
@@ -419,7 +418,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void PublicFieldIsNotFixed()
 		{
 			var sourceCode = @"
@@ -440,7 +439,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ReadOnlyFieldIsNotFixed()
 		{
 			var sourceCode = @"
@@ -460,7 +459,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void StaticFieldAssignedToInNonStaticConstructorIsNotFixed()
 		{
 			var sourceCode = @"
@@ -480,7 +479,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void FieldAssignedToByOperatorAssignmentIsNotFixed()
 		{
 			var sourceCode = @"
@@ -519,7 +518,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ValueTypeFieldIsNotFixed()
 		{
 			var sourceCode = @"
@@ -544,7 +543,7 @@ namespace NS
 			VerifyNoFix( sourceCode );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void PrimitiveTypeFieldIsFixed()
 		{
 			var sourceCode = @"

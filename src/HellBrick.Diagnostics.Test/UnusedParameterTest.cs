@@ -6,18 +6,17 @@ using System.Threading.Tasks;
 using HellBrick.Diagnostics.DeadCode;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestHelper;
+using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	[TestClass]
 	public class UnusedParameterTest : CodeFixVerifier
 	{
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new UnusedParameterAnalyzer();
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnusedParameterCodeFixProvider();
 
-		[TestMethod]
+		[Fact]
 		public void UnusedClassMethodParameterIsRemoved()
 		{
 			const string source =
@@ -41,7 +40,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void CorrespondingArgumentIsRemovedWhenCalledFromSameClass()
 		{
 			const string source =
@@ -67,7 +66,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void CorrespondingArgumentIsRemovedWhenCalledFromAnotherClass()
 		{
 			const string source =
@@ -101,7 +100,7 @@ public class D
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodImplementsInterface()
 		{
 			const string source =
@@ -126,7 +125,7 @@ public class D : I
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodIsVirtual()
 		{
 			const string source =
@@ -149,7 +148,7 @@ public class D : C
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedConstructorParameterIsRemoved()
 		{
 			const string source =
@@ -183,7 +182,7 @@ public class D : C
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedLambdaParameterIsNotRemoved()
 		{
 			const string source =
@@ -198,7 +197,7 @@ public class D : C
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void EntryPointArgumentIsNotRemoved()
 		{
 			const string source =
@@ -211,7 +210,7 @@ public class D : C
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void AllUnusedMethodParametersAreRemoved()
 		{
 			const string source =
@@ -235,7 +234,7 @@ public class D : C
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void CorrectArgumentIsRemovedIfArgumentOrderDiffersFromParameterOrder()
 		{
 			const string source =
@@ -261,7 +260,7 @@ public class D : C
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void ArgumentIsNotRemovedIfDefaultValueIsPassedtoOptionalParameter()
 		{
 			const string source =
@@ -285,7 +284,7 @@ public class D : C
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void NestedCallArgumentIsRemovedCompletely()
 		{
 			const string source =
@@ -303,7 +302,7 @@ public class D : C
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void NestedCallArgumentIsAdjustedCorrectlyIfPassedAsParameterThatIsNotRemoved()
 		{
 			const string source =
