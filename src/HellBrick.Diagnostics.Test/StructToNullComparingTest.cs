@@ -7,12 +7,11 @@ using HellBrick.Diagnostics.ValueTypeToNullComparing;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestHelper;
+using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	[TestClass]
 	public class StructToNullComparingTest : CodeFixVerifier
 	{
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
@@ -36,7 +35,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[TestMethod]
+		[Fact]
 		public void NullReplacedWithDefaultForEqualsStatement()
 		{
 			const string equals = "==";
@@ -45,7 +44,7 @@ namespace ConsoleApplication1
 			VerifyCSharpFix( test, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void NullReplacedWithDefaultForNonEqualsStatement()
 		{
 			const string equals = "!=";
@@ -71,7 +70,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[TestMethod]
+		[Fact]
 		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
 		{
 			string test = string.Format( _reversedFormat, "null" );
@@ -98,7 +97,7 @@ namespace ConsoleApplication1
 	}}
 }}";
 
-		[TestMethod]
+		[Fact]
 		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
 		{
 			string test = string.Format( _defaultToNullComparingFormat, "null" );
@@ -146,7 +145,7 @@ namespace ThridParty
 	}
 }";
 
-		[TestMethod]
+		[Fact]
 		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
 		{
 			string test = string.Format( _externalStructFormat, "null" );
@@ -174,13 +173,13 @@ namespace ConsoleApplication1
 	}
 }";
 
-		[TestMethod]
+		[Fact]
 		public void NullableStructAnalysysSkipped()
 		{
 			VerifyCSharpFix( new[] { _nullableTestCase }, new[] { _nullableTestCase } );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void RoslynBugIsWorkedAround()
 		{
 			const string code = @"

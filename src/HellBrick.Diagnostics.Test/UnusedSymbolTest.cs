@@ -6,18 +6,17 @@ using System.Threading.Tasks;
 using HellBrick.Diagnostics.DeadCode;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestHelper;
+using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	[TestClass]
 	public class UnusedSymbolTest : CodeFixVerifier
 	{
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new UnusedSymbolAnalyzer();
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnusedSymbolCodeFixProvider();
 
-		[TestMethod]
+		[Fact]
 		public void UnusedPrivateMemberIsRemoved()
 		{
 			const string source =
@@ -32,7 +31,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedPublicMemberIsNotRemoved()
 		{
 			const string source =
@@ -44,7 +43,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedInternalMemberIsRemoved()
 		{
 			const string source =
@@ -59,7 +58,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( source, result );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UsedPrivateMemberIsNotRemoved()
 		{
 			const string source =
@@ -74,7 +73,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UsedInternalMemberIsNotRemoved()
 		{
 			const string source1 =
@@ -90,7 +89,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyNoFix( source1, source2 );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void UnusedInternalMemberIsNotRemovedIfHasInternalsVisibleTo()
 		{
 			const string source =
@@ -104,7 +103,7 @@ public class C
 			VerifyNoFix( source );
 		}
 
-		[TestMethod]
+		[Fact]
 		public void PrivateMemberUsedByAnotherFileOfPartialClassIsNotRemoved()
 		{
 			const string source1 =
