@@ -217,10 +217,8 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 					switch ( currentNode.Kind() )
 					{
 						case SyntaxKind.ConstructorDeclaration:
-							{
-								ISymbol constructorSymbol = _semanticModel.GetDeclaredSymbol( currentNode );
-								return constructorSymbol.ContainingType == fieldSymbol.ContainingType && constructorSymbol.IsStatic == fieldSymbol.IsStatic;
-							}
+							ISymbol constructorSymbol = _semanticModel.GetDeclaredSymbol( currentNode );
+							return constructorSymbol.ContainingType == fieldSymbol.ContainingType && constructorSymbol.IsStatic == fieldSymbol.IsStatic;
 
 						case SyntaxKind.ParenthesizedLambdaExpression:
 						case SyntaxKind.SimpleLambdaExpression:
