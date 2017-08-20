@@ -59,21 +59,21 @@ namespace TestHelper
 		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
 		private void VerifyFix( string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string[] oldSources, string[] newSources, int? codeFixIndex, bool allowNewCompilerDiagnostics )
 		{
-			var project = CreateProject( oldSources );
-			var documents = project.Documents.ToArray();
-			var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, documents );
+			Project project = CreateProject( oldSources );
+			Document[] documents = project.Documents.ToArray();
+			Diagnostic[] analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, documents );
 			for ( int documentIndex = 0; documentIndex < documents.Length; documentIndex++ )
 			{
-				var document = documents[ documentIndex ];
+				Document document = documents[ documentIndex ];
 				string newSource = newSources[ documentIndex ];
 
-				var compilerDiagnostics = GetCompilerDiagnostics( document );
-				var attempts = analyzerDiagnostics.Length;
+				IEnumerable<Diagnostic> compilerDiagnostics = GetCompilerDiagnostics( document );
+				int attempts = analyzerDiagnostics.Length;
 
 				for ( int i = 0; i < attempts; ++i )
 				{
-					var actions = new List<CodeAction>();
-					var context = new CodeFixContext( document, analyzerDiagnostics[ 0 ], ( a, d ) => actions.Add( a ), CancellationToken.None );
+					List<CodeAction> actions = new List<CodeAction>();
+					CodeFixContext context = new CodeFixContext( document, analyzerDiagnostics[ 0 ], ( a, d ) => actions.Add( a ), CancellationToken.None );
 					codeFixProvider.RegisterCodeFixesAsync( context ).Wait();
 
 					if ( !actions.Any() )
@@ -90,7 +90,7 @@ namespace TestHelper
 					document = ApplyFix( document, actions.ElementAt( 0 ) );
 					analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[] { document } );
 
-					var newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
+					IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 
 					//check if applying the code fix introduced any new compiler diagnostics
 					if ( !allowNewCompilerDiagnostics && newCompilerDiagnostics.Any() )
@@ -113,7 +113,7 @@ namespace TestHelper
 				}
 
 				//after applying all of the code fixes, compare the resulting string to the inputted one
-				var actual = GetStringFromDocument( document );
+				string actual = GetStringFromDocument( document );
 				Assert.Equal( newSource, actual );
 			}
 		}

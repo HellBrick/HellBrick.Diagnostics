@@ -60,7 +60,7 @@ namespace TestHelper
 		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
 		private void VerifyDiagnostics( string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected )
 		{
-			var diagnostics = GetSortedDiagnostics( sources, language, analyzer );
+			Diagnostic[] diagnostics = GetSortedDiagnostics( sources, language, analyzer );
 			VerifyDiagnosticResults( diagnostics, analyzer, expected );
 		}
 
@@ -89,8 +89,8 @@ namespace TestHelper
 
 			for ( int i = 0; i < expectedResults.Length; i++ )
 			{
-				var actual = actualResults.ElementAt( i );
-				var expected = expectedResults[ i ];
+				Diagnostic actual = actualResults.ElementAt( i );
+				DiagnosticResult expected = expectedResults[ i ];
 
 				actual.Id.Should().Be( expected.Id, "Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n", expected.Id, actual.Id, FormatDiagnostics( analyzer, actual ) );
 				actual.Severity.Should().Be( expected.Severity, "Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n", expected.Severity, actual.Severity, FormatDiagnostics( analyzer, actual ) );
@@ -109,13 +109,13 @@ namespace TestHelper
 		/// <param name="expected">The DiagnosticResultLocation that should have been found</param>
 		private static void VerifyDiagnosticLocation( DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected )
 		{
-			var actualSpan = actual.GetLineSpan();
+			FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
 			Assert.True( actualSpan.Path == expected.Path || ( actualSpan.Path != null && actualSpan.Path.Contains( "Test0." ) && expected.Path.Contains( "Test." ) ),
 				string.Format( "Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 					expected.Path, actualSpan.Path, FormatDiagnostics( analyzer, diagnostic ) ) );
 
-			var actualLinePosition = actualSpan.StartLinePosition;
+			Microsoft.CodeAnalysis.Text.LinePosition actualLinePosition = actualSpan.StartLinePosition;
 
 			// Only check line position if there is an actual line in the real diagnostic
 			if ( actualLinePosition.Line > 0 )
@@ -150,19 +150,19 @@ namespace TestHelper
 		/// <returns>The Diagnostics formatted as a string</returns>
 		private static string FormatDiagnostics( DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics )
 		{
-			var builder = new StringBuilder();
+			StringBuilder builder = new StringBuilder();
 			for ( int i = 0; i < diagnostics.Length; ++i )
 			{
 				builder.AppendLine( "// " + diagnostics[ i ].ToString() );
 
-				var analyzerType = analyzer.GetType();
-				var rules = analyzer.SupportedDiagnostics;
+				System.Type analyzerType = analyzer.GetType();
+				System.Collections.Immutable.ImmutableArray<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
 
-				foreach ( var rule in rules )
+				foreach ( DiagnosticDescriptor rule in rules )
 				{
 					if ( rule != null && rule.Id == diagnostics[ i ].Id )
 					{
-						var location = diagnostics[ i ].Location;
+						Location location = diagnostics[ i ].Location;
 						if ( location == Location.None )
 						{
 							builder.AppendFormat( "GetGlobalResult({0}.{1})", analyzerType.Name, rule.Id );
@@ -173,7 +173,7 @@ namespace TestHelper
 								string.Format( "Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata:\r\n", diagnostics[ i ] ) );
 
 							string resultMethodName = diagnostics[ i ].Location.SourceTree.FilePath.EndsWith( ".cs" ) ? "GetCSharpResultAt" : "GetBasicResultAt";
-							var linePosition = diagnostics[ i ].Location.GetLineSpan().StartLinePosition;
+							Microsoft.CodeAnalysis.Text.LinePosition linePosition = diagnostics[ i ].Location.GetLineSpan().StartLinePosition;
 
 							builder.AppendFormat( "{0}({1}, {2}, {3}.{4})",
 								resultMethodName,

@@ -49,13 +49,13 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 		private void EnforceReadOnlyOnClassFields( SemanticModelAnalysisContext context )
 		{
 			NonReadOnlyFieldFinder fieldFinder = new NonReadOnlyFieldFinder( context.SemanticModel, context.CancellationToken );
-			var fieldCandidates = fieldFinder.RunAsync().GetAwaiter().GetResult();
+			HashSet<IFieldSymbol> fieldCandidates = fieldFinder.RunAsync().GetAwaiter().GetResult();
 			if ( fieldCandidates.Count == 0 )
 				return;
 
 			FieldWriteFinder writeFinder = new FieldWriteFinder( fieldCandidates, context.SemanticModel, context.CancellationToken );
 			fieldCandidates = writeFinder.DiscardFieldsAssignedToAsync().GetAwaiter().GetResult();
-			foreach ( var enforceableField in fieldCandidates )
+			foreach ( IFieldSymbol enforceableField in fieldCandidates )
 				context.ReportDiagnostic( Diagnostic.Create( _rule, enforceableField.Locations[ 0 ], enforceableField.Name ) );
 		}
 
@@ -75,7 +75,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			public async Task<HashSet<IFieldSymbol>> RunAsync()
 			{
-				var root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
+				SyntaxNode root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
 				Visit( root );
 				return _fields;
 			}
@@ -86,7 +86,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				if ( node.Declaration.Variables.Count != 1 )
 					return;
 
-				var fieldSymbol = _semanticModel.GetDeclaredSymbol( node.Declaration.Variables[ 0 ], _cancellationToken ) as IFieldSymbol;
+				IFieldSymbol fieldSymbol = _semanticModel.GetDeclaredSymbol( node.Declaration.Variables[ 0 ], _cancellationToken ) as IFieldSymbol;
 				if ( ShouldIgnore( fieldSymbol ) )
 					return;
 
@@ -139,7 +139,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			public async Task<HashSet<IFieldSymbol>> DiscardFieldsAssignedToAsync()
 			{
-				var root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
+				SyntaxNode root = await _semanticModel.SyntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
 				Visit( root );
 				return _fieldCandidates;
 			}
@@ -158,11 +158,11 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				//	This is a tricky case.
 				//	Expressions 'like x[ y ] = z' or 'x.Y = z' violate readonly modifier if x is an instance of a value type.
 				//	GetSymbolInfo() is required because GetDeclaredSymbol() doesn't work here for some reason.
-				var accessedExpression = TryGetAccessedExpression( node.Left );
+				ExpressionSyntax accessedExpression = TryGetAccessedExpression( node.Left );
 				if ( accessedExpression != null )
 				{
-					var indexedSymbol = _semanticModel.GetSymbolInfo( accessedExpression ).Symbol as IFieldSymbol;
-					var indexedFieldSymbol = indexedSymbol;
+					IFieldSymbol indexedSymbol = _semanticModel.GetSymbolInfo( accessedExpression ).Symbol as IFieldSymbol;
+					IFieldSymbol indexedFieldSymbol = indexedSymbol;
 					if ( indexedFieldSymbol != null && indexedFieldSymbol.Type.IsValueType )
 						DiscardFieldFromExpression( accessedExpression );
 				}
@@ -208,7 +208,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			private void DiscardFieldFromExpression( ExpressionSyntax node )
 			{
-				var fieldSymbol = _semanticModel.GetSymbolInfo( node ).Symbol as IFieldSymbol;
+				IFieldSymbol fieldSymbol = _semanticModel.GetSymbolInfo( node ).Symbol as IFieldSymbol;
 				if ( fieldSymbol == null || !_fieldCandidates.Contains( fieldSymbol ) || IsInsideConstructorOfTypeThatContainsSymbol( node, fieldSymbol ) )
 					return;
 
@@ -217,13 +217,13 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 			private bool IsInsideConstructorOfTypeThatContainsSymbol( ExpressionSyntax node, IFieldSymbol fieldSymbol )
 			{
-				foreach ( var currentNode in node.Ancestors() )
+				foreach ( SyntaxNode currentNode in node.Ancestors() )
 				{
 					switch ( currentNode.Kind() )
 					{
 						case SyntaxKind.ConstructorDeclaration:
 							{
-								var constructorSymbol = _semanticModel.GetDeclaredSymbol( currentNode );
+								ISymbol constructorSymbol = _semanticModel.GetDeclaredSymbol( currentNode );
 								return constructorSymbol.ContainingType == fieldSymbol.ContainingType && constructorSymbol.IsStatic == fieldSymbol.IsStatic;
 							}
 

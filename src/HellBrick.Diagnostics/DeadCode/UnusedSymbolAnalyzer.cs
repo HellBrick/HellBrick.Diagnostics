@@ -111,7 +111,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
 				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
-				foreach ( var referencedSymbol in referenceFinder.ReferencedSymbols )
+				foreach ( ISymbol referencedSymbol in referenceFinder.ReferencedSymbols )
 					_referencedSymbols.Add( referencedSymbol );
 
 				HashSet<ISymbol> currentTreeSymbols;

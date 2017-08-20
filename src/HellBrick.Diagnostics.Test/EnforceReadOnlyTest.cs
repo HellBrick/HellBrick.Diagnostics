@@ -18,7 +18,7 @@ namespace HellBrick.Diagnostics.Test
 
 		private void VerifyFix( string sourceCode, string expectedCode, params string[] variableNames )
 		{
-			var expectedDiagnostics = variableNames
+			DiagnosticResult[] expectedDiagnostics = variableNames
 				.Select(
 					name =>
 					new DiagnosticResult
@@ -43,7 +43,7 @@ namespace HellBrick.Diagnostics.Test
 		[Fact]
 		public void FieldAssignedToInConstructorIsFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -58,7 +58,7 @@ namespace NS
 	}
 }";
 
-			var expectedCode = @"
+			string expectedCode = @"
 using System;
 namespace NS
 {
@@ -78,7 +78,7 @@ namespace NS
 		[Fact]
 		public void FiedAssignedToInMethodIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -98,7 +98,7 @@ namespace NS
 		[Fact]
 		public void FiedAssignedToInPropertyIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -122,7 +122,7 @@ namespace NS
 		[Fact]
 		public void ValueTypeFieldAssignedToByIndexerIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -152,7 +152,7 @@ namespace NS
 		[Fact]
 		public void ReferenceTypeFieldAssignedToByIndexerIsFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -166,7 +166,7 @@ namespace NS
 		}
 	}
 }";
-			var expectedCode = @"
+			string expectedCode = @"
 using System;
 namespace NS
 {
@@ -186,7 +186,7 @@ namespace NS
 		[Fact]
 		public void ReferenceTypeFieldThatHasFieldAssignedToIsFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -206,7 +206,7 @@ namespace NS
 		public int X;
 	}
 }";
-			var expectedCode = @"
+			string expectedCode = @"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -232,7 +232,7 @@ namespace NS
 		[Fact]
 		public void FieldReferencedByRefInConstructorIsFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 using System.Threading;
 namespace NS
@@ -254,7 +254,7 @@ namespace NS
 		}
 	}
 }";
-			var expectedCode = @"
+			string expectedCode = @"
 using System;
 using System.Threading;
 namespace NS
@@ -282,7 +282,7 @@ namespace NS
 		[Fact]
 		public void FieldReferencedByRefInMethodIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 using System.Threading;
 namespace NS
@@ -310,7 +310,7 @@ namespace NS
 		[Fact]
 		public void FieldAssignedToInLambdaIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -330,7 +330,7 @@ namespace NS
 		[Fact]
 		public void IncrementedFieldIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -352,7 +352,7 @@ namespace NS
 		[Fact]
 		public void FiedAssignedToInNestedClassIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -375,7 +375,7 @@ namespace NS
 		[Fact]
 		public void MultiDeclaratorIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -394,7 +394,7 @@ namespace NS
 		[Fact]
 		public void PartialClassIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -421,7 +421,7 @@ namespace NS
 		[Fact]
 		public void PublicFieldIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -442,7 +442,7 @@ namespace NS
 		[Fact]
 		public void ReadOnlyFieldIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -462,7 +462,7 @@ namespace NS
 		[Fact]
 		public void StaticFieldAssignedToInNonStaticConstructorIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -482,7 +482,7 @@ namespace NS
 		[Fact]
 		public void FieldAssignedToByOperatorAssignmentIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -521,7 +521,7 @@ namespace NS
 		[Fact]
 		public void ValueTypeFieldIsNotFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -546,7 +546,7 @@ namespace NS
 		[Fact]
 		public void PrimitiveTypeFieldIsFixed()
 		{
-			var sourceCode = @"
+			string sourceCode = @"
 using System;
 namespace NS
 {
@@ -560,7 +560,7 @@ namespace NS
 		}
 	}
 }";
-			var expectedCode = @"
+			string expectedCode = @"
 using System;
 namespace NS
 {

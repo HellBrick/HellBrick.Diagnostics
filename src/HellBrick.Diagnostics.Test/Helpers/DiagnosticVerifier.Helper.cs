@@ -53,18 +53,18 @@ namespace TestHelper
 		/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
 		protected static Diagnostic[] GetSortedDiagnosticsFromDocuments( DiagnosticAnalyzer analyzer, Document[] documents )
 		{
-			var projects = new HashSet<Project>();
-			foreach ( var document in documents )
+			HashSet<Project> projects = new HashSet<Project>();
+			foreach ( Document document in documents )
 			{
 				projects.Add( document.Project );
 			}
 
-			var diagnostics = new List<Diagnostic>();
-			foreach ( var project in projects )
+			List<Diagnostic> diagnostics = new List<Diagnostic>();
+			foreach ( Project project in projects )
 			{
-				var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers( ImmutableArray.Create( analyzer ) );
-				var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
-				foreach ( var diag in diags )
+				CompilationWithAnalyzers compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers( ImmutableArray.Create( analyzer ) );
+				ImmutableArray<Diagnostic> diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+				foreach ( Diagnostic diag in diags )
 				{
 					if ( diag.Location == Location.None || diag.Location.IsInMetadata )
 					{
@@ -74,8 +74,8 @@ namespace TestHelper
 					{
 						for ( int i = 0; i < documents.Length; i++ )
 						{
-							var document = documents[ i ];
-							var tree = document.GetSyntaxTreeAsync().Result;
+							Document document = documents[ i ];
+							SyntaxTree tree = document.GetSyntaxTreeAsync().Result;
 							if ( tree == diag.Location.SourceTree )
 							{
 								diagnostics.Add( diag );
@@ -85,7 +85,7 @@ namespace TestHelper
 				}
 			}
 
-			var results = SortDiagnostics( diagnostics );
+			Diagnostic[] results = SortDiagnostics( diagnostics );
 			diagnostics.Clear();
 			return results;
 		}
@@ -121,8 +121,8 @@ namespace TestHelper
 				string fileName = language == LanguageNames.CSharp ? "Test" + i + ".cs" : "Test" + i + ".vb";
 			}
 
-			var project = CreateProject( sources, language );
-			var documents = project.Documents.ToArray();
+			Project project = CreateProject( sources, language );
+			Document[] documents = project.Documents.ToArray();
 
 			if ( sources.Length != documents.Length )
 			{
@@ -154,12 +154,12 @@ namespace TestHelper
 			string fileNamePrefix = DefaultFilePathPrefix;
 			string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
 
-			var projectId = ProjectId.CreateNewId( debugName: TestProjectName );
+			ProjectId projectId = ProjectId.CreateNewId( debugName: TestProjectName );
 
-			var workspace = new AdhocWorkspace();
+			AdhocWorkspace workspace = new AdhocWorkspace();
 			workspace.Options = workspace.Options.WithProperFormatting();
 
-			var solution = workspace
+			Solution solution = workspace
 				.CurrentSolution
 				.AddProject( projectId, TestProjectName, TestProjectName, language )
 				.AddMetadataReference( projectId, CorlibReference )
@@ -168,10 +168,10 @@ namespace TestHelper
 				.AddMetadataReference( projectId, CodeAnalysisReference );
 
 			int count = 0;
-			foreach ( var source in sources )
+			foreach ( string source in sources )
 			{
-				var newFileName = fileNamePrefix + count + "." + fileExt;
-				var documentId = DocumentId.CreateNewId( projectId, debugName: newFileName );
+				string newFileName = fileNamePrefix + count + "." + fileExt;
+				DocumentId documentId = DocumentId.CreateNewId( projectId, debugName: newFileName );
 				solution = solution.AddDocument( documentId, newFileName, SourceText.From( source ) );
 				count++;
 			}
