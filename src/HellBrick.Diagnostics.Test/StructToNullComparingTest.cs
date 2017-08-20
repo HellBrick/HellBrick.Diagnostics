@@ -35,21 +35,13 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[Fact]
-		public void NullReplacedWithDefaultForEqualsStatement()
+		[Theory]
+		[InlineData( "==" )]
+		[InlineData( "!=" )]
+		public void NullReplacedWithDefault( string comparisonOperator )
 		{
-			const string equals = "==";
-			string test = string.Format( _testCaseFormat, equals, "null" );
-			string result = string.Format( _testCaseFormat, equals, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
-		}
-
-		[Fact]
-		public void NullReplacedWithDefaultForNonEqualsStatement()
-		{
-			const string equals = "!=";
-			string test = string.Format( _testCaseFormat, equals, "null" );
-			string result = string.Format( _testCaseFormat, equals, "default( SomeStruct )" );
+			string test = string.Format( _testCaseFormat, comparisonOperator, "null" );
+			string result = string.Format( _testCaseFormat, comparisonOperator, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
 		private const string _reversedFormat = @"
