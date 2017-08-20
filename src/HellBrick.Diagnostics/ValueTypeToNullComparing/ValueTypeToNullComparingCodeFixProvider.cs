@@ -67,7 +67,9 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		private static DefaultExpressionSyntax CreateDefaultSyntax( Location location, SemanticModel model, ExpressionSyntax node )
 		{
 			string typeName = model.GetTypeInfo( node ).Type.ToMinimalDisplayString( model, location.SourceSpan.Start );
-			return SyntaxFactory.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) );
+			return
+				SyntaxFactory
+				.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) );
 		}
 	}
 }
