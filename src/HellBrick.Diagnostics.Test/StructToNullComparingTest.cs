@@ -12,16 +12,16 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string type )
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
 			=>
 			(
 				Before: String.Format( formatString.Format, "null" ),
-				After: String.Format( formatString.Format, $"default( {type} )" )
+				After: String.Format( formatString.Format, "default" )
 			);
 
-		private void VerifyNullIsReplaced( FormattableString formatString, string type )
+		private void VerifyNullIsReplaced( FormattableString formatString )
 		{
-			(string before, string after) = CreateCodeStrings( formatString, type );
+			(string before, string after) = CreateCodeStrings( formatString );
 			VerifyCSharpFix( before, after );
 		}
 
@@ -45,11 +45,13 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
 			string test = String.Format( testCaseFormat, comparisonOperator, "null" );
-			string result = String.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
+			string result = String.Format( testCaseFormat, comparisonOperator, "default" );
 			VerifyCSharpFix( test, result );
 		}
 
@@ -71,10 +73,12 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( reversedFormat, "SomeStruct" );
+			VerifyNullIsReplaced( reversedFormat );
 		}
 
 		[Fact]
@@ -95,10 +99,12 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( defaultToNullComparingFormat, "SomeStruct" );
+			VerifyNullIsReplaced( defaultToNullComparingFormat );
 		}
 
 		[Fact]
@@ -127,6 +133,8 @@ namespace ValueTypes
 {
 	public struct EmptyStruct
 	{
+		public static bool operator ==( EmptyStruct x, EmptyStruct y ) => true;
+		public static bool operator !=( EmptyStruct x, EmptyStruct y ) => !( x == y );
 	}
 }";
 			const string emptyStructFactoryFile = @"
@@ -140,7 +148,7 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-			(string before, string after) = CreateCodeStrings( externalStructFormat, "ValueTypes.EmptyStruct" );
+			(string before, string after) = CreateCodeStrings( externalStructFormat );
 			VerifyCSharpFix( new[] { before, emptyStructFile, emptyStructFactoryFile }, new[] { after, emptyStructFile, emptyStructFactoryFile } );
 		}
 
@@ -164,6 +172,8 @@ namespace ConsoleApplication1
 
 	public struct EmptyStruct
 	{
+		public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+		public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 	}
 }";
 			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
@@ -194,7 +204,7 @@ namespace Namespace
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( codeFormat, "int" );
+			VerifyNullIsReplaced( codeFormat );
 		}
 	}
 }
