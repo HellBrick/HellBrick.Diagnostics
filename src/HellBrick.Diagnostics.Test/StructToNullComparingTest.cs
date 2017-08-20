@@ -17,6 +17,19 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string type )
+			=>
+			(
+				Before: String.Format( formatString.Format, "null" ),
+				After: String.Format( formatString.Format, $"default( {type} )" )
+			);
+
+		private void VerifyNullIsReplaced( FormattableString formatString, string type )
+		{
+			(string before, string after) = CreateCodeStrings( formatString, type );
+			VerifyCSharpFix( before, after );
+		}
+
 		[Theory]
 		[InlineData( "==" )]
 		[InlineData( "!=" )]
@@ -48,7 +61,7 @@ namespace ConsoleApplication1
 		[Fact]
 		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
 		{
-			const string reversedFormat = @"
+			FormattableString reversedFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -66,15 +79,13 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			string test = string.Format( reversedFormat, "null" );
-			string result = string.Format( reversedFormat, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
+			VerifyNullIsReplaced( reversedFormat, "SomeStruct" );
 		}
 
 		[Fact]
 		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
 		{
-			const string defaultToNullComparingFormat = @"
+			FormattableString defaultToNullComparingFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -92,15 +103,13 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			string test = string.Format( defaultToNullComparingFormat, "null" );
-			string result = string.Format( defaultToNullComparingFormat, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
+			VerifyNullIsReplaced( defaultToNullComparingFormat, "SomeStruct" );
 		}
 
 		[Fact]
 		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
 		{
-			const string externalStructFormat = @"
+			FormattableString externalStructFormat = $@"
 using System;
 using ThridParty;
 
@@ -136,9 +145,8 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-			string test = string.Format( externalStructFormat, "null" );
-			string result = string.Format( externalStructFormat, "default( ValueTypes.EmptyStruct )" );
-			VerifyCSharpFix( new[] { test, emptyStructFile, emptyStructFactoryFile }, new[] { result, emptyStructFile, emptyStructFactoryFile } );
+			(string before, string after) = CreateCodeStrings( externalStructFormat, "ValueTypes.EmptyStruct" );
+			VerifyCSharpFix( new[] { before, emptyStructFile, emptyStructFactoryFile }, new[] { after, emptyStructFile, emptyStructFactoryFile } );
 		}
 
 		[Fact]
