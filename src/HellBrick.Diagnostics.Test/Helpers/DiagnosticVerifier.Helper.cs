@@ -17,10 +17,10 @@ namespace TestHelper
 	/// </summary>
 	public abstract partial class DiagnosticVerifier
 	{
-		private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile( typeof( object ).Assembly.Location );
-		private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile( typeof( Enumerable ).Assembly.Location );
-		private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile( typeof( CSharpCompilation ).Assembly.Location );
-		private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile( typeof( Compilation ).Assembly.Location );
+		private static readonly MetadataReference _corlibReference = MetadataReference.CreateFromFile( typeof( object ).Assembly.Location );
+		private static readonly MetadataReference _systemCoreReference = MetadataReference.CreateFromFile( typeof( Enumerable ).Assembly.Location );
+		private static readonly MetadataReference _cSharpSymbolsReference = MetadataReference.CreateFromFile( typeof( CSharpCompilation ).Assembly.Location );
+		private static readonly MetadataReference _codeAnalysisReference = MetadataReference.CreateFromFile( typeof( Compilation ).Assembly.Location );
 
 		internal static string DefaultFilePathPrefix = "Test";
 		internal static string CSharpDefaultFileExt = "cs";
@@ -162,10 +162,10 @@ namespace TestHelper
 			Solution solution = workspace
 				.CurrentSolution
 				.AddProject( projectId, TestProjectName, TestProjectName, language )
-				.AddMetadataReference( projectId, CorlibReference )
-				.AddMetadataReference( projectId, SystemCoreReference )
-				.AddMetadataReference( projectId, CSharpSymbolsReference )
-				.AddMetadataReference( projectId, CodeAnalysisReference );
+				.AddMetadataReference( projectId, _corlibReference )
+				.AddMetadataReference( projectId, _systemCoreReference )
+				.AddMetadataReference( projectId, _cSharpSymbolsReference )
+				.AddMetadataReference( projectId, _codeAnalysisReference );
 
 			int count = 0;
 			foreach ( string source in sources )
