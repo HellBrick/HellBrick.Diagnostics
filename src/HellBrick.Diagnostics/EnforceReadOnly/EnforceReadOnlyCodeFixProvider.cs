@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -10,7 +8,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 using HellBrick.Diagnostics.Utils;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -37,8 +34,8 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			if ( context.CancellationToken.IsCancellationRequested )
 				return TaskHelper.CanceledTask;
 
-			var diagnostic = context.Diagnostics.First();
-			var codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnly( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
+			Diagnostic diagnostic = context.Diagnostics.First();
+			CodeAction codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnly( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, diagnostic );
 
 			return TaskHelper.CompletedTask;
@@ -46,12 +43,12 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 
 		private async Task<Document> MakeReadOnly( CodeFixContext context, Diagnostic diagnostic, CancellationToken cancellationToken )
 		{
-			var root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
+			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 
-			var diagnosticSpan = diagnostic.Location.SourceSpan;
-			var fieldDeclaration = root.FindToken( diagnosticSpan.Start ).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
-			var newDeclaration = WithReadOnlyAdded( fieldDeclaration );
-			var newRoot = root.ReplaceNode( fieldDeclaration, newDeclaration );
+			TextSpan diagnosticSpan = diagnostic.Location.SourceSpan;
+			FieldDeclarationSyntax fieldDeclaration = root.FindToken( diagnosticSpan.Start ).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
+			FieldDeclarationSyntax newDeclaration = WithReadOnlyAdded( fieldDeclaration );
+			SyntaxNode newRoot = root.ReplaceNode( fieldDeclaration, newDeclaration );
 
 			return context.Document.WithSyntaxRoot( newRoot );
 		}

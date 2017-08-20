@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -111,7 +108,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
 				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
-				foreach ( var referencedSymbol in referenceFinder.ReferencedSymbols )
+				foreach ( ISymbol referencedSymbol in referenceFinder.ReferencedSymbols )
 					_referencedSymbols.Add( referencedSymbol );
 
 				HashSet<ISymbol> currentTreeSymbols;

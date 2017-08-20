@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
-using Microsoft.CodeAnalysis.Text;
 using HellBrick.Diagnostics.Utils;
 
 namespace HellBrick.Diagnostics.DeadCode
@@ -88,7 +84,7 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			private static async Task<Solution> UpdateProjectAsync( Solution newSolution, Project project, ImmutableArray<Diagnostic> diagnostics, CancellationToken cancellationToken )
 			{
-				foreach ( var sourceTreeGroup in diagnostics.GroupBy( d => d.Location.SourceTree ) )
+				foreach ( IGrouping<SyntaxTree, Diagnostic> sourceTreeGroup in diagnostics.GroupBy( d => d.Location.SourceTree ) )
 				{
 					Document document = project.GetDocument( sourceTreeGroup.Key );
 					SyntaxNode newDocumentRoot = await GetNewDocumentRootAsync( document, sourceTreeGroup, cancellationToken ).ConfigureAwait( false );

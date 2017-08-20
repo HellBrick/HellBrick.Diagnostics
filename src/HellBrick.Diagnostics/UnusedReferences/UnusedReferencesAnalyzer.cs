@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -38,12 +37,12 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 			try
 			{
-				using ( var syntaxTreeEnumerator = context.Compilation.SyntaxTrees.GetEnumerator() )
+				using ( IEnumerator<SyntaxTree> syntaxTreeEnumerator = context.Compilation.SyntaxTrees.GetEnumerator() )
 				{
 					while ( compilationReferences.Count > 0 && syntaxTreeEnumerator.MoveNext() && !context.CancellationToken.IsCancellationRequested )
 					{
-						var syntaxTree = syntaxTreeEnumerator.Current;
-						var semanticModel = context.Compilation.GetSemanticModel( syntaxTree );
+						SyntaxTree syntaxTree = syntaxTreeEnumerator.Current;
+						SemanticModel semanticModel = context.Compilation.GetSemanticModel( syntaxTree );
 						ReferenceDiscarder referenceFinder = new ReferenceDiscarder( compilationReferences, syntaxTree, semanticModel, context.CancellationToken );
 						referenceFinder.DiscardUsedReferencesAsync().GetAwaiter().GetResult();
 					}
@@ -61,7 +60,7 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 			Debug.WriteLine( $"{compilationReferences.Count} unused references" );
 
-			foreach ( var assembly in compilationReferences )
+			foreach ( AssemblyIdentity assembly in compilationReferences )
 				context.ReportDiagnostic( Diagnostic.Create( _rule, null, assembly.Name ) );
 		}
 
@@ -82,7 +81,7 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 			public async Task DiscardUsedReferencesAsync()
 			{
-				var root = await _syntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
+				SyntaxNode root = await _syntaxTree.GetRootAsync( _cancellationToken ).ConfigureAwait( false );
 				Visit( root );
 			}
 
@@ -96,14 +95,14 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 			public override void DefaultVisit( SyntaxNode node )
 			{
-				var symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
+				ISymbol symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
 				TryDiscard( symbol );
 
-				var returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
+				ITypeSymbol returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
 				TryDiscard( returnTypeSymbol );
 
-				var genericArgumentTypes = ( returnTypeSymbol as INamedTypeSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
-				foreach ( var genericArgumentType in genericArgumentTypes )
+				ImmutableArray<ITypeSymbol> genericArgumentTypes = ( returnTypeSymbol as INamedTypeSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+				foreach ( ITypeSymbol genericArgumentType in genericArgumentTypes )
 					TryDiscard( genericArgumentType );
 
 				base.DefaultVisit( node );
@@ -111,7 +110,7 @@ namespace HellBrick.Diagnostics.UnusedReferences
 
 			private void TryDiscard( ISymbol symbol )
 			{
-				var symbolAssembly = symbol?.ContainingAssembly?.Identity;
+				AssemblyIdentity symbolAssembly = symbol?.ContainingAssembly?.Identity;
 				if ( symbolAssembly != null )
 				{
 					bool removed = _references.Remove( symbolAssembly );
