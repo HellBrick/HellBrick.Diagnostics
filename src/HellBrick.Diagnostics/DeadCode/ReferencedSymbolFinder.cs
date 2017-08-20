@@ -12,9 +12,7 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		public ReferencedSymbolFinder( SemanticModel semanticModel )
 			: base( SyntaxWalkerDepth.Node )
-		{
-			_semanticModel = semanticModel;
-		}
+			=> _semanticModel = semanticModel;
 
 		public IEnumerable<ISymbol> ReferencedSymbols => _referencedSymbols;
 

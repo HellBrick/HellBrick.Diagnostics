@@ -38,19 +38,8 @@ namespace TestHelper
 
 		public DiagnosticResultLocation[] Locations
 		{
-			get
-			{
-				if ( this._locations == null )
-				{
-					this._locations = new DiagnosticResultLocation[] { };
-				}
-				return this._locations;
-			}
-
-			set
-			{
-				this._locations = value;
-			}
+			get => _locations ?? ( _locations = new DiagnosticResultLocation[] { } );
+			set => _locations = value;
 		}
 
 		public DiagnosticSeverity Severity { get; set; }
