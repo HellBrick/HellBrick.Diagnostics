@@ -72,13 +72,3 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
