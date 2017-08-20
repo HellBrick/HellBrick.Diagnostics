@@ -17,7 +17,12 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private const string _testCaseFormat = @"
+		[Theory]
+		[InlineData( "==" )]
+		[InlineData( "!=" )]
+		public void NullReplacedWithDefault( string comparisonOperator )
+		{
+			const string testCaseFormat = @"
 using System;
 
 namespace ConsoleApplication1
@@ -35,16 +40,15 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[Theory]
-		[InlineData( "==" )]
-		[InlineData( "!=" )]
-		public void NullReplacedWithDefault( string comparisonOperator )
-		{
-			string test = string.Format( _testCaseFormat, comparisonOperator, "null" );
-			string result = string.Format( _testCaseFormat, comparisonOperator, "default( SomeStruct )" );
+			string test = string.Format( testCaseFormat, comparisonOperator, "null" );
+			string result = string.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
-		private const string _reversedFormat = @"
+
+		[Fact]
+		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
+		{
+			const string reversedFormat = @"
 using System;
 
 namespace ConsoleApplication1
@@ -62,15 +66,15 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[Fact]
-		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
-		{
-			string test = string.Format( _reversedFormat, "null" );
-			string result = string.Format( _reversedFormat, "default( SomeStruct )" );
+			string test = string.Format( reversedFormat, "null" );
+			string result = string.Format( reversedFormat, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
 
-		private const string _defaultToNullComparingFormat = @"
+		[Fact]
+		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
+		{
+			const string defaultToNullComparingFormat = @"
 using System;
 
 namespace ConsoleApplication1
@@ -88,16 +92,15 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-
-		[Fact]
-		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
-		{
-			string test = string.Format( _defaultToNullComparingFormat, "null" );
-			string result = string.Format( _defaultToNullComparingFormat, "default( SomeStruct )" );
+			string test = string.Format( defaultToNullComparingFormat, "null" );
+			string result = string.Format( defaultToNullComparingFormat, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
 
-		private const string _externalStructFormat = @"
+		[Fact]
+		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
+		{
+			const string externalStructFormat = @"
 using System;
 using ThridParty;
 
@@ -113,8 +116,7 @@ namespace ConsoleApplication1
 	}}
 }}
 ";
-
-		private const string _emptyStructFile = @"
+			const string emptyStructFile = @"
 using System;
 
 namespace ValueTypes
@@ -123,9 +125,7 @@ namespace ValueTypes
 	{
 	}
 }";
-
-
-		private const string _emptyStructFactoryFile = @"
+			const string emptyStructFactoryFile = @"
 using System;
 using ValueTypes;
 
@@ -136,16 +136,15 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-
-		[Fact]
-		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
-		{
-			string test = string.Format( _externalStructFormat, "null" );
-			string result = string.Format( _externalStructFormat, "default( ValueTypes.EmptyStruct )" );
-			VerifyCSharpFix( new[] { test, _emptyStructFile, _emptyStructFactoryFile }, new[] { result, _emptyStructFile, _emptyStructFactoryFile } );
+			string test = string.Format( externalStructFormat, "null" );
+			string result = string.Format( externalStructFormat, "default( ValueTypes.EmptyStruct )" );
+			VerifyCSharpFix( new[] { test, emptyStructFile, emptyStructFactoryFile }, new[] { result, emptyStructFile, emptyStructFactoryFile } );
 		}
 
-		private const string _nullableTestCase = @"
+		[Fact]
+		public void NullableStructAnalysysSkipped()
+		{
+			const string nullableTestCase = @"
 using System;
 using ValueTypes;
 
@@ -164,11 +163,7 @@ namespace ConsoleApplication1
 	{
 	}
 }";
-
-		[Fact]
-		public void NullableStructAnalysysSkipped()
-		{
-			VerifyCSharpFix( new[] { _nullableTestCase }, new[] { _nullableTestCase } );
+			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
 		}
 
 		[Fact]
