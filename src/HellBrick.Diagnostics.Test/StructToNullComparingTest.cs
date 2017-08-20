@@ -17,7 +17,25 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private const string _testCaseFormat = @"
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string type )
+			=>
+			(
+				Before: String.Format( formatString.Format, "null" ),
+				After: String.Format( formatString.Format, $"default( {type} )" )
+			);
+
+		private void VerifyNullIsReplaced( FormattableString formatString, string type )
+		{
+			(string before, string after) = CreateCodeStrings( formatString, type );
+			VerifyCSharpFix( before, after );
+		}
+
+		[Theory]
+		[InlineData( "==" )]
+		[InlineData( "!=" )]
+		public void NullReplacedWithDefault( string comparisonOperator )
+		{
+			const string testCaseFormat = @"
 using System;
 
 namespace ConsoleApplication1
@@ -35,24 +53,15 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[Fact]
-		public void NullReplacedWithDefaultForEqualsStatement()
-		{
-			const string equals = "==";
-			string test = string.Format( _testCaseFormat, equals, "null" );
-			string result = string.Format( _testCaseFormat, equals, "default( SomeStruct )" );
+			string test = string.Format( testCaseFormat, comparisonOperator, "null" );
+			string result = string.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
 
 		[Fact]
-		public void NullReplacedWithDefaultForNonEqualsStatement()
+		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
 		{
-			const string equals = "!=";
-			string test = string.Format( _testCaseFormat, equals, "null" );
-			string result = string.Format( _testCaseFormat, equals, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
-		}
-		private const string _reversedFormat = @"
+			FormattableString reversedFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -70,15 +79,13 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-		[Fact]
-		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
-		{
-			string test = string.Format( _reversedFormat, "null" );
-			string result = string.Format( _reversedFormat, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
+			VerifyNullIsReplaced( reversedFormat, "SomeStruct" );
 		}
 
-		private const string _defaultToNullComparingFormat = @"
+		[Fact]
+		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
+		{
+			FormattableString defaultToNullComparingFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -96,16 +103,13 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-
-		[Fact]
-		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
-		{
-			string test = string.Format( _defaultToNullComparingFormat, "null" );
-			string result = string.Format( _defaultToNullComparingFormat, "default( SomeStruct )" );
-			VerifyCSharpFix( test, result );
+			VerifyNullIsReplaced( defaultToNullComparingFormat, "SomeStruct" );
 		}
 
-		private const string _externalStructFormat = @"
+		[Fact]
+		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
+		{
+			FormattableString externalStructFormat = $@"
 using System;
 using ThridParty;
 
@@ -121,8 +125,7 @@ namespace ConsoleApplication1
 	}}
 }}
 ";
-
-		private const string _emptyStructFile = @"
+			const string emptyStructFile = @"
 using System;
 
 namespace ValueTypes
@@ -131,9 +134,7 @@ namespace ValueTypes
 	{
 	}
 }";
-
-
-		private const string _emptyStructFactoryFile = @"
+			const string emptyStructFactoryFile = @"
 using System;
 using ValueTypes;
 
@@ -144,16 +145,14 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-
-		[Fact]
-		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
-		{
-			string test = string.Format( _externalStructFormat, "null" );
-			string result = string.Format( _externalStructFormat, "default( ValueTypes.EmptyStruct )" );
-			VerifyCSharpFix( new[] { test, _emptyStructFile, _emptyStructFactoryFile }, new[] { result, _emptyStructFile, _emptyStructFactoryFile } );
+			(string before, string after) = CreateCodeStrings( externalStructFormat, "ValueTypes.EmptyStruct" );
+			VerifyCSharpFix( new[] { before, emptyStructFile, emptyStructFactoryFile }, new[] { after, emptyStructFile, emptyStructFactoryFile } );
 		}
 
-		private const string _nullableTestCase = @"
+		[Fact]
+		public void NullableStructAnalysysSkipped()
+		{
+			const string nullableTestCase = @"
 using System;
 using ValueTypes;
 
@@ -172,11 +171,7 @@ namespace ConsoleApplication1
 	{
 	}
 }";
-
-		[Fact]
-		public void NullableStructAnalysysSkipped()
-		{
-			VerifyCSharpFix( new[] { _nullableTestCase }, new[] { _nullableTestCase } );
+			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
 		}
 
 		[Fact]
