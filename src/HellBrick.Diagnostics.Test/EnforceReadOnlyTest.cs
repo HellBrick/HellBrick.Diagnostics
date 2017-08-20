@@ -573,5 +573,25 @@ namespace NS
 
 			VerifyFix( sourceCode, expectedCode, "_a" );
 		}
+
+		[Fact]
+		public void FieldAssignedByLocalMethodIsNotFixed()
+		{
+			const string source =
+@"
+public class ClassName
+{
+	private object _value;
+
+	public ClassName()
+	{
+		void LocalMethod()
+		{
+			_value = new object();
+		}
+	}
+}";
+			VerifyNoFix( source );
+		}
 	}
 }

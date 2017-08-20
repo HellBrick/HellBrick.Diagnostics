@@ -18,6 +18,7 @@
     <PackageReleaseNotes>
       v2.0.0:
       - Migrated to Roslyn 2.0
+      - Updated analyzers and code fixes to respect C# 7.1
 
       v1.7.1:
       - fixed an exception caused by the Roslyn type resolve bug
