@@ -45,6 +45,8 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
@@ -71,6 +73,8 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
@@ -95,6 +99,8 @@ namespace ConsoleApplication1
 
 		private struct SomeStruct
 		{{
+			public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
 }}";
@@ -127,6 +133,8 @@ namespace ValueTypes
 {
 	public struct EmptyStruct
 	{
+		public static bool operator ==( EmptyStruct x, EmptyStruct y ) => true;
+		public static bool operator !=( EmptyStruct x, EmptyStruct y ) => !( x == y );
 	}
 }";
 			const string emptyStructFactoryFile = @"
@@ -164,6 +172,8 @@ namespace ConsoleApplication1
 
 	public struct EmptyStruct
 	{
+		public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
+		public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 	}
 }";
 			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
