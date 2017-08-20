@@ -12,16 +12,16 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string type )
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
 			=>
 			(
 				Before: String.Format( formatString.Format, "null" ),
-				After: String.Format( formatString.Format, $"default( {type} )" )
+				After: String.Format( formatString.Format, "default" )
 			);
 
-		private void VerifyNullIsReplaced( FormattableString formatString, string type )
+		private void VerifyNullIsReplaced( FormattableString formatString )
 		{
-			(string before, string after) = CreateCodeStrings( formatString, type );
+			(string before, string after) = CreateCodeStrings( formatString );
 			VerifyCSharpFix( before, after );
 		}
 
@@ -51,7 +51,7 @@ namespace ConsoleApplication1
 	}}
 }}";
 			string test = String.Format( testCaseFormat, comparisonOperator, "null" );
-			string result = String.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
+			string result = String.Format( testCaseFormat, comparisonOperator, "default" );
 			VerifyCSharpFix( test, result );
 		}
 
@@ -78,7 +78,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( reversedFormat, "SomeStruct" );
+			VerifyNullIsReplaced( reversedFormat );
 		}
 
 		[Fact]
@@ -104,7 +104,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( defaultToNullComparingFormat, "SomeStruct" );
+			VerifyNullIsReplaced( defaultToNullComparingFormat );
 		}
 
 		[Fact]
@@ -148,7 +148,7 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-			(string before, string after) = CreateCodeStrings( externalStructFormat, "ValueTypes.EmptyStruct" );
+			(string before, string after) = CreateCodeStrings( externalStructFormat );
 			VerifyCSharpFix( new[] { before, emptyStructFile, emptyStructFactoryFile }, new[] { after, emptyStructFile, emptyStructFactoryFile } );
 		}
 
@@ -204,7 +204,7 @@ namespace Namespace
 		}}
 	}}
 }}";
-			VerifyNullIsReplaced( codeFormat, "int" );
+			VerifyNullIsReplaced( codeFormat );
 		}
 	}
 }

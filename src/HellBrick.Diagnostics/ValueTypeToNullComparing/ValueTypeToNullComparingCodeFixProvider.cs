@@ -15,7 +15,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( ValueTypeToNullComparingCodeFixProvider ) ), Shared]
 	public class ValueTypeToNullComparingCodeFixProvider : CodeFixProvider
 	{
-		private const string _title = "Replace with `default` statement";
+		private const string _title = "Replace with `default` literal";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create( ValueTypeToNullComparingAnalyzer.DiagnosticId );
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -46,29 +46,21 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 			BinaryExpressionSyntax equalStatement = documentRoot
 				.FindNode( diagnostic.Location.SourceSpan ) as BinaryExpressionSyntax;
 
-			SemanticModel model = await document
-				.GetSemanticModelAsync()
-				.ConfigureAwait( false );
-
 			return document.WithSyntaxRoot
 			(
 				equalStatement.Right.IsKind( SyntaxKind.NullLiteralExpression )
-					? ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, model, equalStatement.Right, equalStatement.Left )
-					: ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, model, equalStatement.Left, equalStatement.Right )
+					? ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, equalStatement.Right )
+					: ReplaceNodeWithDefaultSyntax( diagnostic, documentRoot, equalStatement.Left )
 			);
 		}
 
-		private static SyntaxNode ReplaceNodeWithDefaultSyntax( Diagnostic diagnostic, SyntaxNode documentRoot, SemanticModel model, ExpressionSyntax nodeToReplace, ExpressionSyntax typeNode )
-			=> documentRoot.ReplaceNode( nodeToReplace, CreateDefaultSyntax( diagnostic.Location, model, typeNode, nodeToReplace ) );
+		private static SyntaxNode ReplaceNodeWithDefaultSyntax( Diagnostic diagnostic, SyntaxNode documentRoot, ExpressionSyntax nodeToReplace )
+			=> documentRoot.ReplaceNode( nodeToReplace, CreateDefaultSyntax( diagnostic.Location, nodeToReplace ) );
 
-		private static DefaultExpressionSyntax CreateDefaultSyntax( Location location, SemanticModel model, ExpressionSyntax node, ExpressionSyntax nodeToReplace )
-		{
-			string typeName = model.GetTypeInfo( node ).Type.ToMinimalDisplayString( model, location.SourceSpan.Start );
-			return
-				SyntaxFactory
-				.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) )
-				.WithLeadingTrivia( nodeToReplace.GetLeadingTrivia() )
-				.WithTrailingTrivia( nodeToReplace.GetTrailingTrivia() );
-		}
+		private static ExpressionSyntax CreateDefaultSyntax( Location location, ExpressionSyntax nodeToReplace )
+			=> SyntaxFactory
+			.LiteralExpression( SyntaxKind.DefaultLiteralExpression )
+			.WithLeadingTrivia( nodeToReplace.GetLeadingTrivia() )
+			.WithTrailingTrivia( nodeToReplace.GetTrailingTrivia() );
 	}
 }
