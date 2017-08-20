@@ -38,7 +38,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			CodeAction codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnlyAsync( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, diagnostic );
 
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Document> MakeReadOnlyAsync( CodeFixContext context, Diagnostic diagnostic, CancellationToken cancellationToken )

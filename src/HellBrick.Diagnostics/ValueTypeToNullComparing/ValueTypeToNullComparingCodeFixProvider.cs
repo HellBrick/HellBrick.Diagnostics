@@ -34,7 +34,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 				),
 					diagnostic
 			);
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Document> ReplaceNullWithDefalutSyntaxAsync( Document document, Diagnostic diagnostic, CancellationToken token )

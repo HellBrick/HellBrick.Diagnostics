@@ -26,7 +26,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			CodeAction codeFix = CodeAction.Create( "Remove unused parameter", ct => FixSolutionAsync( context.Document, context.Span, ct ) );
 			context.RegisterCodeFix( codeFix, context.Diagnostics[ 0 ] );
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Solution> FixSolutionAsync( Document document, TextSpan span, CancellationToken cancellationToken )

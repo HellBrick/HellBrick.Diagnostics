@@ -4,7 +4,6 @@ namespace HellBrick.Diagnostics.Utils
 {
 	public static class TaskHelper
 	{
-		public static Task CompletedTask { get; } = Task.FromResult( false );
 		public static Task CanceledTask { get; } = CreateCanceledTask();
 
 		private static Task CreateCanceledTask()
