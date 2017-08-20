@@ -20,19 +20,13 @@ namespace TestHelper
 		/// Returns the codefix being tested (C#) - to be implemented in non-abstract class
 		/// </summary>
 		/// <returns>The CodeFixProvider to be used for CSharp code</returns>
-		protected virtual CodeFixProvider GetCSharpCodeFixProvider()
-		{
-			return null;
-		}
+		protected virtual CodeFixProvider GetCSharpCodeFixProvider() => null;
 
 		/// <summary>
 		/// Returns the codefix being tested (VB) - to be implemented in non-abstract class
 		/// </summary>
 		/// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-		protected virtual CodeFixProvider GetBasicCodeFixProvider()
-		{
-			return null;
-		}
+		protected virtual CodeFixProvider GetBasicCodeFixProvider() => null;
 
 		protected void VerifyNoFix( params string[] sources ) => VerifyCSharpFix( sources, sources );
 
@@ -40,9 +34,7 @@ namespace TestHelper
 			=> VerifyCSharpFix( new[] { oldSource }, new[] { newSource }, codeFixIndex, allowNewCompilerDiagnostics );
 
 		protected void VerifyCSharpFix( string[] oldSources, string[] newSources, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false )
-		{
-			VerifyFix( LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSources, newSources, codeFixIndex, allowNewCompilerDiagnostics );
-		}
+			=> VerifyFix( LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSources, newSources, codeFixIndex, allowNewCompilerDiagnostics );
 
 		/// <summary>
 		/// General verifier for codefixes.

@@ -33,10 +33,7 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
-		private void VerifyNoFix( string sourceCode )
-		{
-			VerifyFix( sourceCode, sourceCode );
-		}
+		private void VerifyNoFix( string sourceCode ) => VerifyFix( sourceCode, sourceCode );
 
 		#endregion
 

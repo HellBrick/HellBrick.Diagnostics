@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -94,14 +94,11 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			}
 
 			private bool ShouldIgnore( IFieldSymbol fieldSymbol )
-			{
-				return
-					fieldSymbol.IsReadOnly ||
-					fieldSymbol.IsConst ||
-					fieldSymbol.IsExtern ||
-					fieldSymbol.Type.IsValueType && !IsPrimitiveValueType( fieldSymbol.Type ) ||
-					fieldSymbol.DeclaredAccessibility > Accessibility.Private;
-			}
+				=> fieldSymbol.IsReadOnly
+				|| fieldSymbol.IsConst
+				|| fieldSymbol.IsExtern
+				|| fieldSymbol.Type.IsValueType && !IsPrimitiveValueType( fieldSymbol.Type )
+				|| fieldSymbol.DeclaredAccessibility > Accessibility.Private;
 
 			private bool IsPrimitiveValueType( ITypeSymbol type ) => _primitiveValueTypes.Any( t => type.SpecialType == t );
 

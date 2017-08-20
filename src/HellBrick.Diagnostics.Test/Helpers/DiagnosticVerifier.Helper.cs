@@ -39,9 +39,7 @@ namespace TestHelper
 		/// <param name="analyzer">The analyzer to be run on the sources</param>
 		/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
 		private static Diagnostic[] GetSortedDiagnostics( string[] sources, string language, DiagnosticAnalyzer analyzer )
-		{
-			return GetSortedDiagnosticsFromDocuments( analyzer, GetDocuments( sources, language ) );
-		}
+			=> GetSortedDiagnosticsFromDocuments( analyzer, GetDocuments( sources, language ) );
 
 		/// <summary>
 		/// Given an analyzer and a document to apply it to, run the analyzer and gather an array of diagnostics found in it.
@@ -96,9 +94,9 @@ namespace TestHelper
 		/// <param name="diagnostics">The list of Diagnostics to be sorted</param>
 		/// <returns>An IEnumerable containing the Diagnostics in order of Location</returns>
 		private static Diagnostic[] SortDiagnostics( IEnumerable<Diagnostic> diagnostics )
-		{
-			return diagnostics.OrderBy( d => d.Location.SourceSpan.Start ).ToArray();
-		}
+			=> diagnostics
+			.OrderBy( d => d.Location.SourceSpan.Start )
+			.ToArray();
 
 		#endregion
 
@@ -139,9 +137,9 @@ namespace TestHelper
 		/// <param name="language">The language the source code is in</param>
 		/// <returns>A Document created from the source string</returns>
 		protected static Document CreateDocument( string source, string language = LanguageNames.CSharp )
-		{
-			return CreateProject( new[] { source }, language ).Documents.First();
-		}
+			=> CreateProject( new[] { source }, language )
+			.Documents
+			.First();
 
 		/// <summary>
 		/// Create a project using the inputted strings as sources.
