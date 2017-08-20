@@ -226,6 +226,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 						case SyntaxKind.SimpleLambdaExpression:
 						case SyntaxKind.AnonymousMethodExpression:
 						case SyntaxKind.MethodDeclaration:
+						case SyntaxKind.LocalFunctionStatement:
 							return false;
 
 						default:
