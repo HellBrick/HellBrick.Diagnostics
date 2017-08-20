@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 using TestHelper;
 using System.Linq;
 using HellBrick.Diagnostics.EnforceReadOnly;
