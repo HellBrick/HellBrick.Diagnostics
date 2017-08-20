@@ -35,13 +35,13 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				return TaskHelper.CanceledTask;
 
 			Diagnostic diagnostic = context.Diagnostics.First();
-			CodeAction codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnly( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
+			CodeAction codeFix = CodeAction.Create( "Make read-only", cancellationToken => MakeReadOnlyAsync( context, diagnostic, cancellationToken ), nameof( EnforceReadOnlyCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, diagnostic );
 
 			return TaskHelper.CompletedTask;
 		}
 
-		private async Task<Document> MakeReadOnly( CodeFixContext context, Diagnostic diagnostic, CancellationToken cancellationToken )
+		private async Task<Document> MakeReadOnlyAsync( CodeFixContext context, Diagnostic diagnostic, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 
