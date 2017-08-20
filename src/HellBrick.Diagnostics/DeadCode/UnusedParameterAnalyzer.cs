@@ -49,10 +49,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			private readonly HashSet<IParameterSymbol> _trackedParameters;
 
-			public ParameterTracker( ImmutableArray<IParameterSymbol> parameters )
-			{
-				_trackedParameters = parameters.ToHashSet();
-			}
+			public ParameterTracker( ImmutableArray<IParameterSymbol> parameters ) => _trackedParameters = parameters.ToHashSet();
 
 			public void TryDiscardReferencedParameter( SyntaxNodeAnalysisContext nodeContext )
 			{

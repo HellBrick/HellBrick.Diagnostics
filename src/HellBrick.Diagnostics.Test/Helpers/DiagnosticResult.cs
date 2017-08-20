@@ -19,9 +19,9 @@ namespace TestHelper
 				throw new ArgumentOutOfRangeException( "Both line and column must be >= -1" );
 			}
 
-			this.Path = path;
-			this.Line = line;
-			this.Column = column;
+			Path = path;
+			Line = line;
+			Column = column;
 		}
 
 		public string Path;
@@ -34,23 +34,12 @@ namespace TestHelper
 	/// </summary>
 	public struct DiagnosticResult
 	{
-		private DiagnosticResultLocation[] locations;
+		private DiagnosticResultLocation[] _locations;
 
 		public DiagnosticResultLocation[] Locations
 		{
-			get
-			{
-				if ( this.locations == null )
-				{
-					this.locations = new DiagnosticResultLocation[] { };
-				}
-				return this.locations;
-			}
-
-			set
-			{
-				this.locations = value;
-			}
+			get => _locations ?? ( _locations = new DiagnosticResultLocation[] { } );
+			set => _locations = value;
 		}
 
 		public DiagnosticSeverity Severity { get; set; }
