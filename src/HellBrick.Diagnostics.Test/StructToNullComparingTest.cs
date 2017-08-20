@@ -53,8 +53,8 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			string test = string.Format( testCaseFormat, comparisonOperator, "null" );
-			string result = string.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
+			string test = String.Format( testCaseFormat, comparisonOperator, "null" );
+			string result = String.Format( testCaseFormat, comparisonOperator, "default( SomeStruct )" );
 			VerifyCSharpFix( test, result );
 		}
 

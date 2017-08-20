@@ -84,7 +84,7 @@ namespace TestHelper
 				string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics( analyzer, actualResults.ToArray() ) : "    NONE.";
 
 				Assert.True( false,
-					string.Format( "Mismatch between number of diagnostics returned, expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n", expectedCount, actualCount, diagnosticsOutput ) );
+					System.String.Format( "Mismatch between number of diagnostics returned, expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n", expectedCount, actualCount, diagnosticsOutput ) );
 			}
 
 			for ( int i = 0; i < expectedResults.Length; i++ )
@@ -112,7 +112,7 @@ namespace TestHelper
 			FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
 			Assert.True( actualSpan.Path == expected.Path || ( actualSpan.Path != null && actualSpan.Path.Contains( "Test0." ) && expected.Path.Contains( "Test." ) ),
-				string.Format( "Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+				System.String.Format( "Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 					expected.Path, actualSpan.Path, FormatDiagnostics( analyzer, diagnostic ) ) );
 
 			Microsoft.CodeAnalysis.Text.LinePosition actualLinePosition = actualSpan.StartLinePosition;
@@ -123,7 +123,7 @@ namespace TestHelper
 				if ( actualLinePosition.Line + 1 != expected.Line )
 				{
 					Assert.True( false,
-						string.Format( "Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+						System.String.Format( "Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 							expected.Line, actualLinePosition.Line + 1, FormatDiagnostics( analyzer, diagnostic ) ) );
 				}
 			}
@@ -134,7 +134,7 @@ namespace TestHelper
 				if ( actualLinePosition.Character + 1 != expected.Column )
 				{
 					Assert.True( false,
-						string.Format( "Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
+						System.String.Format( "Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 							expected.Column, actualLinePosition.Character + 1, FormatDiagnostics( analyzer, diagnostic ) ) );
 				}
 			}
@@ -170,7 +170,7 @@ namespace TestHelper
 						else
 						{
 							Assert.True( location.IsInSource,
-								string.Format( "Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata:\r\n", diagnostics[ i ] ) );
+								System.String.Format( "Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata:\r\n", diagnostics[ i ] ) );
 
 							string resultMethodName = diagnostics[ i ].Location.SourceTree.FilePath.EndsWith( ".cs" ) ? "GetCSharpResultAt" : "GetBasicResultAt";
 							Microsoft.CodeAnalysis.Text.LinePosition linePosition = diagnostics[ i ].Location.GetLineSpan().StartLinePosition;

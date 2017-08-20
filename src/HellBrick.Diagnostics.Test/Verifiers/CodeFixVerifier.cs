@@ -92,8 +92,8 @@ namespace TestHelper
 						newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 
 						Assert.True( false,
-							string.Format( "Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
-								string.Join( "\r\n", newCompilerDiagnostics.Select( d => d.ToString() ) ),
+							System.String.Format( "Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
+								System.String.Join( "\r\n", newCompilerDiagnostics.Select( d => d.ToString() ) ),
 								document.GetSyntaxRootAsync().Result.ToFullString() ) );
 					}
 
