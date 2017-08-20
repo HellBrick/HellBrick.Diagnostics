@@ -25,7 +25,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 		{
 			RegisterConfigureAwaitCodeFix( context, false );
 			RegisterConfigureAwaitCodeFix( context, true );
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private void RegisterConfigureAwaitCodeFix( CodeFixContext context, bool captureContext )

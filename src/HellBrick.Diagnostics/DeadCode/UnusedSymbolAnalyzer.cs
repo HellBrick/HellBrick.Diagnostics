@@ -67,8 +67,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( CanReportOnSemanticModelBuilt( symbol ) )
 				{
 					SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
-					HashSet<ISymbol> currentTreeSymbols;
-					if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out currentTreeSymbols ) )
+					if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out HashSet<ISymbol> currentTreeSymbols ) )
 					{
 						currentTreeSymbols = new HashSet<ISymbol>();
 						_symbolsToReportOnSemanticModelBuilt.Add( declaringTree, currentTreeSymbols );
@@ -111,8 +110,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				foreach ( ISymbol referencedSymbol in referenceFinder.ReferencedSymbols )
 					_referencedSymbols.Add( referencedSymbol );
 
-				HashSet<ISymbol> currentTreeSymbols;
-				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out currentTreeSymbols ) )
+				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out HashSet<ISymbol> currentTreeSymbols ) )
 				{
 					currentTreeSymbols.ExceptWith( referenceFinder.ReferencedSymbols );
 					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );

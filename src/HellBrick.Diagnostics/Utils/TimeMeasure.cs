@@ -16,10 +16,7 @@ namespace HellBrick.Diagnostics.Utils
 			_stopwatch = Stopwatch.StartNew();
 		}
 
-		public static TimeMeasure ToDebug( string activityName )
-		{
-			return new TimeMeasure( activityName, ( activity, time ) => Debug.WriteLine( $"{time} - {activity}" ) );
-		}
+		public static TimeMeasure ToDebug( string activityName ) => new TimeMeasure( activityName, ( activity, time ) => Debug.WriteLine( $"{time} - {activity}" ) );
 
 		public void Dispose()
 		{

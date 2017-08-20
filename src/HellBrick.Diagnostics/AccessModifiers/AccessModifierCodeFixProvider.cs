@@ -21,7 +21,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 		{
 			CodeAction codeFix = CodeAction.Create( "Add missing access modifier", c => AddAccessModifierAsync( context, c ), nameof( AccessModifierCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, context.Diagnostics[ 0 ] );
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Document> AddAccessModifierAsync( CodeFixContext context, CancellationToken cancellationToken )

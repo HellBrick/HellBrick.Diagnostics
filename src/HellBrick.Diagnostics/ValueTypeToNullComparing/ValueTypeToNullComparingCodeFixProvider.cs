@@ -29,15 +29,15 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 				CodeAction.Create
 				(
 					title: _title,
-					createChangedDocument: c => ReplaceNullWithDefalutSyntax( context.Document, diagnostic, c ),
+					createChangedDocument: c => ReplaceNullWithDefalutSyntaxAsync( context.Document, diagnostic, c ),
 					equivalenceKey: _title
 				),
 					diagnostic
 			);
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
-		private async Task<Document> ReplaceNullWithDefalutSyntax( Document document, Diagnostic diagnostic, CancellationToken token )
+		private async Task<Document> ReplaceNullWithDefalutSyntaxAsync( Document document, Diagnostic diagnostic, CancellationToken token )
 		{
 			SyntaxNode documentRoot = await document
 				.GetSyntaxRootAsync( token )

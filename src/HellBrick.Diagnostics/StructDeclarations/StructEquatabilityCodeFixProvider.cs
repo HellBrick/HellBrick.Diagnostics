@@ -22,7 +22,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		{
 			CodeAction codeFix = CodeAction.Create( "Generate missing equatability members", c => EnforceRulesAsync( context, c ), nameof( StructEquatabilityCodeFixProvider ) );
 			context.RegisterCodeFix( codeFix, context.Diagnostics );
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Document> EnforceRulesAsync( CodeFixContext context, CancellationToken cancellationToken )

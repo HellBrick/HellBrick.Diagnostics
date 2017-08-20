@@ -27,7 +27,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			CodeAction codeAction = CodeAction.Create( _codeActionTitle, ct => UpdateDocumentAsync( context, ct ), nameof( UnusedSymbolCodeFixProvider ) );
 			context.RegisterCodeFix( codeAction, context.Diagnostics[ 0 ] );
-			return TaskHelper.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		private async Task<Document> UpdateDocumentAsync( CodeFixContext context, CancellationToken cancellationToken )

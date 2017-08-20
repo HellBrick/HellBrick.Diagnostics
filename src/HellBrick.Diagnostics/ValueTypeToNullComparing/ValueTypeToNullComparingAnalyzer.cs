@@ -9,8 +9,8 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
 	public class ValueTypeToNullComparingAnalyzer : DiagnosticAnalyzer
 	{
-		public const string DiagnosticId = IDPrefix.Value + "ValueTypeToNullComparing";
-		private const string _title = "Value type to null comparing";
+		public const string DiagnosticId = IDPrefix.Value + "ValueTypeNullComparison";
+		private const string _title = "Value type is comapred to null";
 
 		private static readonly ImmutableArray<SyntaxKind> _analysisTarget = ImmutableArray.Create( SyntaxKind.EqualsExpression, SyntaxKind.NotEqualsExpression );
 
