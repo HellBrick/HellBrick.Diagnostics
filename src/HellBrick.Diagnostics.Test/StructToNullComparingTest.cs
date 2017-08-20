@@ -175,31 +175,31 @@ namespace ConsoleApplication1
 		}
 
 		[Fact]
-		public void RoslynBugIsWorkedAround()
+		public void NullReplacedWithDefaultWhenValueIsGenericInstantiatedWithAValueType()
 		{
-			const string code = @"
+			FormattableString codeFormat = $@"
 using System;
 
-namespace RoslynBug
-{
+namespace Namespace
+{{
 	class SomeClass
-	{
+	{{
 		private static bool Method()
 			=> Is
 			(
 				new Wrapper<int>(),
-				x => x.Value != null
+				x => x.Value != {0}
 			);
 
 		private static bool Is<T>( T value, Func<T, bool> predicate ) => predicate( value );
 
 		private class Wrapper<T>
-		{
-			public T Value { get; set; }
-		}
-	}
-}";
-			VerifyNoFix( code );
+		{{
+			public T Value {{ get; set; }}
+		}}
+	}}
+}}";
+			VerifyNullIsReplaced( codeFormat, "int" );
 		}
 	}
 }

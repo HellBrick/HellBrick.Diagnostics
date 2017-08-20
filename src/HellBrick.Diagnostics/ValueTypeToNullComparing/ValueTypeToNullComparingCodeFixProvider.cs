@@ -62,12 +62,16 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		}
 
 		private static SyntaxNode ReplaceNodeWithDefaultSyntax( Diagnostic diagnostic, SyntaxNode documentRoot, SemanticModel model, ExpressionSyntax nodeToReplace, ExpressionSyntax typeNode )
-			=> documentRoot.ReplaceNode( nodeToReplace, CreateDefaultSyntax( diagnostic.Location, model, typeNode ) );
+			=> documentRoot.ReplaceNode( nodeToReplace, CreateDefaultSyntax( diagnostic.Location, model, typeNode, nodeToReplace ) );
 
-		private static DefaultExpressionSyntax CreateDefaultSyntax( Location location, SemanticModel model, ExpressionSyntax node )
+		private static DefaultExpressionSyntax CreateDefaultSyntax( Location location, SemanticModel model, ExpressionSyntax node, ExpressionSyntax nodeToReplace )
 		{
 			string typeName = model.GetTypeInfo( node ).Type.ToMinimalDisplayString( model, location.SourceSpan.Start );
-			return SyntaxFactory.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) );
+			return
+				SyntaxFactory
+				.DefaultExpression( SyntaxFactory.ParseTypeName( typeName ) )
+				.WithLeadingTrivia( nodeToReplace.GetLeadingTrivia() )
+				.WithTrailingTrivia( nodeToReplace.GetTrailingTrivia() );
 		}
 	}
 }
