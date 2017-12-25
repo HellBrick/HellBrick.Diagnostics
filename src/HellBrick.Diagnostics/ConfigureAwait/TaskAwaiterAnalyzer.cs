@@ -1,14 +1,26 @@
 ﻿using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics.ConfigureAwait
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
 	public class TaskAwaiterAnalyzer : DiagnosticAnalyzer
 	{
+		private static readonly SimpleNameSyntax _configureAwaitName = (SimpleNameSyntax) ParseName( nameof( Task.ConfigureAwait ) );
+		private static readonly ArgumentListSyntax _configureAwaitCandidateArgumentList = ArgumentList
+		(
+			SeparatedList<ArgumentSyntax>().Add
+			(
+				Argument( LiteralExpression( SyntaxKind.FalseLiteralExpression, Token( SyntaxKind.FalseKeyword ) ) )
+			)
+		);
+
 		public const string DiagnosticID = IDPrefix.Value + "ConfigureAwait";
 
 		private const string _title = "'ConfigureAwait( false )' is missing";
@@ -26,17 +38,31 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 		private void EnsureConfigureAwait( SyntaxNodeAnalysisContext context )
 		{
 			AwaitExpressionSyntax awaitExpression = context.Node as AwaitExpressionSyntax;
-			AwaitExpressionInfo awaitInfo = context.SemanticModel.GetAwaitExpressionInfo( awaitExpression );
 
-			if ( IsTaskAwaiter( awaitInfo.GetAwaiterMethod?.ReturnType ) )
+			if ( CanResolveConfigureAwaitCall() )
 			{
 				Diagnostic diagnostic = Diagnostic.Create( _rule, awaitExpression.Expression.GetLocation() );
 				context.ReportDiagnostic( diagnostic );
 			}
-		}
 
-		private static bool IsTaskAwaiter( ITypeSymbol awaiterType ) =>
-			awaiterType?.Name == "TaskAwaiter" &&
-			awaiterType?.ContainingNamespace.ToDisplayString() == "System.Runtime.CompilerServices";
+			bool CanResolveConfigureAwaitCall()
+			{
+				SyntaxNode configureAwaitCandidate
+					= InvocationExpression
+					(
+						MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, awaitExpression.Expression, _configureAwaitName ),
+						_configureAwaitCandidateArgumentList
+					);
+
+				SymbolInfo configureAwaitSymbolInfo = context.SemanticModel.GetSpeculativeSymbolInfo
+				(
+					awaitExpression.Expression.Span.Start,
+					configureAwaitCandidate,
+					SpeculativeBindingOption.BindAsExpression
+				);
+
+				return configureAwaitSymbolInfo.Symbol != null;
+			}
+		}
 	}
 }
