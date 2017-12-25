@@ -13,6 +13,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private readonly TypeSyntax _objectTypeName = ParseTypeName( "object" );
 		private readonly IdentifierNameSyntax _equalsMethodName = IdentifierName( "Equals" );
 		private const string _objArg = "obj";
+		private const string _otherPatternVar = "other";
+		private static readonly SyntaxToken _otherIdentitiferToken = Identifier( _otherPatternVar );
+		private static readonly IdentifierNameSyntax _otherIdentifierSyntax = IdentifierName( _otherIdentitiferToken );
 
 		public string ID => "OverrideEquals";
 		public string RuleText => "should override Equals()";
@@ -50,18 +53,10 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		private ExpressionSyntax BuildEqualsOverrideBodyExpression( StructDeclarationSyntax structDeclaration, TypeSyntax structTypeName )
 		{
-			BinaryExpressionSyntax typeCheck = BinaryExpression( SyntaxKind.IsExpression, IdentifierName( _objArg ), structTypeName );
-			InvocationExpressionSyntax call = BuildEqualsCall( structTypeName );
+			IsPatternExpressionSyntax typeCheck = IsPatternExpression( IdentifierName( _objArg ), DeclarationPattern( structTypeName, SingleVariableDesignation( _otherIdentitiferToken ) ) );
+			InvocationExpressionSyntax call = InvocationExpression( _equalsMethodName ).AddArgumentListArguments( Argument( _otherIdentifierSyntax ) );
 			BinaryExpressionSyntax body = BinaryExpression( SyntaxKind.LogicalAndExpression, typeCheck, call );
 			return body;
-		}
-
-		private InvocationExpressionSyntax BuildEqualsCall( TypeSyntax structTypeName )
-		{
-			CastExpressionSyntax cast = CastExpression( structTypeName, IdentifierName( _objArg ) );
-			MemberAccessExpressionSyntax equalsMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), _equalsMethodName );
-			InvocationExpressionSyntax call = InvocationExpression( equalsMethod ).AddArgumentListArguments( Argument( cast ) );
-			return call;
 		}
 	}
 }

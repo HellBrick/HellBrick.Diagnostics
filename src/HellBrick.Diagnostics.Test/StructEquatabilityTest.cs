@@ -41,7 +41,7 @@ public readonly struct ZeroFieldStruct : IEquatable<ZeroFieldStruct>
 {
 	public override int GetHashCode() => 0;
 	public bool Equals( ZeroFieldStruct other ) => true;
-	public override bool Equals( object obj ) => obj is ZeroFieldStruct && Equals( (ZeroFieldStruct) obj );
+	public override bool Equals( object obj ) => obj is ZeroFieldStruct other && Equals( other );
 
 	public static bool operator ==( ZeroFieldStruct x, ZeroFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( ZeroFieldStruct x, ZeroFieldStruct y ) => !x.Equals( y );
@@ -72,7 +72,7 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 
 	public override int GetHashCode() => EqualityComparer<object>.Default.GetHashCode( _field );
 	public bool Equals( OneFieldStruct other ) => EqualityComparer<object>.Default.Equals( _field, other._field );
-	public override bool Equals( object obj ) => obj is OneFieldStruct && Equals( (OneFieldStruct) obj );
+	public override bool Equals( object obj ) => obj is OneFieldStruct other && Equals( other );
 
 	public static bool operator ==( OneFieldStruct x, OneFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( OneFieldStruct x, OneFieldStruct y ) => !x.Equals( y );
@@ -116,7 +116,7 @@ public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
 	}
 
 	public bool Equals( ManyFieldStruct other ) => EqualityComparer<int>.Default.Equals( _number, other._number ) && Text == other.Text;
-	public override bool Equals( object obj ) => obj is ManyFieldStruct && Equals( (ManyFieldStruct) obj );
+	public override bool Equals( object obj ) => obj is ManyFieldStruct other && Equals( other );
 
 	public static bool operator ==( ManyFieldStruct x, ManyFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( ManyFieldStruct x, ManyFieldStruct y ) => !x.Equals( y );
@@ -150,7 +150,7 @@ public readonly struct StructWithoutOverrides : IEquatable<StructWithoutOverride
 	public static bool operator !=( StructWithoutOverrides x, StructWithoutOverrides y ) => false;
 
 	public override int GetHashCode() => 0;
-	public override bool Equals( object obj ) => obj is StructWithoutOverrides && Equals( (StructWithoutOverrides) obj );
+	public override bool Equals( object obj ) => obj is StructWithoutOverrides other && Equals( other );
 }
 ";
 			VerifyCSharpFix( before, after );
