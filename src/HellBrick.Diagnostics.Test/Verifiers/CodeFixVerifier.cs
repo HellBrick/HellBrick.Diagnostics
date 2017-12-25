@@ -3,7 +3,9 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Xunit;
@@ -65,7 +67,9 @@ namespace TestHelper
 				for ( int i = 0; i < attempts; ++i )
 				{
 					List<CodeAction> actions = new List<CodeAction>();
-					CodeFixContext context = new CodeFixContext( document, analyzerDiagnostics[ 0 ], ( a, d ) => actions.Add( a ), CancellationToken.None );
+					TextSpan span = analyzerDiagnostics[ 0 ].Location.SourceSpan;
+					ImmutableArray<Diagnostic> spanDiagnostics = ImmutableArray.Create( analyzerDiagnostics.Where( d => d.Location.SourceSpan == span ).ToArray() );
+					CodeFixContext context = new CodeFixContext( document, span, spanDiagnostics, ( a, d ) => actions.Add( a ), CancellationToken.None );
 					codeFixProvider.RegisterCodeFixesAsync( context ).Wait();
 
 					if ( !actions.Any() )
