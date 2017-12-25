@@ -8,6 +8,8 @@ namespace HellBrick.Diagnostics.StructDeclarations
 {
 	internal static class StructEquatabilityRules
 	{
+		public const string RuleIdPropertyKey = nameof( StructEquatabilityRules ) + "." + nameof( RuleIdPropertyKey );
+
 		private static readonly List<IEquatabilityRule> _rulesSorted =
 			new List<IEquatabilityRule>
 			{
@@ -23,6 +25,10 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			_rulesSorted
 				.Select( rule => new DiagnosticDescriptor( rule.ID, "Structs " + rule.RuleText, "{0} " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) )
 				.ToImmutableDictionary( descriptor => descriptor.Id );
+
+		public static ImmutableDictionary<string, ImmutableDictionary<string, string>> PropertyBags { get; }
+			= _rulesSorted
+			.ToImmutableDictionary( rule => rule.ID, rule => ImmutableDictionary<string, string>.Empty.Add( RuleIdPropertyKey, rule.ID ) );
 
 		public static readonly IComparer<IEquatabilityRule> RuleComparer = new RuleOrderComparer();
 

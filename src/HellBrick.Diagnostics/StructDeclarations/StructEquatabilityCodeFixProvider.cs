@@ -48,7 +48,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			ISymbol[] fieldsAndProperties = Enumerable.Concat( fieldSymbols, propertySymbols ).ToArray();
 
 			IEquatabilityRule[] brokenRules = context.Diagnostics
-				.Select( diagnostic => StructEquatabilityRules.Rules[ diagnostic.Id ] )
+				.Select( diagnostic => StructEquatabilityRules.Rules[ diagnostic.Properties[ StructEquatabilityRules.RuleIdPropertyKey ] ] )
 				.OrderBy( rule => rule, StructEquatabilityRules.RuleComparer )
 				.ToArray();
 
