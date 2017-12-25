@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		public static ImmutableDictionary<string, IEquatabilityRule> Rules { get; } = _rulesSorted.ToImmutableDictionary( rule => rule.ID );
 		public static ImmutableDictionary<string, DiagnosticDescriptor> Descriptors { get; }
 			= _rulesSorted
-			.ToImmutableDictionary( rule => rule.ID, rule => new DiagnosticDescriptor( rule.ID, "Structs " + rule.RuleText, "{0} " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) );
+			.ToImmutableDictionary( rule => rule.ID, rule => new DiagnosticDescriptor( rule.ID, "Structs should provide equatability methods ", "{0} " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) );
 
 		public static ImmutableDictionary<string, ImmutableDictionary<string, string>> PropertyBags { get; }
 			= _rulesSorted
