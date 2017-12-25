@@ -53,7 +53,7 @@ namespace TestHelper
 		{
 			Project project = CreateProject( oldSources );
 			Document[] documents = project.Documents.ToArray();
-			Diagnostic[] analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, documents );
+			Diagnostic[] analyzerDiagnostics = GetAnalyzerDiagnosticsTargetedByCodeFixProvider( documents );
 			for ( int documentIndex = 0; documentIndex < documents.Length; documentIndex++ )
 			{
 				Document document = documents[ documentIndex ];
@@ -80,7 +80,7 @@ namespace TestHelper
 					}
 
 					document = ApplyFix( document, actions.ElementAt( 0 ) );
-					analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[] { document } );
+					analyzerDiagnostics = GetAnalyzerDiagnosticsTargetedByCodeFixProvider( document );
 
 					IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 
@@ -108,6 +108,11 @@ namespace TestHelper
 				string actual = GetStringFromDocument( document );
 				Assert.Equal( newSource, actual );
 			}
+
+			Diagnostic[] GetAnalyzerDiagnosticsTargetedByCodeFixProvider( params Document[] documentsToAnalyze )
+				=> GetSortedDiagnosticsFromDocuments( analyzer, documentsToAnalyze )
+				.Where( d => codeFixProvider.FixableDiagnosticIds.Contains( d.Id ) )
+				.ToArray();
 		}
 	}
 }
