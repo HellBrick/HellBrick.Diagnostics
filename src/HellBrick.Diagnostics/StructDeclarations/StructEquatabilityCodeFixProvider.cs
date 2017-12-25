@@ -15,7 +15,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( StructEquatabilityCodeFixProvider ) ), Shared]
 	public class StructEquatabilityCodeFixProvider : CodeFixProvider
 	{
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = StructEquatabilityRules.Rules.Keys.ToImmutableArray();
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( StructEquatabilityRules.DiagnosticId );
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override Task RegisterCodeFixesAsync( CodeFixContext context )

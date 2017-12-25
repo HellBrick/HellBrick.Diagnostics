@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using HellBrick.Diagnostics.StructDeclarations.EquatabilityRules;
 using Microsoft.CodeAnalysis;
 
@@ -8,6 +7,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 {
 	internal static class StructEquatabilityRules
 	{
+		public const string DiagnosticId = StructIDPrefix.Value + "EquatabilityMethodsMissing";
 		public const string RuleIdPropertyKey = nameof( StructEquatabilityRules ) + "." + nameof( RuleIdPropertyKey );
 
 		private static readonly List<IEquatabilityRule> _rulesSorted =
@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		public static ImmutableDictionary<string, IEquatabilityRule> Rules { get; } = _rulesSorted.ToImmutableDictionary( rule => rule.ID );
 		public static ImmutableDictionary<string, DiagnosticDescriptor> Descriptors { get; }
 			= _rulesSorted
-			.ToImmutableDictionary( rule => rule.ID, rule => new DiagnosticDescriptor( rule.ID, "Structs should provide equatability methods ", "{0} should " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) );
+			.ToImmutableDictionary( rule => rule.ID, rule => new DiagnosticDescriptor( DiagnosticId, "Structs should provide equatability methods ", "{0} should " + rule.RuleText, DiagnosticCategory.Design, DiagnosticSeverity.Warning, true ) );
 
 		public static ImmutableDictionary<string, ImmutableDictionary<string, string>> PropertyBags { get; }
 			= _rulesSorted
