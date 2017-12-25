@@ -11,7 +11,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using HellBrick.Diagnostics.Utils;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using HellBrick.Diagnostics.StructDeclarations;
 
 namespace HellBrick.Diagnostics.EnforceReadOnly
 {
@@ -20,12 +19,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 	{
 		private readonly SyntaxToken _readonlyModifier = Token( SyntaxKind.ReadOnlyKeyword );
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create
-			(
-				EnforceReadOnlyAnalyzer.DiagnosticID,
-				ReadOnlyStructFieldsAnalyzer.DiagnosticID
-			);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( EnforceReadOnlyAnalyzer.DiagnosticID );
 
 		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

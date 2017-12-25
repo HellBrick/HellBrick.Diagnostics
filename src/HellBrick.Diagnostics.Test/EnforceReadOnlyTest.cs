@@ -405,7 +405,7 @@ namespace NS
 	
 	partial class ClassName
 	{		
-		public DoStuff()
+		public void DoStuff()
 		{
 			_x = ""42"";
 		}
@@ -495,7 +495,7 @@ namespace NS
 		private string _i;
 		private string _j;
 		
-		public SomeMethod()
+		public void SomeMethod()
 		{
 			_a += 1;
 			_b &= 1;

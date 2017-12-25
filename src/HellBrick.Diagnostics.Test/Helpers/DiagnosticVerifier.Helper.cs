@@ -172,7 +172,8 @@ namespace TestHelper
 				solution = solution.AddDocument( documentId, newFileName, SourceText.From( source ) );
 				count++;
 			}
-			return solution.GetProject( projectId );
+			Project project = solution.GetProject( projectId );
+			return project.WithParseOptions( ( (CSharpParseOptions) project.ParseOptions ).WithLanguageVersion( LanguageVersion.Latest ) );
 		}
 		#endregion
 	}

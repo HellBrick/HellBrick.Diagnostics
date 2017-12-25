@@ -3,7 +3,9 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Xunit;
@@ -53,7 +55,7 @@ namespace TestHelper
 		{
 			Project project = CreateProject( oldSources );
 			Document[] documents = project.Documents.ToArray();
-			Diagnostic[] analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, documents );
+			Diagnostic[] analyzerDiagnostics = GetAnalyzerDiagnosticsTargetedByCodeFixProvider( documents );
 			for ( int documentIndex = 0; documentIndex < documents.Length; documentIndex++ )
 			{
 				Document document = documents[ documentIndex ];
@@ -65,7 +67,9 @@ namespace TestHelper
 				for ( int i = 0; i < attempts; ++i )
 				{
 					List<CodeAction> actions = new List<CodeAction>();
-					CodeFixContext context = new CodeFixContext( document, analyzerDiagnostics[ 0 ], ( a, d ) => actions.Add( a ), CancellationToken.None );
+					TextSpan span = analyzerDiagnostics[ 0 ].Location.SourceSpan;
+					ImmutableArray<Diagnostic> spanDiagnostics = ImmutableArray.Create( analyzerDiagnostics.Where( d => d.Location.SourceSpan == span ).ToArray() );
+					CodeFixContext context = new CodeFixContext( document, span, spanDiagnostics, ( a, d ) => actions.Add( a ), CancellationToken.None );
 					codeFixProvider.RegisterCodeFixesAsync( context ).Wait();
 
 					if ( !actions.Any() )
@@ -80,7 +84,7 @@ namespace TestHelper
 					}
 
 					document = ApplyFix( document, actions.ElementAt( 0 ) );
-					analyzerDiagnostics = GetSortedDiagnosticsFromDocuments( analyzer, new[] { document } );
+					analyzerDiagnostics = GetAnalyzerDiagnosticsTargetedByCodeFixProvider( document );
 
 					IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 
@@ -108,6 +112,11 @@ namespace TestHelper
 				string actual = GetStringFromDocument( document );
 				Assert.Equal( newSource, actual );
 			}
+
+			Diagnostic[] GetAnalyzerDiagnosticsTargetedByCodeFixProvider( params Document[] documentsToAnalyze )
+				=> GetSortedDiagnosticsFromDocuments( analyzer, documentsToAnalyze )
+				.Where( d => codeFixProvider.FixableDiagnosticIds.Contains( d.Id ) )
+				.ToArray();
 		}
 	}
 }

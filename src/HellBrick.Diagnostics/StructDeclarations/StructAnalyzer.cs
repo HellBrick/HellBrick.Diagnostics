@@ -15,8 +15,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		private static readonly ImmutableArray<IStructSyntaxNodeAnalyzer> _analyzers
 			= new IStructSyntaxNodeAnalyzer[]
 			{
-				new ReadOnlyStructFieldsAnalyzer(),
-				new ReadOnlyStructPropertyAnalyzer(),
+				new StructImmutabilityAnalyzer(),
 				new StructEquatabilityAnalyzer()
 			}
 			.ToImmutableArray();
@@ -37,16 +36,8 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			StructDeclarationSyntax structDeclaration = syntaxNodeContext.Node as StructDeclarationSyntax;
 			ITypeSymbol structType = syntaxNodeContext.SemanticModel.GetDeclaredSymbol( structDeclaration );
 
-			if ( IsEnumerator( structType ) )
-				return;
-
 			foreach ( IStructSyntaxNodeAnalyzer analyzer in _analyzers )
 				analyzer.AnalyzeStructSyntaxNode( structDeclaration, structType, syntaxNodeContext );
 		}
-
-		private static bool IsEnumerator( ITypeSymbol typeSymbol )
-			=> typeSymbol
-			.AllInterfaces
-			.Any( i => i.MetadataName == "IEnumerator`1" );
 	}
 }
