@@ -21,7 +21,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			{
 				if ( rule.IsViolatedBy( structDeclaration, structType, context.SemanticModel ) )
 				{
-					Diagnostic diagnostic = Diagnostic.Create( StructEquatabilityRules.Descriptors[ rule.ID ], location, structType.Name );
+					Diagnostic diagnostic = Diagnostic.Create( StructEquatabilityRules.Descriptors[ rule.ID ], location, StructEquatabilityRules.PropertyBags[ rule.ID ], structType.Name );
 					context.ReportDiagnostic( diagnostic );
 				}
 			}

@@ -15,7 +15,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private const string _otherArg = "other";
 
 		public string ID => StructIDPrefix.Value + "ImplementIEquatable";
-		public string RuleText => "should implement IEquatable<T>";
+		public string RuleText => "implement IEquatable<T>";
 
 		public bool IsViolatedBy( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SemanticModel semanticModel )
 		{
