@@ -101,5 +101,45 @@ public class Program
 ";
 			VerifyFix( before, after );
 		}
+
+		[Fact]
+		public void UnconfiguredCustomTaskGetsConfigured()
+		{
+			const string before =
+@"
+using System.Threading.Tasks;
+
+public class CustomTask
+{
+	public ConfiguredCustomTaskAwaiter ConfigureAwait( bool ) => default;
+}
+
+public class Program
+{
+	public async void AsyncMethod()
+	{
+		await new CustomTask();
+	}
+}
+";
+			FormattableString after =
+$@"
+using System.Threading.Tasks;
+
+public class CustomTask
+{{
+	public ConfiguredCustomTaskAwaiter ConfigureAwait( bool ) => default;
+}}
+
+public class Program
+{{
+	public async void AsyncMethod()
+	{{
+		await new CustomTask().ConfigureAwait( {false} );
+	}}
+}}
+";
+			VerifyFix( before, after );
+		}
 	}
 }
