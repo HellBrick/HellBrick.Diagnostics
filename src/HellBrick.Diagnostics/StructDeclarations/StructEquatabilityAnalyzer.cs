@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -11,6 +12,9 @@ namespace HellBrick.Diagnostics.StructDeclarations
 
 		public void AnalyzeStructSyntaxNode( StructDeclarationSyntax structDeclaration, ITypeSymbol structType, SyntaxNodeAnalysisContext context )
 		{
+			if ( !structDeclaration.Modifiers.Any( SyntaxKind.ReadOnlyKeyword ) )
+				return;
+
 			Location location = structDeclaration.Identifier.GetLocation();
 
 			foreach ( IEquatabilityRule rule in StructEquatabilityRules.Rules.Values )

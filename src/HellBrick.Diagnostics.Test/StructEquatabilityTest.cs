@@ -12,16 +12,13 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new StructEquatabilityCodeFixProvider();
 
 		[Fact]
-		public void EnumeratorStructIsIgnored()
+		public void NonReadonlyStructIsIgnored()
 		{
 			const string source =
 @"
-public struct InfiniteEnumerator : IEnumerator<int>
+public struct NonReadonlyStruct
 {
-	private int _value;
-
-	public bool MoveNext() => true;
-	public int Current => _value;
+	private readonly int _value;
 }
 ";
 			VerifyNoFix( source );
