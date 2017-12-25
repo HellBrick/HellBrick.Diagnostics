@@ -21,6 +21,7 @@
       - Struct equatability analyzer has been changed to ignore structs that don't have a readonly modifier
       - Fields of non-readonly structs are no longer enforced to be readonly
       - Struct equatability diagnostics have new shared ID that allows suppressing them all with a single #pragma
+      - Extended ConfigureAwait() analyzer to support arbitrary awaitable types
 
       v2.0.0:
       - Migrated to Roslyn 2.0
