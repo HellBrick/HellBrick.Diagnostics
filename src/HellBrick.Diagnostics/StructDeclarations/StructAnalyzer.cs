@@ -15,6 +15,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		private static readonly ImmutableArray<IStructSyntaxNodeAnalyzer> _analyzers
 			= new IStructSyntaxNodeAnalyzer[]
 			{
+				new StructImmutabilityAnalyzer(),
 				new ReadOnlyStructFieldsAnalyzer(),
 				new ReadOnlyStructPropertyAnalyzer(),
 				new StructEquatabilityAnalyzer()

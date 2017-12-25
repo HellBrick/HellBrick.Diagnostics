@@ -9,13 +9,16 @@
 
   <PropertyGroup>
     <PackageId>HellBrick.Diagnostics</PackageId>
-    <PackageVersion>2.0.0.0</PackageVersion>
+    <PackageVersion>3.0.0.0</PackageVersion>
     <Authors>HellBrick</Authors>
     <PackageProjectUrl>https://github.com/HellBrick/HellBrick.Diagnostics</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HellBrick/HellBrick.Diagnostics</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.0.0:
+      - Added an analyzer that forces immutable structs to have readonly modifier
+
       v2.0.0:
       - Migrated to Roslyn 2.0
       - Updated analyzers and code fixes to respect C# 7.1
