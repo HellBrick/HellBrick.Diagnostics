@@ -19,6 +19,7 @@
       v3.0.0:
       - Added an analyzer that forces immutable structs to have readonly modifier
       - Struct equatability analyzer has been changed to ignore structs that don't have a readonly modifier
+      - Fields of non-readonly structs are no longer enforced to be readonly
 
       v2.0.0:
       - Migrated to Roslyn 2.0

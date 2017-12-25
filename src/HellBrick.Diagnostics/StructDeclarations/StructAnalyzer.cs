@@ -16,8 +16,6 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			= new IStructSyntaxNodeAnalyzer[]
 			{
 				new StructImmutabilityAnalyzer(),
-				new ReadOnlyStructFieldsAnalyzer(),
-				new ReadOnlyStructPropertyAnalyzer(),
 				new StructEquatabilityAnalyzer()
 			}
 			.ToImmutableArray();
