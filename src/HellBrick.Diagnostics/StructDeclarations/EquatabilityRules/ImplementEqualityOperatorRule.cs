@@ -16,7 +16,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private const string _yArg = "y";
 
 		public string ID => $"ImplementOperator{OperatorToken.Kind()}";
-		public string RuleText => $"should implement operator {OperatorToken.ValueText}";
+		public string RuleText => $"implement operator {OperatorToken.ValueText}";
 
 		protected abstract SyntaxToken OperatorToken { get; }
 		protected abstract ExpressionSyntax BuildOperatorBody( ExpressionSyntax equalsCall );
