@@ -17,6 +17,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		private readonly SyntaxToken _readonlyModifier = SyntaxFactory.Token( SyntaxKind.ReadOnlyKeyword );
 
 		public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( StructImmutabilityAnalyzer.DiagnosticId );
+		public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
 		public override Task RegisterCodeFixesAsync( CodeFixContext context )
 		{
