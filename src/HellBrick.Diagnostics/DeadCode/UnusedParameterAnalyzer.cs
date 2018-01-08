@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace HellBrick.Diagnostics.DeadCode
@@ -28,36 +29,44 @@ namespace HellBrick.Diagnostics.DeadCode
 		public override void Initialize( AnalysisContext context )
 		{
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
-			context.RegisterCodeBlockStartAction<SyntaxKind>( codeBlockStartcontext => AnalyzeCodeBlock( codeBlockStartcontext ) );
+			context.RegisterCodeBlockAction( codeBlockContext => AnalyzeCodeBlock( codeBlockContext ) );
 		}
 
-		private void AnalyzeCodeBlock( CodeBlockStartAnalysisContext<SyntaxKind> codeBlockStartContext )
+		private void AnalyzeCodeBlock( CodeBlockAnalysisContext codeBlockContext )
 		{
-			if ( !codeBlockStartContext.CodeBlock.IsKind( SyntaxKind.MethodDeclaration ) && !codeBlockStartContext.CodeBlock.IsKind( SyntaxKind.ConstructorDeclaration ) )
+			if ( !codeBlockContext.CodeBlock.IsKind( SyntaxKind.MethodDeclaration ) && !codeBlockContext.CodeBlock.IsKind( SyntaxKind.ConstructorDeclaration ) )
 				return;
 
-			IMethodSymbol methodSymbol = codeBlockStartContext.OwningSymbol as IMethodSymbol;
+			IMethodSymbol methodSymbol = codeBlockContext.OwningSymbol as IMethodSymbol;
 			if ( !( methodSymbol?.Parameters.Length > 0 ) || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
-			ParameterTracker tracker = new ParameterTracker( methodSymbol.Parameters );
-			codeBlockStartContext.RegisterCodeBlockEndAction( codeBlockContext => tracker.ReportUnusedParameters( codeBlockContext ) );
-			codeBlockStartContext.RegisterSyntaxNodeAction( nodeContext => tracker.TryDiscardReferencedParameter( nodeContext ), SyntaxKind.IdentifierName );
+			ParameterTracker tracker = new ParameterTracker( methodSymbol.Parameters, codeBlockContext.SemanticModel );
+			tracker.Visit( codeBlockContext.CodeBlock );
+			tracker.ReportUnusedParameters( codeBlockContext );
 		}
 
-		private class ParameterTracker
+		private class ParameterTracker : CSharpSyntaxWalker
 		{
 			private readonly HashSet<IParameterSymbol> _trackedParameters;
+			private readonly SemanticModel _semanticModel;
 
-			public ParameterTracker( ImmutableArray<IParameterSymbol> parameters ) => _trackedParameters = parameters.ToHashSet();
+			public ParameterTracker( ImmutableArray<IParameterSymbol> parameters, SemanticModel semanticModel )
+			{
+				_trackedParameters = parameters.ToHashSet();
+				_semanticModel = semanticModel;
+			}
 
-			public void TryDiscardReferencedParameter( SyntaxNodeAnalysisContext nodeContext )
+			public override void Visit( SyntaxNode node )
 			{
 				if ( _trackedParameters.Count > 0 )
-				{
-					IParameterSymbol symbol = nodeContext.SemanticModel.GetSymbolInfo( nodeContext.Node ).Symbol as IParameterSymbol;
-					_trackedParameters.Remove( symbol );
-				}
+					base.Visit( node );
+			}
+
+			public override void VisitIdentifierName( IdentifierNameSyntax node )
+			{
+				IParameterSymbol symbol = _semanticModel.GetSymbolInfo( node ).Symbol as IParameterSymbol;
+				_trackedParameters.Remove( symbol );
 			}
 
 			public void ReportUnusedParameters( CodeBlockAnalysisContext codeBlockContext )

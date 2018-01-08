@@ -16,6 +16,9 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.0.1:
+      - Fixed unused parameter analyzer to examine base calls and expression bodies properly
+
       v3.0.0:
       - Added an analyzer that forces immutable structs to have readonly modifier
       - Struct equatability analyzer has been changed to ignore structs that don't have a readonly modifier

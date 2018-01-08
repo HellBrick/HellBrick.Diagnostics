@@ -178,6 +178,89 @@ public class D : C
 		}
 
 		[Fact]
+		public void ExpressionBodyIsExaminedCorrectly()
+		{
+			const string before =
+@"
+public class C
+{
+	public string DoMagic( int unused, string used ) => used;
+}
+";
+
+			const string after =
+@"
+public class C
+{
+	public string DoMagic( string used ) => used;
+}
+";
+			VerifyCSharpFix( before, after );
+		}
+
+		[Fact]
+		public void BaseCallAndExpressionBodyAreExaminedCorrectly()
+		{
+			const string before =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody, string unused )
+		: base( usedByBase )
+		=> Line = usedByBody;
+
+	public string Line { get; }
+}
+";
+
+			const string after =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody )
+		: base( usedByBase )
+		=> Line = usedByBody;
+
+	public string Line { get; }
+}
+";
+			VerifyCSharpFix( before, after );
+		}
+
+		[Fact]
+		public void BaseCallAndBlockBodyAreExaminedCorrectly()
+		{
+			const string before =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody, string unused )
+		: base( usedByBase )
+	{
+		Line = usedByBody;
+	}
+
+	public string Line { get; }
+}
+";
+
+			const string after =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody )
+		: base( usedByBase )
+	{
+		Line = usedByBody;
+	}
+
+	public string Line { get; }
+}
+";
+			VerifyCSharpFix( before, after );
+		}
+
+		[Fact]
 		public void UnusedLambdaParameterIsNotRemoved()
 		{
 			const string source =
