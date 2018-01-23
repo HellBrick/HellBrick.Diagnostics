@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -43,7 +44,15 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
-			HashSet<IParameterSymbol> parametersToExamine = methodSymbol.Parameters.ToHashSet();
+			HashSet<IParameterSymbol> parametersToExamine
+				=
+				(
+					methodSymbol.IsExtensionMethod
+					? methodSymbol.Parameters.Skip( 1 )
+					: methodSymbol.Parameters
+				)
+				.ToHashSet();
+
 			if ( parametersToExamine.Count <= 0 )
 				return;
 

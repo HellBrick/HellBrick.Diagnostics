@@ -96,6 +96,19 @@ public class D
 		}
 
 		[Fact]
+		public void UnusedThisParameterIsNotRemoved()
+		{
+			const string source =
+@"
+public static class Extensions
+{
+	public static int ExtensionMethod<T>( this T instance, int value ) => value;
+}
+";
+			VerifyNoFix( source );
+		}
+
+		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodImplementsInterface()
 		{
 			const string source =
