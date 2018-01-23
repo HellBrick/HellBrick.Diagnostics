@@ -37,8 +37,10 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( !codeBlockContext.CodeBlock.IsKind( SyntaxKind.MethodDeclaration ) && !codeBlockContext.CodeBlock.IsKind( SyntaxKind.ConstructorDeclaration ) )
 				return;
 
-			IMethodSymbol methodSymbol = codeBlockContext.OwningSymbol as IMethodSymbol;
-			if ( !( methodSymbol?.Parameters.Length > 0 ) || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
+			if ( !( codeBlockContext.OwningSymbol is IMethodSymbol methodSymbol ) )
+				return;
+
+			if ( !( methodSymbol.Parameters.Length > 0 ) || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
 			ParameterTracker tracker = new ParameterTracker( methodSymbol.Parameters, codeBlockContext.SemanticModel );
