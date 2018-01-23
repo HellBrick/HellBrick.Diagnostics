@@ -43,8 +43,8 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
-			ImmutableArray<IParameterSymbol> parametersToExamine = methodSymbol.Parameters;
-			if ( parametersToExamine.Length <= 0 )
+			HashSet<IParameterSymbol> parametersToExamine = methodSymbol.Parameters.ToHashSet();
+			if ( parametersToExamine.Count <= 0 )
 				return;
 
 			ParameterTracker tracker = new ParameterTracker( parametersToExamine, codeBlockContext.SemanticModel );
@@ -57,9 +57,9 @@ namespace HellBrick.Diagnostics.DeadCode
 			private readonly HashSet<IParameterSymbol> _trackedParameters;
 			private readonly SemanticModel _semanticModel;
 
-			public ParameterTracker( ImmutableArray<IParameterSymbol> parameters, SemanticModel semanticModel )
+			public ParameterTracker( HashSet<IParameterSymbol> parameters, SemanticModel semanticModel )
 			{
-				_trackedParameters = parameters.ToHashSet();
+				_trackedParameters = parameters;
 				_semanticModel = semanticModel;
 			}
 
