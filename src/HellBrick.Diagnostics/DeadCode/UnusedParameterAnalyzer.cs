@@ -40,10 +40,11 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( !( codeBlockContext.OwningSymbol is IMethodSymbol methodSymbol ) )
 				return;
 
-			if ( methodSymbol.Parameters.Length <= 0 || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
+			ImmutableArray<IParameterSymbol> parametersToExamine = methodSymbol.Parameters;
+			if ( parametersToExamine.Length <= 0 || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
-			ParameterTracker tracker = new ParameterTracker( methodSymbol.Parameters, codeBlockContext.SemanticModel );
+			ParameterTracker tracker = new ParameterTracker( parametersToExamine, codeBlockContext.SemanticModel );
 			tracker.Visit( codeBlockContext.CodeBlock );
 			tracker.ReportUnusedParameters( codeBlockContext );
 		}
