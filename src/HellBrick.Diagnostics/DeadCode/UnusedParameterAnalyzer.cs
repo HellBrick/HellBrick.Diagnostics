@@ -40,7 +40,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( !( codeBlockContext.OwningSymbol is IMethodSymbol methodSymbol ) )
 				return;
 
-			if ( !( methodSymbol.Parameters.Length > 0 ) || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
+			if ( methodSymbol.Parameters.Length <= 0 || methodSymbol.IsOverride || methodSymbol.IsVirtual || methodSymbol.IsEntryPoint() || methodSymbol.ImplementsInterface() )
 				return;
 
 			ParameterTracker tracker = new ParameterTracker( methodSymbol.Parameters, codeBlockContext.SemanticModel );
