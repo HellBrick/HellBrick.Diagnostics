@@ -18,7 +18,8 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		public override void DefaultVisit( SyntaxNode node )
 		{
-			ISymbol symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
+			SymbolInfo symbolInfo = _semanticModel.GetSymbolInfo( node );
+			ISymbol symbol = symbolInfo.Symbol;
 			TryAdd( symbol );
 
 			ITypeSymbol returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
