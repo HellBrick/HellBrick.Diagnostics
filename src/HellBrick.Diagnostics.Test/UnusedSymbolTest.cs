@@ -69,6 +69,26 @@ namespace HellBrick.Diagnostics.Test
 		}
 
 		[Fact]
+		public void PrivateMemberReferencedByNameofIsNotRemoved()
+		{
+			const string source =
+@"
+public class C
+{
+	private int _field;
+	private string Property => ""text"";
+	private void Method() {}
+
+	public string ConcatStuff()
+		=> nameof( _field )
+		+ nameof( Property )
+		+ nameof( Method );
+}
+";
+			VerifyNoFix( source );
+		}
+
+		[Fact]
 		public void UsedInternalMemberIsNotRemoved()
 		{
 			const string source1 =

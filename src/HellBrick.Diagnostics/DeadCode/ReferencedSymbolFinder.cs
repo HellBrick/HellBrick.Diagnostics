@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -18,7 +19,8 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		public override void DefaultVisit( SyntaxNode node )
 		{
-			ISymbol symbol = _semanticModel.GetSymbolInfo( node ).Symbol;
+			SymbolInfo symbolInfo = _semanticModel.GetSymbolInfo( node );
+			ISymbol symbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.OnlyOrDefault();
 			TryAdd( symbol );
 
 			ITypeSymbol returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;

@@ -96,6 +96,19 @@ public class D
 		}
 
 		[Fact]
+		public void UnusedThisParameterIsNotRemoved()
+		{
+			const string source =
+@"
+public static class Extensions
+{
+	public static int ExtensionMethod<T>( this T instance, int value ) => value;
+}
+";
+			VerifyNoFix( source );
+		}
+
+		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodImplementsInterface()
 		{
 			const string source =
@@ -175,6 +188,89 @@ public class D : C
 	}
 }";
 			VerifyCSharpFix( source, result );
+		}
+
+		[Fact]
+		public void ExpressionBodyIsExaminedCorrectly()
+		{
+			const string before =
+@"
+public class C
+{
+	public string DoMagic( int unused, string used ) => used;
+}
+";
+
+			const string after =
+@"
+public class C
+{
+	public string DoMagic( string used ) => used;
+}
+";
+			VerifyCSharpFix( before, after );
+		}
+
+		[Fact]
+		public void BaseCallAndExpressionBodyAreExaminedCorrectly()
+		{
+			const string before =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody, string unused )
+		: base( usedByBase )
+		=> Line = usedByBody;
+
+	public string Line { get; }
+}
+";
+
+			const string after =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody )
+		: base( usedByBase )
+		=> Line = usedByBody;
+
+	public string Line { get; }
+}
+";
+			VerifyCSharpFix( before, after );
+		}
+
+		[Fact]
+		public void BaseCallAndBlockBodyAreExaminedCorrectly()
+		{
+			const string before =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody, string unused )
+		: base( usedByBase )
+	{
+		Line = usedByBody;
+	}
+
+	public string Line { get; }
+}
+";
+
+			const string after =
+@"
+public class CustomException : Exception
+{
+	public CustomException( string usedByBase, string usedByBody )
+		: base( usedByBase )
+	{
+		Line = usedByBody;
+	}
+
+	public string Line { get; }
+}
+";
+			VerifyCSharpFix( before, after );
 		}
 
 		[Fact]
