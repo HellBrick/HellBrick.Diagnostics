@@ -19,6 +19,7 @@
       v3.0.1:
       - Fixed unused parameter analyzer to examine base calls and expression bodies properly
       - Fixed unused parameter analyzer not to suggest removing `this` parameter from extension methods
+      - Fixed unused member analyzer to recognize `nameof( Method )` references
 
       v3.0.0:
       - Added an analyzer that forces immutable structs to have readonly modifier
