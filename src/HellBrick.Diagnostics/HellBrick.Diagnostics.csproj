@@ -9,6 +9,7 @@
     <PackageTargetFallback>portable-net45+win8+wp8+wpa81</PackageTargetFallback>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
