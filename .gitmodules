@@ -1,0 +1,3 @@
+[submodule "src/HellBrick.Diagnostics.Assertions"]
+	path = src/HellBrick.Diagnostics.Assertions
+	url = ../HellBrick.Diagnostics.Assertions.git
