@@ -23,9 +23,7 @@ namespace TestHelper
 
 		internal static string DefaultFilePathPrefix = "Test";
 		internal static string CSharpDefaultFileExt = "cs";
-		internal static string VisualBasicDefaultExt = "vb";
 		internal static string CSharpDefaultFilePath = DefaultFilePathPrefix + 0 + "." + CSharpDefaultFileExt;
-		internal static string VisualBasicDefaultFilePath = DefaultFilePathPrefix + 0 + "." + VisualBasicDefaultExt;
 		internal static string TestProjectName = "TestProject";
 
 		#region  Get Diagnostics
@@ -146,10 +144,10 @@ namespace TestHelper
 		/// <param name="sources">Classes in the form of strings</param>
 		/// <param name="language">The language the source code is in</param>
 		/// <returns>A Project created out of the Documents created from the source strings</returns>
-		protected static Project CreateProject( string[] sources, string language = LanguageNames.CSharp )
+		protected static Project CreateProject( string[] sources )
 		{
 			string fileNamePrefix = DefaultFilePathPrefix;
-			string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+			string fileExt = CSharpDefaultFileExt;
 
 			ProjectId projectId = ProjectId.CreateNewId( debugName: TestProjectName );
 
@@ -158,7 +156,7 @@ namespace TestHelper
 
 			Solution solution = workspace
 				.CurrentSolution
-				.AddProject( projectId, TestProjectName, TestProjectName, language )
+				.AddProject( projectId, TestProjectName, TestProjectName, LanguageNames.CSharp )
 				.AddMetadataReference( projectId, _corlibReference )
 				.AddMetadataReference( projectId, _systemCoreReference )
 				.AddMetadataReference( projectId, _cSharpSymbolsReference )
