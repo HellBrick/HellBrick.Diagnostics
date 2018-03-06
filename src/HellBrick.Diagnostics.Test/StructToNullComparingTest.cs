@@ -97,7 +97,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = {Null} == target;
+			var bl = {Null} {Operator} target;
 		}}
 
 		private struct SomeStruct
@@ -123,7 +123,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = default ( SomeStruct ) == {Null};
+			var bl = default ( SomeStruct ) {Operator} {Null};
 		}}
 
 		private struct SomeStruct
@@ -150,7 +150,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			var target = EmptyStructFactory.CreateDefaultEmptyStruct();
-			var bl = target == {Null};
+			var bl = target {Operator} {Null};
 		}}
 	}}
 }}
@@ -222,7 +222,7 @@ namespace Namespace
 			=> Is
 			(
 				new Wrapper<int>(),
-				x => x.Value != {Null}
+				x => x.Value {Operator} {Null}
 			);
 
 		private static bool Is<T>( T value, Func<T, bool> predicate ) => predicate( value );
