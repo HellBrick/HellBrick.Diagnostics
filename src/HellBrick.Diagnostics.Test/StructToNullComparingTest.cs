@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
+using HellBrick.Diagnostics.Assertions;
 using HellBrick.Diagnostics.ValueTypeToNullComparing;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
 using Xunit;
 
 using static HellBrick.Diagnostics.Test.Token;
@@ -16,51 +14,88 @@ namespace HellBrick.Diagnostics.Test
 		public static object Operator { get; } = new object();
 	}
 
-	public abstract class StructToNullComparingTest : CodeFixVerifier
+	internal readonly struct StructNullComparisonAnalyzerVerifier
 	{
 		private readonly string _equalityOperator;
 
-		protected StructToNullComparingTest( string equalityOperator )
+		public StructNullComparisonAnalyzerVerifier( string equalityOperator )
 			=> _equalityOperator = equalityOperator ?? throw new ArgumentNullException( nameof( equalityOperator ), "The replacement equality operator was not specified." );
 
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
+		public SourceStructNullComparisonAnalyzerVerifier Source( FormattableString source, params string[] additionalSources )
+			=> new SourceStructNullComparisonAnalyzerVerifier( _equalityOperator, source, additionalSources );
+	}
 
-		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
+	internal readonly struct SourceStructNullComparisonAnalyzerVerifier
+	{
+		private readonly AnalyzerVerifier<ValueTypeToNullComparingAnalyzer, ValueTypeToNullComparingCodeFixProvider, string[], MultiSourceCollectionFactory> _verifier;
+		private readonly string[] _sourcesWithNullReplaced;
+
+		public SourceStructNullComparisonAnalyzerVerifier( string equalityOperator, FormattableString source, string[] additionalSources )
 		{
-			return
-			(
-				Before: RenderCodeString( "null" ),
-				After: RenderCodeString( "default" )
-			);
+			(string originalSource, string sourceWithNullReplaced) = CreateCodeStrings();
 
-			string RenderCodeString( string nullReplacement )
+			_verifier
+				= AnalyzerVerifier
+				.UseAnalyzer<ValueTypeToNullComparingAnalyzer>()
+				.UseCodeFix<ValueTypeToNullComparingCodeFixProvider>()
+				.Sources( Concat( originalSource, additionalSources ) );
+
+			_sourcesWithNullReplaced = Concat( sourceWithNullReplaced, additionalSources );
+
+			(string Before, string After) CreateCodeStrings()
 			{
-				string[] arguments
-					= formatString
-					.GetArguments()
-					.Select( originalArg => RenderArgument( originalArg ) )
-					.ToArray();
+				return
+				(
+					Before: RenderCodeString( "null" ),
+					After: RenderCodeString( "default" )
+				);
 
-				return String.Format( formatString.Format, arguments );
+				string RenderCodeString( string nullReplacement )
+				{
 
-				string RenderArgument( object argument )
-					=> argument == Null ? nullReplacement
-					: argument == Operator ? _equalityOperator
-					: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
+					string[] arguments
+						= source
+						.GetArguments()
+						.Select( originalArg => RenderArgument( originalArg ) )
+						.ToArray();
+
+					return String.Format( source.Format, arguments );
+
+					string RenderArgument( object argument )
+						=> argument == Null ? nullReplacement
+						: argument == Operator ? equalityOperator
+						: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
+				}
+			}
+
+			T[] Concat<T>( T firstItem, T[] otherItems )
+			{
+				T[] result = new T[ otherItems.Length + 1 ];
+				result[ 0 ] = firstItem;
+				otherItems.CopyTo( result, 1 );
+				return result;
 			}
 		}
 
-		private void VerifyNullIsReplaced( FormattableString formatString )
-		{
-			(string before, string after) = CreateCodeStrings( formatString );
-			VerifyCSharpFix( before, after );
-		}
+		public void ShouldHaveNoDiagnostics() => _verifier.ShouldHaveNoDiagnostics();
+		public void ShouldHaveNullReplacedWithDefault() => _verifier.ShouldHaveFix( _sourcesWithNullReplaced );
+	}
+
+	public abstract class StructToNullComparingTest
+	{
+		private readonly StructNullComparisonAnalyzerVerifier _verifier;
+
+		private readonly string _equalityOperator;
+
+		protected StructToNullComparingTest( string equalityOperator )
+			=> _verifier = new StructNullComparisonAnalyzerVerifier( equalityOperator );
 
 		[Fact]
 		public void NullReplacedWithDefault()
-		{
-			FormattableString testCaseFormat = $@"
+			=> _verifier
+			.Source
+			(
+$@"
 using System;
 
 namespace ConsoleApplication1
@@ -79,15 +114,16 @@ namespace ConsoleApplication1
 			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
-}}";
-			(string test, string result) = CreateCodeStrings( testCaseFormat );
-			VerifyCSharpFix( test, result );
-		}
+}}"
+			)
+			.ShouldHaveNullReplacedWithDefault();
 
 		[Fact]
 		public void NullReplacedWithDefaultsStatementWhenNullIsOnTheLeft()
-		{
-			FormattableString reversedFormat = $@"
+			=> _verifier
+			.Source
+			(
+$@"
 using System;
 
 namespace ConsoleApplication1
@@ -106,14 +142,16 @@ namespace ConsoleApplication1
 			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
-}}";
-			VerifyNullIsReplaced( reversedFormat );
-		}
+}}"
+			)
+			.ShouldHaveNullReplacedWithDefault();
 
 		[Fact]
 		public void NullReplacedWithDefaultStatementWhenDefaultToNullCompared()
-		{
-			FormattableString defaultToNullComparingFormat = $@"
+			=> _verifier
+			.Source
+			(
+$@"
 using System;
 
 namespace ConsoleApplication1
@@ -132,9 +170,9 @@ namespace ConsoleApplication1
 			public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 		}}
 	}}
-}}";
-			VerifyNullIsReplaced( defaultToNullComparingFormat );
-		}
+}}"
+			)
+			.ShouldHaveNullReplacedWithDefault();
 
 		[Fact]
 		public void NamespacePrefixIsAddedIfTargetingStructIsOutOfCurrentNamespace()
@@ -177,14 +215,18 @@ namespace ThridParty
 		public static EmptyStruct CreateDefaultEmptyStruct() => default( EmptyStruct );
 	}
 }";
-			(string before, string after) = CreateCodeStrings( externalStructFormat );
-			VerifyCSharpFix( new[] { before, emptyStructFile, emptyStructFactoryFile }, new[] { after, emptyStructFile, emptyStructFactoryFile } );
+
+			_verifier
+				.Source( externalStructFormat, emptyStructFile, emptyStructFactoryFile )
+				.ShouldHaveNullReplacedWithDefault();
 		}
 
 		[Fact]
 		public void NullableStructAnalysysSkipped()
-		{
-			FormattableString nullableTestCase = $@"
+			=> _verifier
+			.Source
+			(
+$@"
 using System;
 using ValueTypes;
 
@@ -204,15 +246,16 @@ namespace ConsoleApplication1
 		public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
 		public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
 	}}
-}}";
-			(string source, _) = CreateCodeStrings( nullableTestCase );
-			VerifyNoFix( source );
-		}
+}}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void NullReplacedWithDefaultWhenValueIsGenericInstantiatedWithAValueType()
-		{
-			FormattableString codeFormat = $@"
+			=> _verifier
+			.Source
+			(
+$@"
 using System;
 
 namespace Namespace
@@ -233,9 +276,9 @@ namespace Namespace
 			public T Value {{ get; set; }}
 		}}
 	}}
-}}";
-			VerifyNullIsReplaced( codeFormat );
-		}
+}}"
+			)
+			.ShouldHaveNullReplacedWithDefault();
 	}
 
 	public class StructEqualsNullTest : StructToNullComparingTest

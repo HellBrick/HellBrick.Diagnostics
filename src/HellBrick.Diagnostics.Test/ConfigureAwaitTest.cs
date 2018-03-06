@@ -1,31 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HellBrick.Diagnostics.ConfigureAwait;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
+using HellBrick.Diagnostics.Assertions;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class ConfigureAwaitTest : CodeFixVerifier
+	internal static partial class VerifierExtensions
 	{
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new TaskAwaiterAnalyzer();
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new TaskAwaiterCodeFixProvider();
+		public static AnalyzerVerifier<TaskAwaiterAnalyzer, TaskAwaiterCodeFixProvider, string, SingleSourceCollectionFactory> ShouldHaveConfigureAwaitFixed
+		(
+			this AnalyzerVerifier<TaskAwaiterAnalyzer, TaskAwaiterCodeFixProvider, string, SingleSourceCollectionFactory> verifier,
+			FormattableString fixedSourceTemplate
+		)
+			=> verifier
+			.ShouldHaveFix( 0, String.Format( fixedSourceTemplate.Format, "false" ) )
+			.ShouldHaveFix( 1, String.Format( fixedSourceTemplate.Format, "true" ) );
+	}
 
-		private void VerifyFix( string before, FormattableString afterTemplate )
-		{
-			VerifyCSharpFix( before, String.Format( afterTemplate.Format, "false" ), codeFixIndex: 0 );
-			VerifyCSharpFix( before, String.Format( afterTemplate.Format, "true" ), codeFixIndex: 1 );
-		}
+	public class ConfigureAwaitTest
+	{
+		private readonly AnalyzerVerifier<TaskAwaiterAnalyzer, TaskAwaiterCodeFixProvider> _verifier
+				= AnalyzerVerifier
+				.UseAnalyzer<TaskAwaiterAnalyzer>()
+				.UseCodeFix<TaskAwaiterCodeFixProvider>();
 
 		[Fact]
 		public void AlreadyConfiguredAwaitIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 using System.Threading.Tasks;
 public class Program
@@ -36,14 +39,15 @@ public class Program
 		await Task.Delay( 100 ).ConfigureAwait( true );
 	}
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void InconfigurableAwaitIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 using System.Threading.Tasks;
 public class Program
@@ -53,14 +57,15 @@ public class Program
 		await Task.Yield();
 	}
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void IncorrectAwaitIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 using System.Threading.Tasks;
 public class Program
@@ -70,14 +75,15 @@ public class Program
 		await ( 2 + 2 );
 	}
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UnconfiguredTaskGetsConfigured()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System.Threading.Tasks;
 public class Program
@@ -87,8 +93,10 @@ public class Program
 		await Task.FromResult( 42 );
 	}
 }
-";
-			FormattableString after =
+"
+			)
+			.ShouldHaveConfigureAwaitFixed
+			(
 $@"
 using System.Threading.Tasks;
 public class Program
@@ -98,14 +106,14 @@ public class Program
 		await Task.FromResult( 42 ).ConfigureAwait( {false} );
 	}}
 }}
-";
-			VerifyFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void UnconfiguredCustomTaskGetsConfigured()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System.Threading.Tasks;
 
@@ -121,8 +129,10 @@ public class Program
 		await new CustomTask();
 	}
 }
-";
-			FormattableString after =
+"
+			)
+			.ShouldHaveConfigureAwaitFixed
+			(
 $@"
 using System.Threading.Tasks;
 
@@ -138,8 +148,7 @@ public class Program
 		await new CustomTask().ConfigureAwait( {false} );
 	}}
 }}
-";
-			VerifyFix( before, after );
-		}
+"
+			);
 	}
 }

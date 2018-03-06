@@ -1,45 +1,22 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
-using System.Linq;
-using HellBrick.Diagnostics.EnforceReadOnly;
+﻿using HellBrick.Diagnostics.EnforceReadOnly;
 using Xunit;
+using HellBrick.Diagnostics.Assertions;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class EnforceReadOnlyTest : CodeFixVerifier
+	public class EnforceReadOnlyTest
 	{
-		#region Common
-
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new EnforceReadOnlyCodeFixProvider();
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new EnforceReadOnlyAnalyzer();
-
-		private void VerifyFix( string sourceCode, string expectedCode, params string[] variableNames )
-		{
-			DiagnosticResult[] expectedDiagnostics = variableNames
-				.Select(
-					name =>
-					new DiagnosticResult
-					{
-						Id = EnforceReadOnlyAnalyzer.DiagnosticID,
-						Severity = DiagnosticSeverity.Warning,
-						Message = name
-					} )
-				.ToArray();
-
-			VerifyCSharpDiagnostic( sourceCode, expectedDiagnostics );
-			VerifyCSharpFix( sourceCode, expectedCode );
-		}
-
-		private void VerifyNoFix( string sourceCode ) => VerifyFix( sourceCode, sourceCode );
-
-		#endregion
+		private readonly AnalyzerVerifier<EnforceReadOnlyAnalyzer, EnforceReadOnlyCodeFixProvider> _verifier
+			= AnalyzerVerifier
+			.UseAnalyzer<EnforceReadOnlyAnalyzer>()
+			.UseCodeFix<EnforceReadOnlyCodeFixProvider>();
 
 		[Fact]
 		public void FieldAssignedToInConstructorIsFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -52,9 +29,11 @@ namespace NS
 			_x = ""42"";
 		}
 	}
-}";
-
-			string expectedCode = @"
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
 using System;
 namespace NS
 {
@@ -67,14 +46,15 @@ namespace NS
 			_x = ""42"";
 		}
 	}
-}";
-			VerifyFix( sourceCode, expectedCode, "_x" );
-		}
+}"
+			);
 
 		[Fact]
 		public void FiedAssignedToInMethodIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -87,14 +67,16 @@ namespace NS
 			_x = ""42"";
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void FiedAssignedToInPropertyIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -111,14 +93,16 @@ namespace NS
 			}
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ValueTypeFieldAssignedToByIndexerIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -141,14 +125,16 @@ namespace NS
 			set { }
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ReferenceTypeFieldAssignedToByIndexerIsFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -161,8 +147,11 @@ namespace NS
 			_array[0] = ""42"";
 		}
 	}
-}";
-			string expectedCode = @"
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
 using System;
 namespace NS
 {
@@ -175,14 +164,15 @@ namespace NS
 			_array[0] = ""42"";
 		}
 	}
-}";
-			VerifyFix( sourceCode, expectedCode, "_array" );
-		}
+}"
+			);
 
 		[Fact]
 		public void ReferenceTypeFieldThatHasFieldAssignedToIsFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -201,8 +191,11 @@ namespace NS
 	{
 		public int X;
 	}
-}";
-			string expectedCode = @"
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
 using System;
 using System.Collections.Specialized;
 namespace NS
@@ -221,14 +214,15 @@ namespace NS
 	{
 		public int X;
 	}
-}";
-			VerifyFix( sourceCode, expectedCode, "_class" );
-		}
+}"
+			);
 
 		[Fact]
 		public void FieldReferencedByRefInConstructorIsFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 using System.Threading;
 namespace NS
@@ -249,8 +243,11 @@ namespace NS
 			reference = value;
 		}
 	}
-}";
-			string expectedCode = @"
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
 using System;
 using System.Threading;
 namespace NS
@@ -271,14 +268,15 @@ namespace NS
 			reference = value;
 		}
 	}
-}";
-			VerifyFix( sourceCode, expectedCode, "_x", "_y" );
-		}
+}"
+			);
 
 		[Fact]
 		public void FieldReferencedByRefInMethodIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 using System.Threading;
 namespace NS
@@ -299,14 +297,16 @@ namespace NS
 			reference = value;
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void FieldAssignedToInLambdaIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -319,14 +319,16 @@ namespace NS
 			Action lambda = () => _x = ""42"";
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void IncrementedFieldIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -341,14 +343,16 @@ namespace NS
 			_y--;
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void FiedAssignedToInNestedClassIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -364,14 +368,16 @@ namespace NS
 			}
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void MultiDeclaratorIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -383,14 +389,16 @@ namespace NS
 		{
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void PartialClassIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -410,14 +418,16 @@ namespace NS
 			_x = ""42"";
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void PublicFieldIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -431,14 +441,16 @@ namespace NS
 		{
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ReadOnlyFieldIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -451,14 +463,16 @@ namespace NS
 		{
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void StaticFieldAssignedToInNonStaticConstructorIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -471,14 +485,16 @@ namespace NS
 			_x = ""42"";
 		}
 	}
-}";
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void FieldAssignedToByOperatorAssignmentIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -509,15 +525,16 @@ namespace NS
 			_j -= 1;
 		}
 	}
-}";
-
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ValueTypeFieldIsNotFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -534,15 +551,16 @@ namespace NS
 	struct StructName
 	{
 	}
-}";
-
-			VerifyNoFix( sourceCode );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void PrimitiveTypeFieldIsFixed()
-		{
-			string sourceCode = @"
+			=> _verifier
+			.Source
+			(
+@"
 using System;
 namespace NS
 {
@@ -555,8 +573,11 @@ namespace NS
 			_a = 42;
 		}
 	}
-}";
-			string expectedCode = @"
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
 using System;
 namespace NS
 {
@@ -569,15 +590,14 @@ namespace NS
 			_a = 42;
 		}
 	}
-}";
-
-			VerifyFix( sourceCode, expectedCode, "_a" );
-		}
+}"
+			);
 
 		[Fact]
 		public void FieldAssignedByLocalMethodIsNotFixed()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public class ClassName
 {
@@ -590,8 +610,8 @@ public class ClassName
 			_value = new object();
 		}
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 	}
 }

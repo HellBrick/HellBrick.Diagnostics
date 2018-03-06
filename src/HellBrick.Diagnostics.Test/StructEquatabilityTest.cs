@@ -1,40 +1,43 @@
 ﻿using HellBrick.Diagnostics.StructDeclarations;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
+using HellBrick.Diagnostics.Assertions;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class StructEquatabilityTest : CodeFixVerifier
+	public class StructEquatabilityTest
 	{
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new StructAnalyzer();
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new StructEquatabilityCodeFixProvider();
+		private readonly AnalyzerVerifier<StructAnalyzer, StructEquatabilityCodeFixProvider> _verifier
+			= AnalyzerVerifier
+			.UseAnalyzer<StructAnalyzer>()
+			.UseCodeFix<StructEquatabilityCodeFixProvider>();
 
 		[Fact]
 		public void NonReadonlyStructIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public struct NonReadonlyStruct
 {
 	private readonly int _value;
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ZeroFieldStructHasEquatabilityMembersGenerated()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 public readonly struct ZeroFieldStruct
 {	
 }
-";
-			const string after =
+" )
+			.ShouldHaveFix
+			(
 @"
 using System;
 public readonly struct ZeroFieldStruct : IEquatable<ZeroFieldStruct>
@@ -46,14 +49,14 @@ public readonly struct ZeroFieldStruct : IEquatable<ZeroFieldStruct>
 	public static bool operator ==( ZeroFieldStruct x, ZeroFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( ZeroFieldStruct x, ZeroFieldStruct y ) => !x.Equals( y );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void OneFieldStructHasEquatabilityMembersGenerated()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 using System.Collections.Generic;
@@ -61,8 +64,10 @@ public readonly struct OneFieldStruct
 {
 	private readonly object _field;
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 using System;
 using System.Collections.Generic;
@@ -77,14 +82,14 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 	public static bool operator ==( OneFieldStruct x, OneFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( OneFieldStruct x, OneFieldStruct y ) => !x.Equals( y );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void ManyFieldStructHasEquatabilityMembersGenerated()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 using System.Collections.Generic;
@@ -93,8 +98,10 @@ public readonly struct ManyFieldStruct
 	private readonly int _number;
 	public string Text { get; }
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 using System;
 using System.Collections.Generic;
@@ -121,14 +128,14 @@ public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
 	public static bool operator ==( ManyFieldStruct x, ManyFieldStruct y ) => x.Equals( y );
 	public static bool operator !=( ManyFieldStruct x, ManyFieldStruct y ) => !x.Equals( y );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void OverridesAreGeneratedIfInterfaceAndOperatorsAlreadyExist()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 public readonly struct StructWithoutOverrides : IEquatable<StructWithoutOverrides>
@@ -138,8 +145,10 @@ public readonly struct StructWithoutOverrides : IEquatable<StructWithoutOverride
 	public static bool operator ==( StructWithoutOverrides x, StructWithoutOverrides y ) => true;
 	public static bool operator !=( StructWithoutOverrides x, StructWithoutOverrides y ) => false;
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 using System;
 public readonly struct StructWithoutOverrides : IEquatable<StructWithoutOverrides>
@@ -152,14 +161,14 @@ public readonly struct StructWithoutOverrides : IEquatable<StructWithoutOverride
 	public override int GetHashCode() => 0;
 	public override bool Equals( object obj ) => obj is StructWithoutOverrides other && Equals( other );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void OperatorsAreGeneratedIfInterfaceAndOverridesAlreadyExist()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 public readonly struct StructWithoutOperators : IEquatable<StructWithoutOperators>
@@ -168,8 +177,10 @@ public readonly struct StructWithoutOperators : IEquatable<StructWithoutOperator
 	public bool Equals( StructWithoutOperators other ) => true;
 	public override bool Equals( object obj ) => obj is StructWithoutOperators && Equals( (StructWithoutOperators) obj );
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 using System;
 public readonly struct StructWithoutOperators : IEquatable<StructWithoutOperators>
@@ -181,14 +192,14 @@ public readonly struct StructWithoutOperators : IEquatable<StructWithoutOperator
 	public static bool operator ==( StructWithoutOperators x, StructWithoutOperators y ) => x.Equals( y );
 	public static bool operator !=( StructWithoutOperators x, StructWithoutOperators y ) => !x.Equals( y );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void InterfaceIsImplementedIfIOverridesAndOperatorsAlreadyExist()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 using System;
 public readonly struct StructWithoutInterface
@@ -196,8 +207,10 @@ public readonly struct StructWithoutInterface
 	public override int GetHashCode() => 0;
 	public override bool Equals( object obj ) => true;
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 using System;
 public readonly struct StructWithoutInterface : IEquatable<StructWithoutInterface>
@@ -209,8 +222,7 @@ public readonly struct StructWithoutInterface : IEquatable<StructWithoutInterfac
 	public static bool operator ==( StructWithoutInterface x, StructWithoutInterface y ) => x.Equals( y );
 	public static bool operator !=( StructWithoutInterface x, StructWithoutInterface y ) => !x.Equals( y );
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 	}
 }

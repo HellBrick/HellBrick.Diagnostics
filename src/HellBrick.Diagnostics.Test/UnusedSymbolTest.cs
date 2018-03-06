@@ -1,62 +1,67 @@
 ﻿using HellBrick.Diagnostics.DeadCode;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
+using HellBrick.Diagnostics.Assertions;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class UnusedSymbolTest : CodeFixVerifier
+	public class UnusedSymbolTest
 	{
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new UnusedSymbolAnalyzer();
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnusedSymbolCodeFixProvider();
+		private readonly AnalyzerVerifier<UnusedSymbolAnalyzer, UnusedSymbolCodeFixProvider> _verifier
+			= AnalyzerVerifier
+			.UseAnalyzer<UnusedSymbolAnalyzer>()
+			.UseCodeFix<UnusedSymbolCodeFixProvider>();
 
 		[Fact]
 		public void UnusedPrivateMemberIsRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	private int _number;
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void UnusedPublicMemberIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Whatever();
-}";
-
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UnusedInternalMemberIsRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	internal string Text { get; set; }
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void UsedPrivateMemberIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	private int _number;
@@ -64,14 +69,15 @@ namespace HellBrick.Diagnostics.Test
 	{
 		_number = 42;
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void PrivateMemberReferencedByNameofIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public class C
 {
@@ -84,9 +90,9 @@ public class C
 		+ nameof( Property )
 		+ nameof( Method );
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UsedInternalMemberIsNotRemoved()
@@ -101,22 +107,24 @@ public class C
 {
 	public string GetText() => new C().Text;
 }";
-			VerifyNoFix( source1, source2 );
+
+			_verifier.Sources( source1, source2 ).ShouldHaveNoDiagnostics();
 		}
 
 		[Fact]
 		public void UnusedInternalMemberIsNotRemovedIfHasInternalsVisibleTo()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo( ""Tests.dll"" )]
 
 public class C
 {
 	internal string Text { get; set; }
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void PrivateMemberUsedByAnotherFileOfPartialClassIsNotRemoved()
@@ -131,7 +139,8 @@ public class C
 {
 	public int Number => _number;
 }";
-			VerifyNoFix( source1, source2 );
+
+			_verifier.Sources( source1, source2 ).ShouldHaveNoDiagnostics();
 		}
 	}
 }

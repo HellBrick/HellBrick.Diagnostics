@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,5 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj" />
+    <ProjectReference Include="..\HellBrick.Diagnostics.Assertions\HellBrick.Diagnostics.Assertions.csproj" />
   </ItemGroup>
 </Project>
