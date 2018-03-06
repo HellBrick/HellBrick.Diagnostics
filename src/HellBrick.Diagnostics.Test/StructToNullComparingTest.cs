@@ -13,6 +13,7 @@ namespace HellBrick.Diagnostics.Test
 	internal static class Token
 	{
 		public static object Null { get; } = new object();
+		public static object Operator { get; } = new object();
 	}
 
 	public class StructToNullComparingTest : CodeFixVerifier
@@ -20,7 +21,7 @@ namespace HellBrick.Diagnostics.Test
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string equalityOperator = null )
 		{
 			return
 			(
@@ -40,6 +41,7 @@ namespace HellBrick.Diagnostics.Test
 
 				string RenderArgument( object argument )
 					=> argument == Null ? nullReplacement
+					: argument == Operator ? ( equalityOperator ?? throw new ArgumentNullException( nameof( equalityOperator ), "The replacement equality operator was not specified." ) )
 					: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
 			}
 		}
