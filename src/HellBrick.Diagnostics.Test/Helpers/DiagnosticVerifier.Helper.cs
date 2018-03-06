@@ -29,16 +29,6 @@ namespace TestHelper
 		#region  Get Diagnostics
 
 		/// <summary>
-		/// Given classes in the form of strings, their language, and an IDiagnosticAnlayzer to apply to it, return the diagnostics found in the string after converting it to a document.
-		/// </summary>
-		/// <param name="sources">Classes in the form of strings</param>
-		/// <param name="language">The language the source classes are in</param>
-		/// <param name="analyzer">The analyzer to be run on the sources</param>
-		/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-		private static Diagnostic[] GetSortedDiagnostics( string[] sources, string language, DiagnosticAnalyzer analyzer )
-			=> GetSortedDiagnosticsFromDocuments( analyzer, GetDocuments( sources, language ) );
-
-		/// <summary>
 		/// Given an analyzer and a document to apply it to, run the analyzer and gather an array of diagnostics found in it.
 		/// The returned diagnostics are then ordered by location in the source document.
 		/// </summary>
@@ -98,46 +88,6 @@ namespace TestHelper
 		#endregion
 
 		#region Set up compilation and documents
-		/// <summary>
-		/// Given an array of strings as sources and a language, turn them into a project and return the documents and spans of it.
-		/// </summary>
-		/// <param name="sources">Classes in the form of strings</param>
-		/// <param name="language">The language the source code is in</param>
-		/// <returns>A Tuple containing the Documents produced from the sources and their TextSpans if relevant</returns>
-		private static Document[] GetDocuments( string[] sources, string language )
-		{
-			if ( language != LanguageNames.CSharp && language != LanguageNames.VisualBasic )
-			{
-				throw new ArgumentException( "Unsupported Language" );
-			}
-
-			for ( int i = 0; i < sources.Length; i++ )
-			{
-				string fileName = language == LanguageNames.CSharp ? "Test" + i + ".cs" : "Test" + i + ".vb";
-			}
-
-			Project project = CreateProject( sources, language );
-			Document[] documents = project.Documents.ToArray();
-
-			if ( sources.Length != documents.Length )
-			{
-				throw new SystemException( "Amount of sources did not match amount of Documents created" );
-			}
-
-			return documents;
-		}
-
-		/// <summary>
-		/// Create a Document from a string through creating a project that contains it.
-		/// </summary>
-		/// <param name="source">Classes in the form of a string</param>
-		/// <param name="language">The language the source code is in</param>
-		/// <returns>A Document created from the source string</returns>
-		protected static Document CreateDocument( string source, string language = LanguageNames.CSharp )
-			=> CreateProject( new[] { source }, language )
-			.Documents
-			.First();
-
 		/// <summary>
 		/// Create a project using the inputted strings as sources.
 		/// </summary>

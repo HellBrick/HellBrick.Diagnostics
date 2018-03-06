@@ -26,9 +26,6 @@ namespace TestHelper
 
 		protected void VerifyNoFix( params string[] sources ) => VerifyCSharpFix( sources, sources );
 
-		protected void VerifyCSharpFix( string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false )
-			=> VerifyCSharpFix( new[] { oldSource }, new[] { newSource }, codeFixIndex, allowNewCompilerDiagnostics );
-
 		protected void VerifyCSharpFix( string[] oldSources, string[] newSources, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false )
 			=> VerifyFix( GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSources, newSources, codeFixIndex, allowNewCompilerDiagnostics );
 
