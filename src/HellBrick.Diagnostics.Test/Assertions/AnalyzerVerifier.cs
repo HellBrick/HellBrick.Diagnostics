@@ -45,6 +45,16 @@ namespace HellBrick.Diagnostics.Assertions
 		where TCodeFix : CodeFixProvider, new()
 		where TSourceCollectionFactory : struct, ISourceCollectionFactory<TSource>
 	{
+		private static readonly MetadataReference _corlibReference = MetadataReference.CreateFromFile( typeof( object ).Assembly.Location );
+		private static readonly MetadataReference _systemCoreReference = MetadataReference.CreateFromFile( typeof( Enumerable ).Assembly.Location );
+		private static readonly MetadataReference _cSharpSymbolsReference = MetadataReference.CreateFromFile( typeof( CSharpCompilation ).Assembly.Location );
+		private static readonly MetadataReference _codeAnalysisReference = MetadataReference.CreateFromFile( typeof( Compilation ).Assembly.Location );
+
+		private static string _defaultFilePathPrefix = "Test";
+		private static string _cSharpDefaultFileExt = "cs";
+		private static string _cSharpDefaultFilePath = _defaultFilePathPrefix + 0 + "." + _cSharpDefaultFileExt;
+		private static string _testProjectName = "TestProject";
+
 		private readonly TSource _sources;
 
 		public AnalyzerVerifier( TSource sources ) => _sources = sources;
@@ -67,16 +77,6 @@ namespace HellBrick.Diagnostics.Assertions
 			);
 			return this;
 		}
-
-		private static readonly MetadataReference _corlibReference = MetadataReference.CreateFromFile( typeof( object ).Assembly.Location );
-		private static readonly MetadataReference _systemCoreReference = MetadataReference.CreateFromFile( typeof( Enumerable ).Assembly.Location );
-		private static readonly MetadataReference _cSharpSymbolsReference = MetadataReference.CreateFromFile( typeof( CSharpCompilation ).Assembly.Location );
-		private static readonly MetadataReference _codeAnalysisReference = MetadataReference.CreateFromFile( typeof( Compilation ).Assembly.Location );
-
-		private static string _defaultFilePathPrefix = "Test";
-		private static string _cSharpDefaultFileExt = "cs";
-		private static string _cSharpDefaultFilePath = _defaultFilePathPrefix + 0 + "." + _cSharpDefaultFileExt;
-		private static string _testProjectName = "TestProject";
 
 		private DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new TAnalyzer();
 		private CodeFixProvider GetCSharpCodeFixProvider() => new TCodeFix();
