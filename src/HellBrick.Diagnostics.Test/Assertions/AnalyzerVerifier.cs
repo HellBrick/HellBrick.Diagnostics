@@ -78,12 +78,9 @@ namespace HellBrick.Diagnostics.Assertions
 			return this;
 		}
 
-		private DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new TAnalyzer();
-		private CodeFixProvider GetCSharpCodeFixProvider() => new TCodeFix();
-
 		public void VerifyNoFix( string[] sources ) => VerifyCSharpFix( sources, sources, codeFixIndex: null );
 		public void VerifyCSharpFix( string[] sources, string[] fixedSources, int? codeFixIndex )
-			=> VerifyFix( GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), sources, fixedSources, codeFixIndex );
+			=> VerifyFix( new TAnalyzer(), new TCodeFix(), sources, fixedSources, codeFixIndex );
 
 		/// <summary>
 		/// General verifier for codefixes.
