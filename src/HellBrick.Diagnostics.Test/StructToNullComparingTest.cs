@@ -206,7 +206,7 @@ namespace ConsoleApplication1
 	}}
 }}";
 			(string source, _) = CreateCodeStrings( nullableTestCase );
-			VerifyCSharpFix( new[] { source }, new[] { source } );
+			VerifyNoFix( source );
 		}
 
 		[Fact]
