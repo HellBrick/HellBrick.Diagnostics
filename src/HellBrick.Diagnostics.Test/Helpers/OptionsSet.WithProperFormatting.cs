@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Options;
 
-namespace HellBrick.Diagnostics.Test.Helpers
+namespace HellBrick.Diagnostics.Assertions
 {
 	internal static class ProperFormattingOptions
 	{

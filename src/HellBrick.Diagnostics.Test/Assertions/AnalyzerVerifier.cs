@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
-using HellBrick.Diagnostics.Test.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
