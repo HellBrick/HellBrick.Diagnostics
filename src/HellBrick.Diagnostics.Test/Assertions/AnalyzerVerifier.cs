@@ -75,10 +75,10 @@ namespace HellBrick.Diagnostics.Assertions
 			private static readonly MetadataReference _cSharpSymbolsReference = MetadataReference.CreateFromFile( typeof( CSharpCompilation ).Assembly.Location );
 			private static readonly MetadataReference _codeAnalysisReference = MetadataReference.CreateFromFile( typeof( Compilation ).Assembly.Location );
 
-			internal static string DefaultFilePathPrefix = "Test";
-			internal static string CSharpDefaultFileExt = "cs";
-			internal static string CSharpDefaultFilePath = DefaultFilePathPrefix + 0 + "." + CSharpDefaultFileExt;
-			internal static string TestProjectName = "TestProject";
+			private static string _defaultFilePathPrefix = "Test";
+			private static string _cSharpDefaultFileExt = "cs";
+			private static string _cSharpDefaultFilePath = _defaultFilePathPrefix + 0 + "." + _cSharpDefaultFileExt;
+			private static string _testProjectName = "TestProject";
 
 			private DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new TAnalyzer();
 			private CodeFixProvider GetCSharpCodeFixProvider() => new TCodeFix();
@@ -171,19 +171,19 @@ namespace HellBrick.Diagnostics.Assertions
 			/// <param name="sources">Classes in the form of strings</param>
 			/// <param name="language">The language the source code is in</param>
 			/// <returns>A Project created out of the Documents created from the source strings</returns>
-			protected static Project CreateProject( string[] sources )
+			private static Project CreateProject( string[] sources )
 			{
-				string fileNamePrefix = DefaultFilePathPrefix;
-				string fileExt = CSharpDefaultFileExt;
+				string fileNamePrefix = _defaultFilePathPrefix;
+				string fileExt = _cSharpDefaultFileExt;
 
-				ProjectId projectId = ProjectId.CreateNewId( debugName: TestProjectName );
+				ProjectId projectId = ProjectId.CreateNewId( debugName: _testProjectName );
 
 				AdhocWorkspace workspace = new AdhocWorkspace();
 				workspace.Options = workspace.Options.WithProperFormatting();
 
 				Solution solution = workspace
 					.CurrentSolution
-					.AddProject( projectId, TestProjectName, TestProjectName, LanguageNames.CSharp )
+					.AddProject( projectId, _testProjectName, _testProjectName, LanguageNames.CSharp )
 					.AddMetadataReference( projectId, _corlibReference )
 					.AddMetadataReference( projectId, _systemCoreReference )
 					.AddMetadataReference( projectId, _cSharpSymbolsReference )
@@ -273,7 +273,7 @@ namespace HellBrick.Diagnostics.Assertions
 			/// <param name="documents">The Documents that the analyzer will be run on</param>
 			/// <param name="spans">Optional TextSpan indicating where a Diagnostic will be found</param>
 			/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-			protected static Diagnostic[] GetSortedDiagnosticsFromDocuments( DiagnosticAnalyzer analyzer, Document[] documents )
+			private static Diagnostic[] GetSortedDiagnosticsFromDocuments( DiagnosticAnalyzer analyzer, Document[] documents )
 			{
 				HashSet<Project> projects = new HashSet<Project>();
 				foreach ( Document document in documents )
