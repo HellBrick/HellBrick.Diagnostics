@@ -1,20 +1,21 @@
 ﻿using HellBrick.Diagnostics.DeadCode;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
+using HellBrick.Diagnostics.Assertions;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class UnusedParameterTest : CodeFixVerifier
+	public class UnusedParameterTest
 	{
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new UnusedParameterAnalyzer();
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new UnusedParameterCodeFixProvider();
+		private readonly AnalyzerVerifier<UnusedParameterAnalyzer, UnusedParameterCodeFixProvider> _verifier
+			= AnalyzerVerifier
+			.UseAnalyzer<UnusedParameterAnalyzer>()
+			.UseCodeFix<UnusedParameterCodeFixProvider>();
 
 		[Fact]
 		public void UnusedClassMethodParameterIsRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Something( int good1, string bad, int good2 )
@@ -22,8 +23,10 @@ namespace HellBrick.Diagnostics.Test
 		var x = good1;
 		var y = good2;
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Something( int good1, int good2 )
@@ -31,14 +34,14 @@ namespace HellBrick.Diagnostics.Test
 		var x = good1;
 		var y = good2;
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void CorrespondingArgumentIsRemovedWhenCalledFromSameClass()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42, default( string ), 64 );
@@ -47,8 +50,10 @@ namespace HellBrick.Diagnostics.Test
 		var x = good1;
 		var y = good2;
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42, 64 );
@@ -57,14 +62,14 @@ namespace HellBrick.Diagnostics.Test
 		var x = good1;
 		var y = good2;
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void CorrespondingArgumentIsRemovedWhenCalledFromAnotherClass()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Something( int good1, string bad, int good2 )
@@ -77,8 +82,10 @@ namespace HellBrick.Diagnostics.Test
 public class D
 {
 	public void Proxy() => new C().Something( 42, ""asdf"" + ""qwer"", 0 );
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Something( int good1, int good2 )
@@ -91,27 +98,28 @@ public class D
 public class D
 {
 	public void Proxy() => new C().Something( 42, 0 );
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void UnusedThisParameterIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public static class Extensions
 {
 	public static int ExtensionMethod<T>( this T instance, int value ) => value;
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodImplementsInterface()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public interface I
 {
 	void Method( int arg );
@@ -129,14 +137,15 @@ public class D : I
 	void I.Method( int arg )
 	{
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UnusedParameterIsNotRemovedIfMethodIsVirtual()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public virtual void Method( int arg )
@@ -152,14 +161,15 @@ public class D : C
 		{
 		}
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void UnusedConstructorParameterIsRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public C( int unused )
@@ -172,8 +182,10 @@ public class D : C
 	public D() : base( 42 )
 	{
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public C()
@@ -186,35 +198,36 @@ public class D : C
 	public D() : base()
 	{
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void ExpressionBodyIsExaminedCorrectly()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public class C
 {
 	public string DoMagic( int unused, string used ) => used;
 }
-";
-
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public class C
 {
 	public string DoMagic( string used ) => used;
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void BaseCallAndExpressionBodyAreExaminedCorrectly()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public class CustomException : Exception
 {
@@ -224,9 +237,10 @@ public class CustomException : Exception
 
 	public string Line { get; }
 }
-";
-
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public class CustomException : Exception
 {
@@ -236,14 +250,14 @@ public class CustomException : Exception
 
 	public string Line { get; }
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void BaseCallAndBlockBodyAreExaminedCorrectly()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public class CustomException : Exception
 {
@@ -255,9 +269,10 @@ public class CustomException : Exception
 
 	public string Line { get; }
 }
-";
-
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public class CustomException : Exception
 {
@@ -269,14 +284,14 @@ public class CustomException : Exception
 
 	public string Line { get; }
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void UnusedLambdaParameterIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public C()
@@ -284,27 +299,29 @@ public class CustomException : Exception
 		var func1 = ( int x, string _ ) => x;
 		var func2 = ( int x, string _ ) => { return x; };
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void EntryPointArgumentIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"internal class Program
 {
 	private static void Main( string[] args )
 	{
 	}
-}";
-			VerifyNoFix( source );
-		}
+}"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void AllUnusedMethodParametersAreRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Proxy() => Something( default( string ), 42, 64 );
@@ -312,8 +329,10 @@ public class CustomException : Exception
 	{
 		var x = good;
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42 );
@@ -321,14 +340,14 @@ public class CustomException : Exception
 	{
 		var x = good;
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void CorrectArgumentIsRemovedIfArgumentOrderDiffersFromParameterOrder()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42, good2: 64, bad: ""100"" );
@@ -337,8 +356,10 @@ public class CustomException : Exception
 		var x = good1;
 		var y = good2;
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42, good2: 64 );
@@ -347,14 +368,14 @@ public class CustomException : Exception
 		var x = good1;
 		var y = good2;
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void ArgumentIsNotRemovedIfDefaultValueIsPassedtoOptionalParameter()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42 );
@@ -362,8 +383,10 @@ public class CustomException : Exception
 	{
 		var x = good;
 	}
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public void Proxy() => Something( 42 );
@@ -371,44 +394,47 @@ public class CustomException : Exception
 	{
 		var x = good;
 	}
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void NestedCallArgumentIsRemovedCompletely()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public string Proxy() => Something( 42, Something( 64, 100 ) );
 	public string Something( int good, string bad ) => good.ToString();
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public string Proxy() => Something( 42 );
 	public string Something( int good ) => good.ToString();
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 
 		[Fact]
 		public void NestedCallArgumentIsAdjustedCorrectlyIfPassedAsParameterThatIsNotRemoved()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"public class C
 {
 	public int Proxy() => Something( Something( 42, ""asdf"" ), ""qwerty"" );
 	public int Something( int good, string bad ) => good * 2;
-}";
-			const string result =
+}"
+			)
+			.ShouldHaveFix
+			(
 @"public class C
 {
 	public int Proxy() => Something( Something( 42 ) );
 	public int Something( int good ) => good * 2;
-}";
-			VerifyCSharpFix( source, result );
-		}
+}"
+			);
 	}
 }

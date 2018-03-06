@@ -1,115 +1,124 @@
 ﻿using HellBrick.Diagnostics.StructDeclarations;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using TestHelper;
+using HellBrick.Diagnostics.Assertions;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
 {
-	public class StructImmutabilityTest : CodeFixVerifier
+	public class StructImmutabilityTest
 	{
-		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new StructAnalyzer();
-		protected override CodeFixProvider GetCSharpCodeFixProvider() => new StructImmutabilityCodeFixProvider();
+		private readonly AnalyzerVerifier<StructAnalyzer, StructImmutabilityCodeFixProvider> _verifier
+			= AnalyzerVerifier
+			.UseAnalyzer<StructAnalyzer>()
+			.UseCodeFix<StructImmutabilityCodeFixProvider>();
 
 		[Fact]
 		public void ReadonlyStructIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public readonly struct AlreadyReadonly
 {
 	public int Property { get; }
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void RefStructIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public ref struct RefStruct
 {
 	public int Property { get; }
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void MutableStructIsIgnored()
-		{
-			const string source =
+			=> _verifier
+			.Source
+			(
 @"
 public struct MutableStruct
 {
 	private int _currentIndex;
 }
-";
-			VerifyNoFix( source );
-		}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 
 		[Fact]
 		public void ImmutableStructWithFieldsOnlyGetsReadonlyModifier()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public struct ImmutableStruct
 {
 	private readonly int _field;
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public readonly struct ImmutableStruct
 {
 	private readonly int _field;
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void ImmutableStructWithPropertiesOnlyGetsReadonlyModifier()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public struct ImmutableStruct
 {
 	public int Property { get; }
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public readonly struct ImmutableStruct
 {
 	public int Property { get; }
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 
 		[Fact]
 		public void ImmutableStructWithBothFieldsAndPropertiesGetsReadonlyModifier()
-		{
-			const string before =
+			=> _verifier
+			.Source
+			(
 @"
 public struct ImmutableStruct
 {
 	private readonly int _field;
 	public int Property { get; }
 }
-";
-			const string after =
+"
+			)
+			.ShouldHaveFix
+			(
 @"
 public readonly struct ImmutableStruct
 {
 	private readonly int _field;
 	public int Property { get; }
 }
-";
-			VerifyCSharpFix( before, after );
-		}
+"
+			);
 	}
 }
