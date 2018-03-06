@@ -1,8 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
+﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using TestHelper;
-using System.Linq;
 using HellBrick.Diagnostics.EnforceReadOnly;
 using Xunit;
 
@@ -14,23 +12,6 @@ namespace HellBrick.Diagnostics.Test
 
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new EnforceReadOnlyCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new EnforceReadOnlyAnalyzer();
-
-		private void VerifyFix( string sourceCode, string expectedCode, params string[] variableNames )
-		{
-			DiagnosticResult[] expectedDiagnostics = variableNames
-				.Select(
-					name =>
-					new DiagnosticResult
-					{
-						Id = EnforceReadOnlyAnalyzer.DiagnosticID,
-						Severity = DiagnosticSeverity.Warning,
-						Message = name
-					} )
-				.ToArray();
-
-			VerifyCSharpDiagnostic( sourceCode, expectedDiagnostics );
-			VerifyCSharpFix( sourceCode, expectedCode );
-		}
 
 		#endregion
 
@@ -66,7 +47,7 @@ namespace NS
 		}
 	}
 }";
-			VerifyFix( sourceCode, expectedCode, "_x" );
+			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
 		[Fact]
@@ -174,7 +155,7 @@ namespace NS
 		}
 	}
 }";
-			VerifyFix( sourceCode, expectedCode, "_array" );
+			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
 		[Fact]
@@ -220,7 +201,7 @@ namespace NS
 		public int X;
 	}
 }";
-			VerifyFix( sourceCode, expectedCode, "_class" );
+			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
 		[Fact]
@@ -270,7 +251,7 @@ namespace NS
 		}
 	}
 }";
-			VerifyFix( sourceCode, expectedCode, "_x", "_y" );
+			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
 		[Fact]
@@ -569,7 +550,7 @@ namespace NS
 	}
 }";
 
-			VerifyFix( sourceCode, expectedCode, "_a" );
+			VerifyCSharpFix( sourceCode, expectedCode );
 		}
 
 		[Fact]
