@@ -184,28 +184,29 @@ namespace ThridParty
 		[Fact]
 		public void NullableStructAnalysysSkipped()
 		{
-			const string nullableTestCase = @"
+			FormattableString nullableTestCase = $@"
 using System;
 using ValueTypes;
 
 namespace ConsoleApplication1
-{
+{{
 	class SomeClass
-	{
+	{{
 		public void M()
-		{
+		{{
 			EmptyStruct? target = new EmptyStruct()
-			var booooooool = target == null;
-		}
-	}
+			var booooooool = target {Operator} {Null};
+		}}
+	}}
 
 	public struct EmptyStruct
-	{
+	{{
 		public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
 		public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
-	}
-}";
-			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
+	}}
+}}";
+			(string source, _) = CreateCodeStrings( nullableTestCase );
+			VerifyCSharpFix( new[] { source }, new[] { source } );
 		}
 
 		[Fact]
