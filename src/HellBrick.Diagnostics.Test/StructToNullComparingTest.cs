@@ -57,7 +57,7 @@ namespace HellBrick.Diagnostics.Test
 		[InlineData( "!=" )]
 		public void NullReplacedWithDefault( string comparisonOperator )
 		{
-			const string testCaseFormat = @"
+			FormattableString testCaseFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -67,7 +67,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = target {0} {1};
+			var bl = target {Operator} {Null};
 		}}
 
 		private struct SomeStruct
@@ -77,8 +77,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			string test = String.Format( testCaseFormat, comparisonOperator, "null" );
-			string result = String.Format( testCaseFormat, comparisonOperator, "default" );
+			(string test, string result) = CreateCodeStrings( testCaseFormat, comparisonOperator );
 			VerifyCSharpFix( test, result );
 		}
 
