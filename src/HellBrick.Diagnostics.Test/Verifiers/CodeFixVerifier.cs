@@ -26,22 +26,20 @@ namespace TestHelper
 
 		protected void VerifyNoFix( params string[] sources ) => VerifyCSharpFix( sources, sources );
 
-		protected void VerifyCSharpFix( string[] oldSources, string[] newSources, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false )
-			=> VerifyFix( GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSources, newSources, codeFixIndex, allowNewCompilerDiagnostics );
+		protected void VerifyCSharpFix( string[] oldSources, string[] newSources, int? codeFixIndex = null )
+			=> VerifyFix( GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSources, newSources, codeFixIndex );
 
 		/// <summary>
 		/// General verifier for codefixes.
 		/// Creates a Document from the source string, then gets diagnostics on it and applies the relevant codefixes.
 		/// Then gets the string after the codefix is applied and compares it with the expected result.
-		/// Note: If any codefix causes new diagnostics to show up, the test fails unless allowNewCompilerDiagnostics is set to true.
 		/// </summary>
 		/// <param name="analyzer">The analyzer to be applied to the source code</param>
 		/// <param name="codeFixProvider">The codefix to be applied to the code wherever the relevant Diagnostic is found</param>
 		/// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
 		/// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
 		/// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-		private void VerifyFix( DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string[] oldSources, string[] newSources, int? codeFixIndex, bool allowNewCompilerDiagnostics )
+		private void VerifyFix( DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string[] oldSources, string[] newSources, int? codeFixIndex )
 		{
 			Project project = CreateProject( oldSources );
 			Document[] documents = project.Documents.ToArray();
@@ -79,7 +77,7 @@ namespace TestHelper
 					IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics( compilerDiagnostics, GetCompilerDiagnostics( document ) );
 
 					//check if applying the code fix introduced any new compiler diagnostics
-					if ( !allowNewCompilerDiagnostics && newCompilerDiagnostics.Any() )
+					if ( newCompilerDiagnostics.Any() )
 					{
 						// Format and get the compiler diagnostics again so that the locations make sense in the output
 						document = document.WithSyntaxRoot( Formatter.Format( document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace ) );
