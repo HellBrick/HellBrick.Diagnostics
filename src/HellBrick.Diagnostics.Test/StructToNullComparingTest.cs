@@ -5,8 +5,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using TestHelper;
 using Xunit;
 
+using static HellBrick.Diagnostics.Test.Token;
+
 namespace HellBrick.Diagnostics.Test
 {
+	internal static class Token
+	{
+		public static object Null { get; } = new object();
+	}
+
 	public class StructToNullComparingTest : CodeFixVerifier
 	{
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
@@ -68,7 +75,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = {0} == target;
+			var bl = {Null} == target;
 		}}
 
 		private struct SomeStruct
@@ -94,7 +101,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = default ( SomeStruct ) == {0};
+			var bl = default ( SomeStruct ) == {Null};
 		}}
 
 		private struct SomeStruct
@@ -121,7 +128,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			var target = EmptyStructFactory.CreateDefaultEmptyStruct();
-			var bl = target == {0};
+			var bl = target == {Null};
 		}}
 	}}
 }}
@@ -193,7 +200,7 @@ namespace Namespace
 			=> Is
 			(
 				new Wrapper<int>(),
-				x => x.Value != {0}
+				x => x.Value != {Null}
 			);
 
 		private static bool Is<T>( T value, Func<T, bool> predicate ) => predicate( value );
