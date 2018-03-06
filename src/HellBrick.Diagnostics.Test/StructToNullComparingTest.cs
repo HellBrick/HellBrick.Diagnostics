@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using HellBrick.Diagnostics.ValueTypeToNullComparing;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -28,7 +29,19 @@ namespace HellBrick.Diagnostics.Test
 			);
 
 			string RenderCodeString( string nullReplacement )
-				=> String.Format( formatString.Format, nullReplacement );
+			{
+				string[] arguments
+					= formatString
+					.GetArguments()
+					.Select( originalArg => RenderArgument( originalArg ) )
+					.ToArray();
+
+				return String.Format( formatString.Format, arguments );
+
+				string RenderArgument( object argument )
+					=> argument == Null ? nullReplacement
+					: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
+			}
 		}
 
 		private void VerifyNullIsReplaced( FormattableString formatString )
