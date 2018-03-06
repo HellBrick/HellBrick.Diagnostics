@@ -1,23 +1,55 @@
 ﻿using System;
+using System.Linq;
 using HellBrick.Diagnostics.ValueTypeToNullComparing;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using TestHelper;
 using Xunit;
 
+using static HellBrick.Diagnostics.Test.Token;
+
 namespace HellBrick.Diagnostics.Test
 {
-	public class StructToNullComparingTest : CodeFixVerifier
+	internal static class Token
 	{
+		public static object Null { get; } = new object();
+		public static object Operator { get; } = new object();
+	}
+
+	public abstract class StructToNullComparingTest : CodeFixVerifier
+	{
+		private readonly string _equalityOperator;
+
+		protected StructToNullComparingTest( string equalityOperator )
+			=> _equalityOperator = equalityOperator ?? throw new ArgumentNullException( nameof( equalityOperator ), "The replacement equality operator was not specified." );
+
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
 		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
-			=>
+		{
+			return
 			(
-				Before: String.Format( formatString.Format, "null" ),
-				After: String.Format( formatString.Format, "default" )
+				Before: RenderCodeString( "null" ),
+				After: RenderCodeString( "default" )
 			);
+
+			string RenderCodeString( string nullReplacement )
+			{
+				string[] arguments
+					= formatString
+					.GetArguments()
+					.Select( originalArg => RenderArgument( originalArg ) )
+					.ToArray();
+
+				return String.Format( formatString.Format, arguments );
+
+				string RenderArgument( object argument )
+					=> argument == Null ? nullReplacement
+					: argument == Operator ? _equalityOperator
+					: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
+			}
+		}
 
 		private void VerifyNullIsReplaced( FormattableString formatString )
 		{
@@ -25,12 +57,10 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( before, after );
 		}
 
-		[Theory]
-		[InlineData( "==" )]
-		[InlineData( "!=" )]
-		public void NullReplacedWithDefault( string comparisonOperator )
+		[Fact]
+		public void NullReplacedWithDefault()
 		{
-			const string testCaseFormat = @"
+			FormattableString testCaseFormat = $@"
 using System;
 
 namespace ConsoleApplication1
@@ -40,7 +70,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = target {0} {1};
+			var bl = target {Operator} {Null};
 		}}
 
 		private struct SomeStruct
@@ -50,8 +80,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			string test = String.Format( testCaseFormat, comparisonOperator, "null" );
-			string result = String.Format( testCaseFormat, comparisonOperator, "default" );
+			(string test, string result) = CreateCodeStrings( testCaseFormat );
 			VerifyCSharpFix( test, result );
 		}
 
@@ -68,7 +97,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = {0} == target;
+			var bl = {Null} {Operator} target;
 		}}
 
 		private struct SomeStruct
@@ -94,7 +123,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			SomeStruct target = default( SomeStruct );
-			var bl = default ( SomeStruct ) == {0};
+			var bl = default ( SomeStruct ) {Operator} {Null};
 		}}
 
 		private struct SomeStruct
@@ -121,7 +150,7 @@ namespace ConsoleApplication1
 		public void M()
 		{{
 			var target = EmptyStructFactory.CreateDefaultEmptyStruct();
-			var bl = target == {0};
+			var bl = target {Operator} {Null};
 		}}
 	}}
 }}
@@ -155,28 +184,29 @@ namespace ThridParty
 		[Fact]
 		public void NullableStructAnalysysSkipped()
 		{
-			const string nullableTestCase = @"
+			FormattableString nullableTestCase = $@"
 using System;
 using ValueTypes;
 
 namespace ConsoleApplication1
-{
+{{
 	class SomeClass
-	{
+	{{
 		public void M()
-		{
+		{{
 			EmptyStruct? target = new EmptyStruct()
-			var booooooool = target == null;
-		}
-	}
+			var booooooool = target {Operator} {Null};
+		}}
+	}}
 
 	public struct EmptyStruct
-	{
+	{{
 		public static bool operator ==( SomeStruct x, SomeStruct y ) => true;
 		public static bool operator !=( SomeStruct x, SomeStruct y ) => !( x == y );
-	}
-}";
-			VerifyCSharpFix( new[] { nullableTestCase }, new[] { nullableTestCase } );
+	}}
+}}";
+			(string source, _) = CreateCodeStrings( nullableTestCase );
+			VerifyNoFix( source );
 		}
 
 		[Fact]
@@ -193,7 +223,7 @@ namespace Namespace
 			=> Is
 			(
 				new Wrapper<int>(),
-				x => x.Value != {0}
+				x => x.Value {Operator} {Null}
 			);
 
 		private static bool Is<T>( T value, Func<T, bool> predicate ) => predicate( value );
@@ -206,5 +236,15 @@ namespace Namespace
 }}";
 			VerifyNullIsReplaced( codeFormat );
 		}
+	}
+
+	public class StructEqualsNullTest : StructToNullComparingTest
+	{
+		public StructEqualsNullTest() : base( "==" ) { }
+	}
+
+	public class StructNotEqualsNullTest : StructToNullComparingTest
+	{
+		public StructNotEqualsNullTest() : base( "!=" ) { }
 	}
 }
