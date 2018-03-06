@@ -16,12 +16,17 @@ namespace HellBrick.Diagnostics.Test
 		public static object Operator { get; } = new object();
 	}
 
-	public class StructToNullComparingTest : CodeFixVerifier
+	public abstract class StructToNullComparingTest : CodeFixVerifier
 	{
+		private readonly string _equalityOperator;
+
+		protected StructToNullComparingTest( string equalityOperator )
+			=> _equalityOperator = equalityOperator ?? throw new ArgumentNullException( nameof( equalityOperator ), "The replacement equality operator was not specified." );
+
 		protected override CodeFixProvider GetCSharpCodeFixProvider() => new ValueTypeToNullComparingCodeFixProvider();
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
-		private (string Before, string After) CreateCodeStrings( FormattableString formatString, string equalityOperator = null )
+		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
 		{
 			return
 			(
@@ -41,7 +46,7 @@ namespace HellBrick.Diagnostics.Test
 
 				string RenderArgument( object argument )
 					=> argument == Null ? nullReplacement
-					: argument == Operator ? ( equalityOperator ?? throw new ArgumentNullException( nameof( equalityOperator ), "The replacement equality operator was not specified." ) )
+					: argument == Operator ? _equalityOperator
 					: throw new NotSupportedException( $"'{argument}' is not a supported placeholder value." );
 			}
 		}
@@ -52,10 +57,8 @@ namespace HellBrick.Diagnostics.Test
 			VerifyCSharpFix( before, after );
 		}
 
-		[Theory]
-		[InlineData( "==" )]
-		[InlineData( "!=" )]
-		public void NullReplacedWithDefault( string comparisonOperator )
+		[Fact]
+		public void NullReplacedWithDefault()
 		{
 			FormattableString testCaseFormat = $@"
 using System;
@@ -77,7 +80,7 @@ namespace ConsoleApplication1
 		}}
 	}}
 }}";
-			(string test, string result) = CreateCodeStrings( testCaseFormat, comparisonOperator );
+			(string test, string result) = CreateCodeStrings( testCaseFormat );
 			VerifyCSharpFix( test, result );
 		}
 
@@ -232,5 +235,15 @@ namespace Namespace
 }}";
 			VerifyNullIsReplaced( codeFormat );
 		}
+	}
+
+	public class StructEqualsNullTest : StructToNullComparingTest
+	{
+		public StructEqualsNullTest() : base( "==" ) { }
+	}
+
+	public class StructNotEqualsNullTest : StructToNullComparingTest
+	{
+		public StructNotEqualsNullTest() : base( "!=" ) { }
 	}
 }
