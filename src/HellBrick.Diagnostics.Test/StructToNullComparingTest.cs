@@ -20,11 +20,16 @@ namespace HellBrick.Diagnostics.Test
 		protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer() => new ValueTypeToNullComparingAnalyzer();
 
 		private (string Before, string After) CreateCodeStrings( FormattableString formatString )
-			=>
+		{
+			return
 			(
-				Before: String.Format( formatString.Format, "null" ),
-				After: String.Format( formatString.Format, "default" )
+				Before: RenderCodeString( "null" ),
+				After: RenderCodeString( "default" )
 			);
+
+			string RenderCodeString( string nullReplacement )
+				=> String.Format( formatString.Format, nullReplacement );
+		}
 
 		private void VerifyNullIsReplaced( FormattableString formatString )
 		{
