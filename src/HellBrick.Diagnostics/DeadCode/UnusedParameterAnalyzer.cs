@@ -38,6 +38,10 @@ namespace HellBrick.Diagnostics.DeadCode
 			if ( !codeBlockContext.CodeBlock.IsKind( SyntaxKind.MethodDeclaration ) && !codeBlockContext.CodeBlock.IsKind( SyntaxKind.ConstructorDeclaration ) )
 				return;
 
+			// If interface method declaration has a parameter with a default value, it's classified as a code block for some reason and needs to be ignored.
+			if ( !codeBlockContext.CodeBlock.Parent.IsKind( SyntaxKind.ClassDeclaration ) )
+				return;
+
 			if ( !( codeBlockContext.OwningSymbol is IMethodSymbol methodSymbol ) )
 				return;
 

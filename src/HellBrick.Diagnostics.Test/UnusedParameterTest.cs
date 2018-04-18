@@ -436,5 +436,19 @@ public class CustomException : Exception
 	public int Something( int good ) => good * 2;
 }"
 			);
+
+		[Fact]
+		public void NoFalsePositiveForInterfaceMethodWithParameterDefaultValue()
+			=> _verifier
+			.Source
+			(
+@"
+public interface I
+{
+	void InterfaceMethod( int normalParam, string defaultParam = "" );
+}
+"
+			)
+			.ShouldHaveNoDiagnostics();
 	}
 }
