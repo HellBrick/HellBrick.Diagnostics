@@ -1,21 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>3.0.2.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <PackageTargetFallback>portable-net45+win8+wp8+wpa81</PackageTargetFallback>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>HellBrick.Diagnostics</PackageId>
-    <PackageVersion>3.0.0.0</PackageVersion>
+    <PackageVersion>$(Version)</PackageVersion>
     <Authors>HellBrick</Authors>
     <PackageProjectUrl>https://github.com/HellBrick/HellBrick.Diagnostics</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HellBrick/HellBrick.Diagnostics</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.0.2:
+      - Fixed a false positive reported by the unused parameter analyzer for an interface method declaration that has a parameter with a default value
+
       v3.0.1:
       - Fixed unused parameter analyzer to examine base calls and expression bodies properly
       - Fixed unused parameter analyzer not to suggest removing `this` parameter from extension methods
