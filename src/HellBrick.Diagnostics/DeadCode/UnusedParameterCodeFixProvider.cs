@@ -116,12 +116,12 @@ namespace HellBrick.Diagnostics.DeadCode
 				_parameterIndex = parameterIndex;
 				_parameterName = parameterName;
 
-				ArgumentListSyntax argumentList
+				(Invocation invocation, ArgumentListSyntax argumentList)
 					= location.SourceTree.GetRoot().FindNode( location.SourceSpan )
 					.AncestorsAndSelf()
 					.Select( ancestor => new Invocation( ancestor ) )
-					.Select( invocation => TryGetArgumentList( invocation ) )
-					.Where( argList => argList != null )
+					.Select( methodOrCtor => (methodOrCtor, argList: TryGetArgumentList( methodOrCtor )) )
+					.Where( pair => pair.argList != null )
 					.FirstOrDefault();
 
 				/// It's possible to have <see cref="argumentList"/> without finding a corresponding argument inside.
