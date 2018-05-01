@@ -127,7 +127,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				/// It's possible to have <see cref="argumentList"/> without finding a corresponding argument inside.
 				/// This happens when the parameter is optional and not passed to the method.
 				if ( argumentList != null && FindArgument( argumentList ) != null )
-					ReplacedNode = argumentList;
+					ReplacedNode = invocation.Node;
 			}
 
 			private ArgumentListSyntax TryGetArgumentList( Invocation invocation )
@@ -139,7 +139,14 @@ namespace HellBrick.Diagnostics.DeadCode
 				);
 
 			public SyntaxNode ReplacedNode { get; }
-			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode ) => RemoveArgument( replacedNode as ArgumentListSyntax );
+
+			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode )
+				=> new Invocation( replacedNode )
+				.SelectOrDefault<SyntaxNode>
+				(
+					method => method.WithArgumentList( RemoveArgument( method.ArgumentList ) ),
+					ctor => ctor.WithArgumentList( RemoveArgument( ctor.ArgumentList ) )
+				);
 
 			private ArgumentListSyntax RemoveArgument( ArgumentListSyntax argumentList )
 				=> argumentList.WithArguments( argumentList.Arguments.Remove( FindArgument( argumentList ) ) )
