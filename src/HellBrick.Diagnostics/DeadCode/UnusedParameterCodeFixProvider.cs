@@ -119,7 +119,8 @@ namespace HellBrick.Diagnostics.DeadCode
 				ArgumentListSyntax argumentList
 					= location.SourceTree.GetRoot().FindNode( location.SourceSpan )
 					.AncestorsAndSelf()
-					.Select( ancestor => TryGetArgumentList( ancestor ) )
+					.Select( ancestor => new Invocation( ancestor ) )
+					.Select( invocation => TryGetArgumentList( invocation ) )
 					.Where( argList => argList != null )
 					.FirstOrDefault();
 
@@ -129,8 +130,8 @@ namespace HellBrick.Diagnostics.DeadCode
 					ReplacedNode = argumentList;
 			}
 
-			private ArgumentListSyntax TryGetArgumentList( SyntaxNode ancestor )
-				=> new Invocation( ancestor )
+			private ArgumentListSyntax TryGetArgumentList( Invocation invocation )
+				=> invocation
 				.SelectOrDefault
 				(
 					method => method.ArgumentList,
