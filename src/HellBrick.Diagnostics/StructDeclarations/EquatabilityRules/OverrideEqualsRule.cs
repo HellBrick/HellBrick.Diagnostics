@@ -40,7 +40,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private MethodDeclarationSyntax BuldEqualsOverrideDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
+			TypeSyntax structTypeName = ParseTypeName( structType.Name );
 			ParameterSyntax parameter = Parameter( ParseToken( _objArg ) ).WithType( _objectTypeName );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
 			method = method.AddParameterListParameters( parameter );

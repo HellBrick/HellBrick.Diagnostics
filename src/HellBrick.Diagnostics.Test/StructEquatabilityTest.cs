@@ -32,22 +32,28 @@ public struct NonReadonlyStruct
 			(
 @"
 using System;
-public readonly struct ZeroFieldStruct
-{	
+namespace Namespace
+{
+	public readonly struct ZeroFieldStruct
+	{	
+	}
 }
 " )
 			.ShouldHaveFix
 			(
 @"
 using System;
-public readonly struct ZeroFieldStruct : IEquatable<ZeroFieldStruct>
+namespace Namespace
 {
-	public override int GetHashCode() => 0;
-	public bool Equals( ZeroFieldStruct other ) => true;
-	public override bool Equals( object obj ) => obj is ZeroFieldStruct other && Equals( other );
+	public readonly struct ZeroFieldStruct : IEquatable<ZeroFieldStruct>
+	{
+		public override int GetHashCode() => 0;
+		public bool Equals( ZeroFieldStruct other ) => true;
+		public override bool Equals( object obj ) => obj is ZeroFieldStruct other && Equals( other );
 
-	public static bool operator ==( ZeroFieldStruct x, ZeroFieldStruct y ) => x.Equals( y );
-	public static bool operator !=( ZeroFieldStruct x, ZeroFieldStruct y ) => !x.Equals( y );
+		public static bool operator ==( ZeroFieldStruct x, ZeroFieldStruct y ) => x.Equals( y );
+		public static bool operator !=( ZeroFieldStruct x, ZeroFieldStruct y ) => !x.Equals( y );
+	}
 }
 "
 			);
