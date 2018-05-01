@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.0.2.0</Version>
+    <Version>3.1.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -21,6 +21,8 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.1.0:
+
       v3.0.2:
       - Fixed a false positive reported by the unused parameter analyzer for an interface method declaration that has a parameter with a default value
 
