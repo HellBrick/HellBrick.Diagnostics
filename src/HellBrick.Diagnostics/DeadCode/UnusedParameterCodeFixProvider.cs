@@ -141,12 +141,21 @@ namespace HellBrick.Diagnostics.DeadCode
 			public SyntaxNode ReplacedNode { get; }
 
 			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode )
-				=> new Invocation( replacedNode )
-				.SelectOrDefault<SyntaxNode>
-				(
-					method => method.WithArgumentList( RemoveArgument( method.ArgumentList ) ),
-					ctor => ctor.WithArgumentList( RemoveArgument( ctor.ArgumentList ) )
-				);
+			{
+				return
+					new Invocation( replacedNode )
+					.SelectOrDefault<SyntaxNode>
+					(
+						method => RemoveArgumentFromMethod( method ),
+						ctor => RemoveArgumentFromConstructor( ctor )
+					);
+
+				InvocationExpressionSyntax RemoveArgumentFromMethod( InvocationExpressionSyntax method )
+					=> method.WithArgumentList( RemoveArgument( method.ArgumentList ) );
+
+				ConstructorInitializerSyntax RemoveArgumentFromConstructor( ConstructorInitializerSyntax ctor )
+					=> ctor.WithArgumentList( RemoveArgument( ctor.ArgumentList ) );
+			}
 
 			private ArgumentListSyntax RemoveArgument( ArgumentListSyntax argumentList )
 				=> argumentList.WithArguments( argumentList.Arguments.Remove( FindArgument( argumentList ) ) )
