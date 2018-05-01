@@ -141,7 +141,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			public SyntaxNode ReplacedNode { get; }
 			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode ) => RemoveArgument( replacedNode as ArgumentListSyntax );
 
-			private SyntaxNode RemoveArgument( ArgumentListSyntax argumentList )
+			private ArgumentListSyntax RemoveArgument( ArgumentListSyntax argumentList )
 				=> argumentList.WithArguments( argumentList.Arguments.Remove( FindArgument( argumentList ) ) )
 				.WithAdditionalAnnotations( Formatter.Annotation );
 
