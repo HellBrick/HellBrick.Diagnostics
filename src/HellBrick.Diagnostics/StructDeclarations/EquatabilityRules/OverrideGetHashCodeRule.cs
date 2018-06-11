@@ -17,7 +17,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private const string _primeName = "prime";
 		private const string _hashName = "hash";
 
-		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _primeName, unchecked((int) 2773833001) ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
+		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _primeName, -1521134295 ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
 		private static readonly LocalDeclarationStatementSyntax _hashDeclaration = IntDeclaration( _hashName, 12345701 );
 
 		private static LocalDeclarationStatementSyntax IntDeclaration( string localName, int value ) =>
