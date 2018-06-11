@@ -20,11 +20,11 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _primeName, -1521134295 ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
 		private static readonly LocalDeclarationStatementSyntax _hashDeclaration = IntDeclaration( _hashName, 12345701 );
 
-		private static LocalDeclarationStatementSyntax IntDeclaration( string localName, int value ) =>
-			LocalDeclarationStatement( VariableDeclaration( _intTypeName ).AddVariables( Declarator( localName, value ) ) );
+		private static LocalDeclarationStatementSyntax IntDeclaration( string localName, int value )
+			=> LocalDeclarationStatement( VariableDeclaration( _intTypeName ).AddVariables( Declarator( localName, value ) ) );
 
-		private static VariableDeclaratorSyntax Declarator( string localName, int value ) =>
-			VariableDeclarator( localName ).WithInitializer( EqualsValueClause( LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( value ) ) ) );
+		private static VariableDeclaratorSyntax Declarator( string localName, int value )
+			=> VariableDeclarator( localName ).WithInitializer( EqualsValueClause( LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( value ) ) ) );
 
 		private static readonly IdentifierNameSyntax _getHashCodeName = IdentifierName( "GetHashCode" );
 
