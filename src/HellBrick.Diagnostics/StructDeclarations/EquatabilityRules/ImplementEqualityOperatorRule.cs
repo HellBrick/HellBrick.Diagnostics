@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -35,7 +36,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsOperator;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			OperatorDeclarationSyntax operatorDeclaration = BuildOperatorDeclaration( structDeclaration, structType );
 			return structDeclaration.AddMembers( operatorDeclaration );

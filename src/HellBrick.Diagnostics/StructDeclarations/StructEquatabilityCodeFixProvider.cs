@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using HellBrick.Diagnostics.Utils;
+using Microsoft.CodeAnalysis.Options;
 
 namespace HellBrick.Diagnostics.StructDeclarations
 {
@@ -29,6 +30,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SemanticModel semanticModel = await context.Document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );
+			DocumentOptionSet options = await context.Document.GetOptionsAsync( cancellationToken ).ConfigureAwait( false );
 			StructDeclarationSyntax oldStructDeclaration = root.FindNode( context.Span ).FirstAncestorOrSelf<StructDeclarationSyntax>();
 			StructDeclarationSyntax newStructDeclaration = oldStructDeclaration;
 
@@ -57,7 +59,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 				if ( cancellationToken.IsCancellationRequested )
 					break;
 
-				newStructDeclaration = rule.Enforce( newStructDeclaration, structType, semanticModel, fieldsAndProperties );
+				newStructDeclaration = rule.Enforce( newStructDeclaration, structType, semanticModel, fieldsAndProperties, options );
 			}
 
 			SyntaxNode newRoot = root.ReplaceNode( oldStructDeclaration, newStructDeclaration );

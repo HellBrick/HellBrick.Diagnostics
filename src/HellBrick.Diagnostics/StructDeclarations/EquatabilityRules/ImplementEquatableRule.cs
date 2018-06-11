@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -27,7 +28,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsEquatable;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
 			structDeclaration = AddInterfaceToBaseList( structDeclaration, structType );
