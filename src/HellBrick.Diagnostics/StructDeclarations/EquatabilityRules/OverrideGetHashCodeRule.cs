@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -12,18 +14,21 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 	internal class OverrideGetHashCodeRule : IEquatabilityRule
 	{
 		private static readonly TypeSyntax _intTypeName = PredefinedType( Token( SyntaxKind.IntKeyword ) );
+		private static readonly TypeSyntax _varTypeName = IdentifierName( "var" );
 
 		private const string _primeName = "prime";
 		private const string _hashName = "hash";
+		private const int _initialHashValue = 12345701;
 
-		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _primeName, unchecked((int) 2773833001) ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
-		private static readonly LocalDeclarationStatementSyntax _hashDeclaration = IntDeclaration( _hashName, 12345701 );
+		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _intTypeName, _primeName, -1521134295 ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
+		private static readonly LocalDeclarationStatementSyntax _hashDeclaration = IntDeclaration( _intTypeName, _hashName, _initialHashValue );
+		private static readonly LocalDeclarationStatementSyntax _hashVarDeclaration = IntDeclaration( _varTypeName, _hashName, _initialHashValue );
 
-		private static LocalDeclarationStatementSyntax IntDeclaration( string localName, int value ) =>
-			LocalDeclarationStatement( VariableDeclaration( _intTypeName ).AddVariables( Declarator( localName, value ) ) );
+		private static LocalDeclarationStatementSyntax IntDeclaration( TypeSyntax typeName, string localName, int value )
+			=> LocalDeclarationStatement( VariableDeclaration( typeName ).AddVariables( Declarator( localName, value ) ) );
 
-		private static VariableDeclaratorSyntax Declarator( string localName, int value ) =>
-			VariableDeclarator( localName ).WithInitializer( EqualsValueClause( LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( value ) ) ) );
+		private static VariableDeclaratorSyntax Declarator( string localName, int value )
+			=> VariableDeclarator( localName ).WithInitializer( EqualsValueClause( LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( value ) ) ) );
 
 		private static readonly IdentifierNameSyntax _getHashCodeName = IdentifierName( "GetHashCode" );
 
@@ -41,13 +46,13 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !overridesGetHashCode;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
-			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties );
+			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties, options );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties )
+		private MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _intTypeName, "GetHashCode" );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
@@ -61,7 +66,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			}
 			else
 			{
-				BlockSyntax body = BuildBlockBody( fieldsAndProperties );
+				BlockSyntax body = BuildBlockBody( fieldsAndProperties, options );
 				method = method.WithBody( body );
 			}
 
@@ -80,13 +85,16 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			throw new InvalidOperationException( $"{nameof( BuildExpressionBody )} should never be called if there's more than 1 field." );
 		}
 
-		private BlockSyntax BuildBlockBody( ISymbol[] fieldsAndProperties ) =>
-			Block( CheckedStatement( SyntaxKind.UncheckedStatement, Block( EnumerateHashCombinerStatements( fieldsAndProperties ) ) ) );
+		private BlockSyntax BuildBlockBody( ISymbol[] fieldsAndProperties, DocumentOptionSet options ) =>
+			Block( CheckedStatement( SyntaxKind.UncheckedStatement, Block( EnumerateHashCombinerStatements( fieldsAndProperties, options ) ) ) );
 
-		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties )
+		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			yield return _primeDeclaration;
-			yield return _hashDeclaration;
+			yield return
+				options.GetOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes ).Value
+				? _hashVarDeclaration
+				: _hashDeclaration;
 
 			foreach ( ISymbol field in fieldsAndProperties )
 			{
