@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,6 +14,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 	internal class OverrideGetHashCodeRule : IEquatabilityRule
 	{
 		private static readonly TypeSyntax _intTypeName = PredefinedType( Token( SyntaxKind.IntKeyword ) );
+		private static readonly TypeSyntax _varTypeName = IdentifierName( "var" );
 
 		private const string _primeName = "prime";
 		private const string _hashName = "hash";
@@ -20,6 +22,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		private static readonly LocalDeclarationStatementSyntax _primeDeclaration = IntDeclaration( _intTypeName, _primeName, -1521134295 ).AddModifiers( Token( SyntaxKind.ConstKeyword ) );
 		private static readonly LocalDeclarationStatementSyntax _hashDeclaration = IntDeclaration( _intTypeName, _hashName, _initialHashValue );
+		private static readonly LocalDeclarationStatementSyntax _hashVarDeclaration = IntDeclaration( _varTypeName, _hashName, _initialHashValue );
 
 		private static LocalDeclarationStatementSyntax IntDeclaration( TypeSyntax typeName, string localName, int value )
 			=> LocalDeclarationStatement( VariableDeclaration( typeName ).AddVariables( Declarator( localName, value ) ) );
@@ -88,7 +91,10 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			yield return _primeDeclaration;
-			yield return _hashDeclaration;
+			yield return
+				options.GetOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes ).Value
+				? _hashVarDeclaration
+				: _hashDeclaration;
 
 			foreach ( ISymbol field in fieldsAndProperties )
 			{
