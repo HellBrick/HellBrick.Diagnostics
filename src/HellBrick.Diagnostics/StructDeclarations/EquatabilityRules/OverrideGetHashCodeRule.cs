@@ -45,11 +45,11 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
-			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties );
+			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties, options );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties )
+		private MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _intTypeName, "GetHashCode" );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
@@ -63,7 +63,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			}
 			else
 			{
-				BlockSyntax body = BuildBlockBody( fieldsAndProperties );
+				BlockSyntax body = BuildBlockBody( fieldsAndProperties, options );
 				method = method.WithBody( body );
 			}
 
@@ -82,10 +82,10 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			throw new InvalidOperationException( $"{nameof( BuildExpressionBody )} should never be called if there's more than 1 field." );
 		}
 
-		private BlockSyntax BuildBlockBody( ISymbol[] fieldsAndProperties ) =>
-			Block( CheckedStatement( SyntaxKind.UncheckedStatement, Block( EnumerateHashCombinerStatements( fieldsAndProperties ) ) ) );
+		private BlockSyntax BuildBlockBody( ISymbol[] fieldsAndProperties, DocumentOptionSet options ) =>
+			Block( CheckedStatement( SyntaxKind.UncheckedStatement, Block( EnumerateHashCombinerStatements( fieldsAndProperties, options ) ) ) );
 
-		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties )
+		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			yield return _primeDeclaration;
 			yield return _hashDeclaration;
