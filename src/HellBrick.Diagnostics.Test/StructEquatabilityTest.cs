@@ -1,5 +1,7 @@
 ﻿using HellBrick.Diagnostics.StructDeclarations;
 using HellBrick.Diagnostics.Assertions;
+using HellBrick.Diagnostics.Utils;
+using Microsoft.CodeAnalysis.CodeStyle;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
@@ -94,6 +96,13 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 		[Fact]
 		public void ManyFieldStructHasEquatabilityMembersGenerated()
 			=> _verifier
+			.WithOptions
+			(
+				o
+				=> o
+				.WithProperFormatting()
+				.WithChangedOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes, new CodeStyleOption<bool>( false, NotificationOption.Warning ) )
+			)
 			.Source
 			(
 @"
