@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -12,7 +13,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics.DeadCode
 {
@@ -45,7 +49,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				from caller in callers
 				from location in caller.Locations
 				where location.IsInSource
-				select new CallSiteChange( location, parameterIndex, parameter.Identifier.ValueText ) into change
+				select new CallSiteChange( semanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
 				where change.ReplacedNode != null
 				select change;
 
@@ -71,7 +75,8 @@ namespace HellBrick.Diagnostics.DeadCode
 							(
 								changeLookup.Keys,
 								( originalNode, rewrittenNode ) => changeLookup[ originalNode ].ComputeReplacementNode( rewrittenNode )
-							);
+							)
+							.WithAdditionalAnnotations( Simplifier.Annotation );
 
 						DocumentId documentID = oldSolution.GetDocumentId( syntaxTree );
 						return oldSolution.WithDocumentSyntaxRoot( documentID, newRoot );
@@ -109,39 +114,94 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			private readonly int _parameterIndex;
 			private readonly string _parameterName;
+			private readonly ImmutableArray<ITypeSymbol> _typeArguments;
 
-			public CallSiteChange( Location location, int parameterIndex, string parameterName )
+			public CallSiteChange( SemanticModel semanticModel, Location location, int parameterIndex, string parameterName )
 			{
 				_parameterIndex = parameterIndex;
 				_parameterName = parameterName;
 
-				ArgumentListSyntax argumentList
+				(Invocation invocation, ArgumentListSyntax argumentList)
 					= location.SourceTree.GetRoot().FindNode( location.SourceSpan )
 					.AncestorsAndSelf()
-					.Select( ancestor => TryGetArgumentList( ancestor ) )
-					.Where( argList => argList != null )
+					.Select( ancestor => new Invocation( ancestor ) )
+					.Select( methodOrCtor => (methodOrCtor, argList: TryGetArgumentList( methodOrCtor )) )
+					.Where( pair => pair.argList != null )
 					.FirstOrDefault();
 
 				/// It's possible to have <see cref="argumentList"/> without finding a corresponding argument inside.
 				/// This happens when the parameter is optional and not passed to the method.
 				if ( argumentList != null && FindArgument( argumentList ) != null )
-					ReplacedNode = argumentList;
+				{
+					ReplacedNode = invocation.Node;
+					_typeArguments = ( semanticModel.GetSymbolInfo( invocation.Node ).Symbol as IMethodSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+				}
 			}
 
-			private ArgumentListSyntax TryGetArgumentList( SyntaxNode ancestor )
-				=> ( ancestor as InvocationExpressionSyntax )?.ArgumentList
-				?? ( ancestor as ConstructorInitializerSyntax )?.ArgumentList;
+			private ArgumentListSyntax TryGetArgumentList( Invocation invocation )
+				=> invocation
+				.SelectOrDefault
+				(
+					method => method.ArgumentList,
+					ctor => ctor.ArgumentList
+				);
 
 			public SyntaxNode ReplacedNode { get; }
-			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode ) => RemoveArgument( replacedNode as ArgumentListSyntax );
 
-			private SyntaxNode RemoveArgument( ArgumentListSyntax argumentList )
+			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode )
+			{
+				return
+					new Invocation( replacedNode )
+					.SelectOrDefault<SyntaxNode>
+					(
+						method => RemoveArgumentFromMethod( method ),
+						ctor => RemoveArgumentFromConstructor( ctor )
+					);
+
+				InvocationExpressionSyntax RemoveArgumentFromMethod( InvocationExpressionSyntax method )
+				{
+					InvocationExpressionSyntax methodWithArgumentRemoved = method.WithArgumentList( RemoveArgument( method.ArgumentList ) );
+					return
+						_typeArguments.Length > 0 && methodWithArgumentRemoved.Expression.DescendantNodesAndSelf().LastOrDefault() is IdentifierNameSyntax identifier
+						? AddTypeArguments()
+						: methodWithArgumentRemoved;
+
+					InvocationExpressionSyntax AddTypeArguments()
+						=> methodWithArgumentRemoved
+						.ReplaceNode
+						(
+							identifier,
+							GenericName
+							(
+								identifier.Identifier,
+								TypeArgumentList( SeparatedList( _typeArguments.Select( type => ParseTypeName( type.ToDisplayString() ) ) ) )
+							)
+						);
+				}
+
+				ConstructorInitializerSyntax RemoveArgumentFromConstructor( ConstructorInitializerSyntax ctor )
+					=> ctor.WithArgumentList( RemoveArgument( ctor.ArgumentList ) );
+			}
+
+			private ArgumentListSyntax RemoveArgument( ArgumentListSyntax argumentList )
 				=> argumentList.WithArguments( argumentList.Arguments.Remove( FindArgument( argumentList ) ) )
 				.WithAdditionalAnnotations( Formatter.Annotation );
 
 			private ArgumentSyntax FindArgument( ArgumentListSyntax argumentList )
 				=> argumentList.Arguments.FirstOrDefault( arg => arg.NameColon?.Name.Identifier.ValueText == _parameterName )
 				?? ( argumentList.Arguments.Count > _parameterIndex ? argumentList.Arguments[ _parameterIndex ] : null );
+
+			private struct Invocation
+			{
+				public Invocation( SyntaxNode node ) => Node = node;
+
+				public SyntaxNode Node { get; }
+
+				public T SelectOrDefault<T>( Func<InvocationExpressionSyntax, T> ifMethod, Func<ConstructorInitializerSyntax, T> ifConstructor )
+					=> Node is InvocationExpressionSyntax method ? ifMethod( method )
+					: Node is ConstructorInitializerSyntax constructor ? ifConstructor( constructor )
+					: default( T );
+			}
 		}
 	}
 }

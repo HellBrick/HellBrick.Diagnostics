@@ -450,5 +450,99 @@ public interface I
 "
 			)
 			.ShouldHaveNoDiagnostics();
+
+		[Fact]
+		public void TypeArgumentsAreNotAddedToCallSiteIfTheyCanStillBeInferred()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( TIn arg, Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert( 42, ( int number ) => number.ToString() );
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert( ( int number ) => number.ToString() );
+}
+"
+			);
+
+		[Fact]
+		public void TypeArgumentsAreAddedToSimpleCallSite()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( TIn arg, Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert( 42, number => number.ToString() );
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert<int, string>( number => number.ToString() );
+}
+"
+			);
+
+		[Fact]
+		public void TypeArgumentsAreAddedToInvocationChainCallSite()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+public class ConverterFactory
+{
+	public Converter<TOut> To<TOut>();
+}
+public class Converter<TOut>
+{
+	public TOut Convert<TIn>( TIn arg, Func<TIn, TOut> converter ) => converter( default );
+}
+public class Program
+{
+	private readonly object[] _converterFactories;
+	public static void CallSite() => ( _converterFactories[ 0 ] as ConverterFactory ).To<string>().Convert( 42, number => number.ToString() );
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+public class ConverterFactory
+{
+	public Converter<TOut> To<TOut>();
+}
+public class Converter<TOut>
+{
+	public TOut Convert<TIn>( Func<TIn, TOut> converter ) => converter( default );
+}
+public class Program
+{
+	private readonly object[] _converterFactories;
+	public static void CallSite() => ( _converterFactories[ 0 ] as ConverterFactory ).To<string>().Convert<int>( number => number.ToString() );
+}
+"
+			);
 	}
 }
