@@ -13,7 +13,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics.DeadCode
 {
@@ -46,7 +49,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				from caller in callers
 				from location in caller.Locations
 				where location.IsInSource
-				select new CallSiteChange( location, parameterIndex, parameter.Identifier.ValueText ) into change
+				select new CallSiteChange( semanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
 				where change.ReplacedNode != null
 				select change;
 
@@ -72,7 +75,8 @@ namespace HellBrick.Diagnostics.DeadCode
 							(
 								changeLookup.Keys,
 								( originalNode, rewrittenNode ) => changeLookup[ originalNode ].ComputeReplacementNode( rewrittenNode )
-							);
+							)
+							.WithAdditionalAnnotations( Simplifier.Annotation );
 
 						DocumentId documentID = oldSolution.GetDocumentId( syntaxTree );
 						return oldSolution.WithDocumentSyntaxRoot( documentID, newRoot );
@@ -110,8 +114,9 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			private readonly int _parameterIndex;
 			private readonly string _parameterName;
+			private readonly ImmutableArray<ITypeSymbol> _typeArguments;
 
-			public CallSiteChange( Location location, int parameterIndex, string parameterName )
+			public CallSiteChange( SemanticModel semanticModel, Location location, int parameterIndex, string parameterName )
 			{
 				_parameterIndex = parameterIndex;
 				_parameterName = parameterName;
@@ -127,7 +132,10 @@ namespace HellBrick.Diagnostics.DeadCode
 				/// It's possible to have <see cref="argumentList"/> without finding a corresponding argument inside.
 				/// This happens when the parameter is optional and not passed to the method.
 				if ( argumentList != null && FindArgument( argumentList ) != null )
+				{
 					ReplacedNode = invocation.Node;
+					_typeArguments = ( semanticModel.GetSymbolInfo( invocation.Node ).Symbol as IMethodSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+				}
 			}
 
 			private ArgumentListSyntax TryGetArgumentList( Invocation invocation )
@@ -153,7 +161,22 @@ namespace HellBrick.Diagnostics.DeadCode
 				InvocationExpressionSyntax RemoveArgumentFromMethod( InvocationExpressionSyntax method )
 				{
 					InvocationExpressionSyntax methodWithArgumentRemoved = method.WithArgumentList( RemoveArgument( method.ArgumentList ) );
-					return methodWithArgumentRemoved;
+					return
+						_typeArguments.Length > 0 && methodWithArgumentRemoved.Expression.DescendantNodesAndSelf().LastOrDefault() is IdentifierNameSyntax identifier
+						? AddTypeArguments()
+						: methodWithArgumentRemoved;
+
+					InvocationExpressionSyntax AddTypeArguments()
+						=> methodWithArgumentRemoved
+						.ReplaceNode
+						(
+							identifier,
+							GenericName
+							(
+								identifier.Identifier,
+								TypeArgumentList( SeparatedList( _typeArguments.Select( type => ParseTypeName( type.ToDisplayString() ) ) ) )
+							)
+						);
 				}
 
 				ConstructorInitializerSyntax RemoveArgumentFromConstructor( ConstructorInitializerSyntax ctor )
