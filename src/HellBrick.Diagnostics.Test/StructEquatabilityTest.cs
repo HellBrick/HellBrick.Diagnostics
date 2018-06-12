@@ -94,6 +94,39 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 			);
 
 		[Fact]
+		public void OneValueTypeFieldStructHasEquatabilityMembersGenerated()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+using System.Collections.Generic;
+public readonly struct OneFieldStruct
+{
+	private readonly int _field;
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+using System.Collections.Generic;
+public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
+{
+	private readonly int _field;
+
+	public override int GetHashCode() => EqualityComparer<int>.Default.GetHashCode( _field );
+	public bool Equals( OneFieldStruct other ) => EqualityComparer<int>.Default.Equals( _field, other._field );
+	public override bool Equals( object obj ) => obj is OneFieldStruct other && Equals( other );
+
+	public static bool operator ==( OneFieldStruct x, OneFieldStruct y ) => x.Equals( y );
+	public static bool operator !=( OneFieldStruct x, OneFieldStruct y ) => !x.Equals( y );
+}
+"
+			);
+
+		[Fact]
 		public void ManyFieldStructHasEquatabilityMembersGenerated()
 			=> _verifier
 			.WithOptions
