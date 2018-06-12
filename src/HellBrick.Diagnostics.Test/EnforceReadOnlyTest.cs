@@ -594,6 +594,52 @@ namespace NS
 			);
 
 		[Fact]
+		public void ReadOnlyStructFieldIsFixed()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private Struct _a;
+		
+		public ClassName() => _a = new Struct( ""text"" );
+	}
+
+	readonly struct Struct
+	{
+		private readonly string _value;
+
+		public Struct( string value ) => _value = value;
+	}
+}"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+namespace NS
+{
+	class ClassName
+	{
+		private readonly Struct _a;
+		
+		public ClassName() => _a = new Struct( ""text"" );
+	}
+
+	readonly struct Struct
+	{
+		private readonly string _value;
+
+		public Struct( string value ) => _value = value;
+	}
+}"
+			);
+
+		[Fact]
 		public void FieldAssignedByLocalMethodIsNotFixed()
 			=> _verifier
 			.Source
