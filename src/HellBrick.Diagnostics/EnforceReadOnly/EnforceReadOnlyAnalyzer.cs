@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -95,7 +96,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				=> fieldSymbol.IsReadOnly
 				|| fieldSymbol.IsConst
 				|| fieldSymbol.IsExtern
-				|| fieldSymbol.Type.IsValueType && !IsPrimitiveValueType( fieldSymbol.Type )
+				|| fieldSymbol.Type.IsValueType && !( IsPrimitiveValueType( fieldSymbol.Type ) || fieldSymbol.Type.IsReadOnlyStruct() )
 				|| fieldSymbol.DeclaredAccessibility > Accessibility.Private;
 
 			private bool IsPrimitiveValueType( ITypeSymbol type ) => _primitiveValueTypes.Any( t => type.SpecialType == t );
