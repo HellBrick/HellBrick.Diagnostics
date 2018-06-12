@@ -61,7 +61,7 @@ namespace Namespace
 			);
 
 		[Fact]
-		public void OneFieldStructHasEquatabilityMembersGenerated()
+		public void OneReferenceTypeFieldStructHasEquatabilityMembersGenerated()
 			=> _verifier
 			.Source
 			(
