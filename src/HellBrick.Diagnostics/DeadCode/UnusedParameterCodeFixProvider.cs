@@ -151,7 +151,10 @@ namespace HellBrick.Diagnostics.DeadCode
 					);
 
 				InvocationExpressionSyntax RemoveArgumentFromMethod( InvocationExpressionSyntax method )
-					=> method.WithArgumentList( RemoveArgument( method.ArgumentList ) );
+				{
+					InvocationExpressionSyntax methodWithArgumentRemoved = method.WithArgumentList( RemoveArgument( method.ArgumentList ) );
+					return methodWithArgumentRemoved;
+				}
 
 				ConstructorInitializerSyntax RemoveArgumentFromConstructor( ConstructorInitializerSyntax ctor )
 					=> ctor.WithArgumentList( RemoveArgument( ctor.ArgumentList ) );
