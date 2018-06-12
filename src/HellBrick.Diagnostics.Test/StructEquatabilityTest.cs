@@ -83,7 +83,7 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 {
 	private readonly object _field;
 
-	public override int GetHashCode() => EqualityComparer<object>.Default.GetHashCode( _field );
+	public override int GetHashCode() => _field?.GetHashCode() ?? 0;
 	public bool Equals( OneFieldStruct other ) => EqualityComparer<object>.Default.Equals( _field, other._field );
 	public override bool Equals( object obj ) => obj is OneFieldStruct other && Equals( other );
 
@@ -116,7 +116,7 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 {
 	private readonly int _field;
 
-	public override int GetHashCode() => EqualityComparer<int>.Default.GetHashCode( _field );
+	public override int GetHashCode() => _field.GetHashCode();
 	public bool Equals( OneFieldStruct other ) => EqualityComparer<int>.Default.Equals( _field, other._field );
 	public override bool Equals( object obj ) => obj is OneFieldStruct other && Equals( other );
 
@@ -164,8 +164,8 @@ public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
 		{
 			const int prime = -1521134295;
 			int hash = 12345701;
-			hash = hash * prime + EqualityComparer<int>.Default.GetHashCode( _number );
-			hash = hash * prime + EqualityComparer<string>.Default.GetHashCode( Text );
+			hash = hash * prime + _number.GetHashCode();
+			hash = hash * prime + ( Text?.GetHashCode() ?? 0 );
 			return hash;
 		}
 	}
@@ -217,8 +217,8 @@ public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
 		{
 			const int prime = -1521134295;
 			var hash = 12345701;
-			hash = hash * prime + EqualityComparer<int>.Default.GetHashCode( _number );
-			hash = hash * prime + EqualityComparer<string>.Default.GetHashCode( Text );
+			hash = hash * prime + _number.GetHashCode();
+			hash = hash * prime + ( Text?.GetHashCode() ?? 0 );
 			return hash;
 		}
 	}
