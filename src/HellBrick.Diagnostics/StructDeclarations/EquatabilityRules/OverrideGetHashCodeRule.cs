@@ -121,11 +121,33 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private ExpressionSyntax BuildFieldHashCodeCall( ISymbol fieldSymbol )
 		{
 			ITypeSymbol fieldType = ( fieldSymbol as IFieldSymbol )?.Type ?? ( fieldSymbol as IPropertySymbol ).Type;
-			MemberAccessExpressionSyntax defaultComparer = DefaultEqualityComparer.AccessExpression( fieldType );
-			MemberAccessExpressionSyntax defaultGetHashCodeMethod = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, defaultComparer, _getHashCodeName );
-			MemberAccessExpressionSyntax fieldAccess = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName( fieldSymbol.Name ) );
-			InvocationExpressionSyntax getHashCodeCall = InvocationExpression( defaultGetHashCodeMethod ).AddArgumentListArguments( Argument( fieldAccess ) );
-			return getHashCodeCall;
+			return fieldType.IsValueType ? BuildValueTypeHashCodeCall() : BuildReferenceTypeHashCodeCall();
+
+			ExpressionSyntax BuildValueTypeHashCodeCall()
+				=> InvocationExpression
+				(
+					MemberAccessExpression
+					(
+						SyntaxKind.SimpleMemberAccessExpression,
+						IdentifierName( fieldSymbol.Name ),
+						_getHashCodeName
+					)
+				);
+
+			ExpressionSyntax BuildReferenceTypeHashCodeCall()
+				=> ParenthesizedExpression
+				(
+					BinaryExpression
+					(
+						SyntaxKind.CoalesceExpression,
+						ConditionalAccessExpression
+						(
+							IdentifierName( fieldSymbol.Name ),
+							InvocationExpression( MemberBindingExpression( _getHashCodeName ) )
+						),
+						LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( 0 ) )
+					)
+				);
 		}
 	}
 }

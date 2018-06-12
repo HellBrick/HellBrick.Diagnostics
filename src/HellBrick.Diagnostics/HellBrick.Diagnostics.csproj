@@ -23,7 +23,7 @@
     <PackageReleaseNotes>
       v3.1.0:
       - Removed the unused references analyzer (it has never worked properly anyway)
-      - Fixed the generated Equals() to use a compact type name
+      - Made generated GetHashCode() and Equals() less verbose
       - Fixed the unused parameter code fix to add the type arguments if they can no longer be inferred after removing the redundant argument
       - Updated GetHashCode() generator to respect var/int code style preference
 
