@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -129,8 +130,12 @@ namespace HellBrick.Diagnostics.DeadCode
 			}
 
 			private ArgumentListSyntax TryGetArgumentList( SyntaxNode ancestor )
-				=> ( ancestor as InvocationExpressionSyntax )?.ArgumentList
-				?? ( ancestor as ConstructorInitializerSyntax )?.ArgumentList;
+				=> new Invocation( ancestor )
+				.SelectOrDefault
+				(
+					method => method.ArgumentList,
+					ctor => ctor.ArgumentList
+				);
 
 			public SyntaxNode ReplacedNode { get; }
 			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode ) => RemoveArgument( replacedNode as ArgumentListSyntax );
@@ -142,6 +147,18 @@ namespace HellBrick.Diagnostics.DeadCode
 			private ArgumentSyntax FindArgument( ArgumentListSyntax argumentList )
 				=> argumentList.Arguments.FirstOrDefault( arg => arg.NameColon?.Name.Identifier.ValueText == _parameterName )
 				?? ( argumentList.Arguments.Count > _parameterIndex ? argumentList.Arguments[ _parameterIndex ] : null );
+
+			private struct Invocation
+			{
+				public Invocation( SyntaxNode node ) => Node = node;
+
+				public SyntaxNode Node { get; }
+
+				public T SelectOrDefault<T>( Func<InvocationExpressionSyntax, T> ifMethod, Func<ConstructorInitializerSyntax, T> ifConstructor )
+					=> Node is InvocationExpressionSyntax method ? ifMethod( method )
+					: Node is ConstructorInitializerSyntax constructor ? ifConstructor( constructor )
+					: default( T );
+			}
 		}
 	}
 }
