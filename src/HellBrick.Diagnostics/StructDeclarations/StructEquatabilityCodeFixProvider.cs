@@ -35,7 +35,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			StructDeclarationSyntax newStructDeclaration = oldStructDeclaration;
 
 			INamedTypeSymbol structType = semanticModel.GetDeclaredSymbol( oldStructDeclaration );
-			TypeSyntax structTypeName = SyntaxFactory.ParseTypeName( structType.ToDisplayString() );
+			TypeSyntax structTypeName = SyntaxFactory.ParseTypeName( structType.ToMinimalDisplayString( semanticModel, oldStructDeclaration.GetLocation().SourceSpan.End + 1 ) );
 
 			ISymbol[] fieldSymbols = newStructDeclaration
 				.EnumerateDataFields()
