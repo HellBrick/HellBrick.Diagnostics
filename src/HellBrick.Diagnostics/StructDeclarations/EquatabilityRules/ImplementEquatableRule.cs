@@ -33,7 +33,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
 			structDeclaration = AddInterfaceToBaseList( structDeclaration, structType );
 			structDeclaration = AddEndlineTriviaToBaseListIfHadNoInterfaces( structDeclaration );
-			structDeclaration = ImplementInterface( structDeclaration, structType, semanticModel, fieldsAndProperties );
+			structDeclaration = ImplementInterface( structDeclaration, structType, ParseTypeName( structType.ToDisplayString() ), semanticModel, fieldsAndProperties );
 
 			return structDeclaration;
 		}
@@ -74,16 +74,15 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return structDeclaration;
 		}
 
-		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private StructDeclarationSyntax ImplementInterface( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, structType, semanticModel, fieldsAndProperties );
+			MethodDeclarationSyntax equalsMethodDeclaration = BuldEqualsMethodDeclaration( structDeclaration, structType, structTypeName, semanticModel, fieldsAndProperties );
 			return structDeclaration.AddMembers( equalsMethodDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
 			ParameterSyntax parameter = Parameter( ParseToken( _otherArg ) ).WithType( structTypeName );
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
