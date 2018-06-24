@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics", "src\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj", "{1B542F07-FCC4-452E-AFB4-7176711D5724}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HellBrick.Diagnostics", "src\HellBrick.Diagnostics\HellBrick.Diagnostics.csproj", "{1B542F07-FCC4-452E-AFB4-7176711D5724}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HellBrick.Diagnostics.Test", "src\HellBrick.Diagnostics.Test\HellBrick.Diagnostics.Test.csproj", "{802F7F69-3347-4004-A80D-62986BB586DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Debug.Vsix", "src\HellBrick.Diagnostics.Debug.Vsix\HellBrick.Diagnostics.Debug.Vsix.csproj", "{FE03E80B-A4C7-498A-B35E-98DDB05D2743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HellBrick.Diagnostics.Assertions", "src\HellBrick.Diagnostics.Assertions\HellBrick.Diagnostics.Assertions.csproj", "{B8419ECE-86B7-442F-B1C7-A4535AAE1F12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HellBrick.Diagnostics.Assertions", "src\HellBrick.Diagnostics.Assertions\HellBrick.Diagnostics.Assertions.csproj", "{B8419ECE-86B7-442F-B1C7-A4535AAE1F12}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E8F1DDD3-0FBC-43E1-8DF6-492472D47C91}"
 	ProjectSection(SolutionItems) = preProject
