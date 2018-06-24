@@ -325,5 +325,36 @@ public readonly struct StructWithoutInterface : IEquatable<StructWithoutInterfac
 }
 "
 			);
+
+		[Fact]
+		public void GenericStructHasMembersImplementedCorrectly()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+public readonly struct GenericStruct<T>
+{
+	private readonly T _field;
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+public readonly struct GenericStruct<T> : IEquatable<GenericStruct<T>>
+{
+	private readonly T _field;
+
+	public override int GetHashCode() => _field?.GetHashCode() ?? 0;
+	public bool Equals( GenericStruct<T> other ) => System.Collections.Generic.EqualityComparer<T>.Default.Equals( _field, other._field );
+	public override bool Equals( object obj ) => obj is GenericStruct<T> other && Equals( other );
+
+	public static bool operator ==( GenericStruct<T>x, GenericStruct<T>y ) => x.Equals( y );
+	public static bool operator !=( GenericStruct<T>x, GenericStruct<T>y ) => !x.Equals( y );
+}
+"
+			);
 	}
 }

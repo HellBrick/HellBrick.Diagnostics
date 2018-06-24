@@ -36,16 +36,15 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsOperator;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
-			OperatorDeclarationSyntax operatorDeclaration = BuildOperatorDeclaration( structDeclaration, structType );
+			OperatorDeclarationSyntax operatorDeclaration = BuildOperatorDeclaration( structDeclaration, structTypeName );
 			return structDeclaration.AddMembers( operatorDeclaration );
 		}
 
-		private OperatorDeclarationSyntax BuildOperatorDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType )
+		private OperatorDeclarationSyntax BuildOperatorDeclaration( StructDeclarationSyntax structDeclaration, TypeSyntax structTypeName )
 		{
 			OperatorDeclarationSyntax operatorDeclaration = OperatorDeclaration( _boolTypeName, OperatorToken );
-			TypeSyntax structTypeName = ParseTypeName( structType.ToDisplayString() );
 			operatorDeclaration = operatorDeclaration
 				.AddParameterListParameters
 				(
