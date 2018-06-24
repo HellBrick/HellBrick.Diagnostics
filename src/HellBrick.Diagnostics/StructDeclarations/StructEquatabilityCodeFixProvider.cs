@@ -35,6 +35,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			StructDeclarationSyntax newStructDeclaration = oldStructDeclaration;
 
 			INamedTypeSymbol structType = semanticModel.GetDeclaredSymbol( oldStructDeclaration );
+			TypeSyntax structTypeName = SyntaxFactory.ParseTypeName( structType.ToDisplayString() );
 
 			ISymbol[] fieldSymbols = newStructDeclaration
 				.EnumerateDataFields()
@@ -59,7 +60,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 				if ( cancellationToken.IsCancellationRequested )
 					break;
 
-				newStructDeclaration = rule.Enforce( newStructDeclaration, structType, semanticModel, fieldsAndProperties, options );
+				newStructDeclaration = rule.Enforce( newStructDeclaration, structType, structTypeName, semanticModel, fieldsAndProperties, options );
 			}
 
 			SyntaxNode newRoot = root.ReplaceNode( oldStructDeclaration, newStructDeclaration );

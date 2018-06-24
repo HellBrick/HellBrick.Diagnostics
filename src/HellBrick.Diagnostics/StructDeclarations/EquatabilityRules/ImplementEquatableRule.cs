@@ -28,12 +28,12 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return !implementsEquatable;
 		}
 
-		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
+		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
 			structDeclaration = RemoveEndlineTriviaFromIdentifierIfHasNoInterfaces( structDeclaration );
 			structDeclaration = AddInterfaceToBaseList( structDeclaration, structType );
 			structDeclaration = AddEndlineTriviaToBaseListIfHadNoInterfaces( structDeclaration );
-			structDeclaration = ImplementInterface( structDeclaration, structType, ParseTypeName( structType.ToDisplayString() ), semanticModel, fieldsAndProperties );
+			structDeclaration = ImplementInterface( structDeclaration, structType, structTypeName, semanticModel, fieldsAndProperties );
 
 			return structDeclaration;
 		}
