@@ -83,7 +83,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		private MethodDeclarationSyntax BuldEqualsMethodDeclaration( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _boolTypeName, "Equals" );
-			ParameterSyntax parameter = Parameter( ParseToken( _otherArg ) ).WithType( structTypeName );
+			ParameterSyntax parameter = Parameter( ParseToken( _otherArg ).WithLeadingTrivia( Whitespace( " " ) ) ).WithType( structTypeName );
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
 			method = method.AddParameterListParameters( parameter );
