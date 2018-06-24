@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.1.0.0</Version>
+    <Version>3.1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -21,6 +21,8 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.1.1:
+      
       v3.1.0:
       - Removed the unused references analyzer (it has never worked properly anyway)
       - Made generated GetHashCode() and Equals() less verbose
