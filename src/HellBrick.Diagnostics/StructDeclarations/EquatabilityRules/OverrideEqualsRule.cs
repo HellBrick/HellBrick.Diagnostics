@@ -34,7 +34,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
-			MethodDeclarationSyntax equalsOverrideDeclaration = BuldEqualsOverrideDeclaration( structDeclaration, ParseTypeName( structType.Name ) );
+			MethodDeclarationSyntax equalsOverrideDeclaration = BuldEqualsOverrideDeclaration( structDeclaration, ParseTypeName( structType.ToDisplayString() ) );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );
 		}
 
