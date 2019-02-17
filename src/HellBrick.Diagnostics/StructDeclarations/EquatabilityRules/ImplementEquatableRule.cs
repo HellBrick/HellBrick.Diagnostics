@@ -99,10 +99,6 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// </summary>
 		private ExpressionSyntax BuildEqualsBodyExpression( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
 		{
-			ExpressionSyntax[] fieldEqualityCalls = fieldsAndProperties
-				.Select( fieldSymbol => BuildFieldEqualityCall( fieldSymbol ) )
-				.ToArray();
-
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
 			if ( fieldsAndProperties.Length == 0 )
 				return LiteralExpression( SyntaxKind.TrueLiteralExpression );
@@ -111,12 +107,28 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			if ( fieldsAndProperties.Length == 1 )
 				return BuildFieldEqualityCall( fieldsAndProperties[ 0 ] );
 
-			//	Otherwise we have to && all the equality calls.
-			ExpressionSyntax fullBody = fieldEqualityCalls[ 0 ];
-			foreach ( ExpressionSyntax fieldEqualityCall in fieldEqualityCalls.Skip( 1 ) )
-				fullBody = BinaryExpression( SyntaxKind.LogicalAndExpression, fullBody, fieldEqualityCall );
+			//	Otherwise we have to invoke tuple comparison.
+			return BinaryExpression( SyntaxKind.EqualsExpression, FieldTuple( ThisExpression() ), FieldTuple( IdentifierName( _otherArg ) ) );
 
-			return fullBody;
+			TupleExpressionSyntax FieldTuple( ExpressionSyntax instance )
+				=> TupleExpression
+				(
+					SeparatedList
+					(
+						fieldsAndProperties.Select
+						(
+							f => Argument
+							(
+								MemberAccessExpression
+								(
+									SyntaxKind.SimpleMemberAccessExpression,
+									instance,
+									IdentifierName( f.Name )
+								)
+							)
+						)
+					)
+				);
 		}
 
 		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol )
