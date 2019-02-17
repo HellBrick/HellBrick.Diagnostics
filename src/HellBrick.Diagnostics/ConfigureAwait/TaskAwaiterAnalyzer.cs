@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 
 		public const string DiagnosticID = IDPrefix.Value + "ConfigureAwait";
 
-		private const string _title = "'ConfigureAwait( false )' is missing";
+		private const string _title = "'ConfigureAwait()' is missing";
 		private const string _category = DiagnosticCategory.Async;
 
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor( DiagnosticID, _title, _title, _category, DiagnosticSeverity.Warning, isEnabledByDefault: true );
