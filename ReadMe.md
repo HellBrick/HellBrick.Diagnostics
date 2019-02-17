@@ -39,7 +39,7 @@ A diagnostic that's reported when readonly struct doesn't provide all required e
 
 A corresponding code fix generates the missing methods.
 
-![Struct equatability code fix screenshot](https://i.imgur.com/B8bgACg.png)
+![Struct equatability code fix screenshot](https://i.imgur.com/RG3FItb.png)
 
 ### `HBUnusedParameter`
 
