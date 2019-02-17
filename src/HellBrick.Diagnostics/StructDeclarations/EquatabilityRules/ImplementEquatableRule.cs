@@ -108,8 +108,8 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 				return LiteralExpression( SyntaxKind.TrueLiteralExpression );
 
 			//	If there's only 1 field, its comparison is actually the full method body.
-			if ( fieldEqualityCalls.Length == 1 )
-				return fieldEqualityCalls[ 0 ];
+			if ( fieldsAndProperties.Length == 1 )
+				return BuildFieldEqualityCall( fieldsAndProperties[ 0 ] );
 
 			//	Otherwise we have to && all the equality calls.
 			ExpressionSyntax fullBody = fieldEqualityCalls[ 0 ];
