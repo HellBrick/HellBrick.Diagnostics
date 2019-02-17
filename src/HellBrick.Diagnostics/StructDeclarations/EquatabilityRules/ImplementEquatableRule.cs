@@ -104,7 +104,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 				.ToArray();
 
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
-			if ( fieldEqualityCalls.Length == 0 )
+			if ( fieldsAndProperties.Length == 0 )
 				return LiteralExpression( SyntaxKind.TrueLiteralExpression );
 
 			//	If there's only 1 field, its comparison is actually the full method body.
