@@ -15,7 +15,7 @@ A diagnostic that's reported when an instance of type that has a `ConfigureAwait
 
 There are two corresponding code fixes for inserting `ConfigureAwait( false )` or `ConfigureAwait( true )` call into the awaited expression.
 
-![ConfigureAwait() code fix screenshot](https://i.imgur.com/iRQ9q0F.png)
+![ConfigureAwait() code fix screenshot](https://i.imgur.com/1axBhX7.png)
 
 ### `HBEnforceReadOnly`
 
