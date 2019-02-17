@@ -23,6 +23,7 @@
     <PackageReleaseNotes>
       v3.2.0:
       - Changed GetHashCode() and Equals() generators to delegate their logic to tuples of struct fields
+      - Changed ConfigureAwait() analyzer to underline only await keyword (instead of whole await expression) when reporting a warning
 
       v3.1.1:
       - Fixed Equals() generator to support generic structs

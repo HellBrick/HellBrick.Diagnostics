@@ -41,7 +41,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 
 			if ( CanResolveConfigureAwaitCall() )
 			{
-				Diagnostic diagnostic = Diagnostic.Create( _rule, awaitExpression.Expression.GetLocation() );
+				Diagnostic diagnostic = Diagnostic.Create( _rule, awaitExpression.AwaitKeyword.GetLocation() );
 				context.ReportDiagnostic( diagnostic );
 			}
 
