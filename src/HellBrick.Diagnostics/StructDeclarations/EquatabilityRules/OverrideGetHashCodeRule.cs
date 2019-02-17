@@ -57,19 +57,9 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			MethodDeclarationSyntax method = MethodDeclaration( _intTypeName, "GetHashCode" );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
 
-			if ( fieldsAndProperties.Length <= 1 )
-			{
-				//	If there's 0 or 1 fields, GetHashCode() can be implemented as an expression-bodied method.
-				ExpressionSyntax body = BuildExpressionBody( fieldsAndProperties );
-				method = method.WithExpressionBody( ArrowExpressionClause( body ) );
-				method = method.WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) );
-			}
-			else
-			{
-				BlockSyntax body = BuildBlockBody( fieldsAndProperties, options );
-				method = method.WithBody( body );
-			}
-
+			ExpressionSyntax body = BuildExpressionBody( fieldsAndProperties );
+			method = method.WithExpressionBody( ArrowExpressionClause( body ) );
+			method = method.WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) );
 			method = method.WithAdditionalAnnotations( Simplifier.Annotation );
 			return method;
 		}
@@ -82,40 +72,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			if ( fieldsAndProperties.Length == 1 )
 				return BuildFieldHashCodeCall( fieldsAndProperties[ 0 ] );
 
-			throw new InvalidOperationException( $"{nameof( BuildExpressionBody )} should never be called if there's more than 1 field." );
-		}
-
-		private BlockSyntax BuildBlockBody( ISymbol[] fieldsAndProperties, DocumentOptionSet options ) =>
-			Block( CheckedStatement( SyntaxKind.UncheckedStatement, Block( EnumerateHashCombinerStatements( fieldsAndProperties, options ) ) ) );
-
-		private IEnumerable<StatementSyntax> EnumerateHashCombinerStatements( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
-		{
-			yield return _primeDeclaration;
-			yield return
-				options.GetOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes ).Value
-				? _hashVarDeclaration
-				: _hashDeclaration;
-
-			foreach ( ISymbol field in fieldsAndProperties )
-			{
-				AssignmentExpressionSyntax assignment =
-					AssignmentExpression
-					(
-						SyntaxKind.SimpleAssignmentExpression,
-						IdentifierName( _hashName ),
-						BinaryExpression
-						(
-							SyntaxKind.AddExpression,
-							BinaryExpression( SyntaxKind.MultiplyExpression, IdentifierName( _hashName ), IdentifierName( _primeName ) ),
-							BuildFieldHashCodeCall( field )
-						)
-					);
-
-				ExpressionStatementSyntax statement = ExpressionStatement( assignment, Token( SyntaxKind.SemicolonToken ) );
-				yield return statement;
-			}
-
-			yield return ReturnStatement( IdentifierName( _hashName ) );
+			return BuildTupleHashCodeCall( fieldsAndProperties );
 		}
 
 		private ExpressionSyntax BuildFieldHashCodeCall( ISymbol fieldSymbol )
@@ -149,5 +106,19 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 					)
 				);
 		}
+
+		private ExpressionSyntax BuildTupleHashCodeCall( ISymbol[] fieldsAndProperties )
+			=> InvocationExpression
+			(
+				MemberAccessExpression
+				(
+					SyntaxKind.SimpleMemberAccessExpression,
+					TupleExpression
+					(
+						SeparatedList( fieldsAndProperties.Select( f => Argument( IdentifierName( f.Name ) ) ) )
+					),
+					_getHashCodeName
+				)
+			);
 	}
 }

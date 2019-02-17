@@ -158,72 +158,8 @@ public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
 	private readonly int _number;
 	public string Text { get; }
 
-	public override int GetHashCode()
-	{
-		unchecked
-		{
-			const int prime = -1521134295;
-			int hash = 12345701;
-			hash = hash * prime + _number.GetHashCode();
-			hash = hash * prime + ( Text?.GetHashCode() ?? 0 );
-			return hash;
-		}
-	}
-
-	public bool Equals( ManyFieldStruct other ) => EqualityComparer<int>.Default.Equals( _number, other._number ) && Text == other.Text;
-	public override bool Equals( object obj ) => obj is ManyFieldStruct other && Equals( other );
-
-	public static bool operator ==( ManyFieldStruct x, ManyFieldStruct y ) => x.Equals( y );
-	public static bool operator !=( ManyFieldStruct x, ManyFieldStruct y ) => !x.Equals( y );
-}
-"
-			);
-
-		[Fact]
-		public void ManyFieldStructHasEquatabilityMembersGeneratedIfVarIsPreferred()
-			=> _verifier
-			.WithOptions
-			(
-				o
-				=> o
-				.WithProperFormatting()
-				.WithChangedOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes, new CodeStyleOption<bool>( true, NotificationOption.Warning ) )
-			)
-			.Source
-			(
-@"
-using System;
-using System.Collections.Generic;
-public readonly struct ManyFieldStruct
-{
-	private readonly int _number;
-	public string Text { get; }
-}
-"
-			)
-			.ShouldHaveFix
-			(
-@"
-using System;
-using System.Collections.Generic;
-public readonly struct ManyFieldStruct : IEquatable<ManyFieldStruct>
-{
-	private readonly int _number;
-	public string Text { get; }
-
-	public override int GetHashCode()
-	{
-		unchecked
-		{
-			const int prime = -1521134295;
-			var hash = 12345701;
-			hash = hash * prime + _number.GetHashCode();
-			hash = hash * prime + ( Text?.GetHashCode() ?? 0 );
-			return hash;
-		}
-	}
-
-	public bool Equals( ManyFieldStruct other ) => EqualityComparer<int>.Default.Equals( _number, other._number ) && Text == other.Text;
+	public override int GetHashCode() => (_number, Text).GetHashCode();
+	public bool Equals( ManyFieldStruct other ) => (_number, Text) == (other._number, other.Text);
 	public override bool Equals( object obj ) => obj is ManyFieldStruct other && Equals( other );
 
 	public static bool operator ==( ManyFieldStruct x, ManyFieldStruct y ) => x.Equals( y );

@@ -87,7 +87,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
 			method = method.AddParameterListParameters( parameter );
-			method = method.WithExpressionBody( ArrowExpressionClause( BuildEqualsBodyExpression( structDeclaration, semanticModel, fieldsAndProperties ) ) );
+			method = method.WithExpressionBody( ArrowExpressionClause( BuildEqualsBodyExpression( fieldsAndProperties ) ) );
 			method = method.WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) );
 			method = method.WithAdditionalAnnotations( Simplifier.Annotation );
 
@@ -97,26 +97,38 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// <summary>
 		/// Builds the expression that's going to form the method body. The result is going to be attached to the method via an arrow expression.
 		/// </summary>
-		private ExpressionSyntax BuildEqualsBodyExpression( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private ExpressionSyntax BuildEqualsBodyExpression( ISymbol[] fieldsAndProperties )
 		{
-			ExpressionSyntax[] fieldEqualityCalls = fieldsAndProperties
-				.Select( fieldSymbol => BuildFieldEqualityCall( fieldSymbol ) )
-				.ToArray();
-
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
-			if ( fieldEqualityCalls.Length == 0 )
+			if ( fieldsAndProperties.Length == 0 )
 				return LiteralExpression( SyntaxKind.TrueLiteralExpression );
 
 			//	If there's only 1 field, its comparison is actually the full method body.
-			if ( fieldEqualityCalls.Length == 1 )
-				return fieldEqualityCalls[ 0 ];
+			if ( fieldsAndProperties.Length == 1 )
+				return BuildFieldEqualityCall( fieldsAndProperties[ 0 ] );
 
-			//	Otherwise we have to && all the equality calls.
-			ExpressionSyntax fullBody = fieldEqualityCalls[ 0 ];
-			foreach ( ExpressionSyntax fieldEqualityCall in fieldEqualityCalls.Skip( 1 ) )
-				fullBody = BinaryExpression( SyntaxKind.LogicalAndExpression, fullBody, fieldEqualityCall );
+			//	Otherwise we have to invoke tuple comparison.
+			return BinaryExpression( SyntaxKind.EqualsExpression, FieldTuple( ThisExpression() ), FieldTuple( IdentifierName( _otherArg ) ) );
 
-			return fullBody;
+			TupleExpressionSyntax FieldTuple( ExpressionSyntax instance )
+				=> TupleExpression
+				(
+					SeparatedList
+					(
+						fieldsAndProperties.Select
+						(
+							f => Argument
+							(
+								MemberAccessExpression
+								(
+									SyntaxKind.SimpleMemberAccessExpression,
+									instance,
+									IdentifierName( f.Name )
+								)
+							)
+						)
+					)
+				);
 		}
 
 		private static ExpressionSyntax BuildFieldEqualityCall( ISymbol fieldSymbol )
