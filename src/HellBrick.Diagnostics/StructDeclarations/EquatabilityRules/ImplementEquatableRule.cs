@@ -87,7 +87,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ) ) );
 			method = method.AddParameterListParameters( parameter );
-			method = method.WithExpressionBody( ArrowExpressionClause( BuildEqualsBodyExpression( structDeclaration, semanticModel, fieldsAndProperties ) ) );
+			method = method.WithExpressionBody( ArrowExpressionClause( BuildEqualsBodyExpression( fieldsAndProperties ) ) );
 			method = method.WithSemicolonToken( Token( SyntaxKind.SemicolonToken ) );
 			method = method.WithAdditionalAnnotations( Simplifier.Annotation );
 
@@ -97,7 +97,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// <summary>
 		/// Builds the expression that's going to form the method body. The result is going to be attached to the method via an arrow expression.
 		/// </summary>
-		private ExpressionSyntax BuildEqualsBodyExpression( StructDeclarationSyntax structDeclaration, SemanticModel semanticModel, ISymbol[] fieldsAndProperties )
+		private ExpressionSyntax BuildEqualsBodyExpression( ISymbol[] fieldsAndProperties )
 		{
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
 			if ( fieldsAndProperties.Length == 0 )
