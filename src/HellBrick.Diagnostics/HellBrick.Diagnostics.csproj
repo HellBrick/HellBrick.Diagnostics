@@ -19,6 +19,7 @@
     <PackageProjectUrl>https://github.com/HellBrick/HellBrick.Diagnostics</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HellBrick/HellBrick.Diagnostics</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v3.2.0:
