@@ -9,19 +9,6 @@ namespace HellBrick.Diagnostics.DeadCode
 	internal static class ReferenceFinder
 	{
 		[NoCapture]
-		public static void FindReferencedSymbols( SemanticModel semanticModel, Action<ISymbol> onReferenceFound )
-			=> FindReferencedSymbols( semanticModel, onReferenceFound, ( callback, symbol ) => callback( symbol ) );
-
-		[NoCapture]
-		public static void FindReferencedSymbols<TContext>( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol> onReferenceFound )
-			=> FindReferences
-			(
-				semanticModel,
-				(context, onReferenceFound),
-				( ctx, symbol, _ ) => ctx.onReferenceFound( ctx.context, symbol )
-			);
-
-		[NoCapture]
 		public static void FindReferences( SemanticModel semanticModel, Action<ISymbol, SyntaxNode> onReferenceFound )
 			=> FindReferences( semanticModel, onReferenceFound, ( callback, symbol, referenceNode ) => callback( symbol, referenceNode ) );
 
