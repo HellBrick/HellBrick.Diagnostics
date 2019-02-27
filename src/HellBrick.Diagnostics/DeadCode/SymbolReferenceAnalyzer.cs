@@ -45,7 +45,12 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private void StartAnalysis( CompilationStartAnalysisContext context )
 		{
-			SymbolReferenceAnalysisContext analysisContext = new SymbolReferenceAnalysisContext();
+			SymbolReferenceAnalysisContext analysisContext = new SymbolReferenceAnalysisContext
+			(
+				_unusedSymbolRule,
+				symbolAnalysis => !symbolAnalysis.IsReferenced
+			);
+
 			context.RegisterSyntaxNodeAction( nodeContext => analysisContext.DisableInternalTrackingIfInteralsVisibleToIsDeclared( nodeContext ), SyntaxKind.Attribute );
 			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
 			context.RegisterSemanticModelAction( semanticContext => analysisContext.TrackReferencedSymbols( semanticContext ) );
@@ -54,11 +59,19 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private class SymbolReferenceAnalysisContext
 		{
+			private readonly DiagnosticDescriptor _rule;
+			private readonly Func<SymbolAnalysis, bool> _isViolated;
 			private readonly Dictionary<SyntaxTree, HashSet<ISymbol>> _symbolsToReportOnSemanticModelBuilt = new Dictionary<SyntaxTree, HashSet<ISymbol>>();
 			private readonly HashSet<ISymbol> _symbolsToReportOnCompilationEnd = new HashSet<ISymbol>();
 			private readonly HashSet<ISymbol> _referencedSymbols = new HashSet<ISymbol>();
 
 			private bool _hasInternalsVisibleTo = false;
+
+			public SymbolReferenceAnalysisContext( DiagnosticDescriptor rule, Func<SymbolAnalysis, bool> isViolated )
+			{
+				_rule = rule;
+				_isViolated = isViolated;
+			}
 
 			public void TrackSymbol( ISymbol symbol )
 			{
@@ -120,11 +133,12 @@ namespace HellBrick.Diagnostics.DeadCode
 			private void ReportSymbols( IEnumerable<ISymbol> symbols, Action<Diagnostic> reportDiagnosticAction )
 				=> symbols
 				.Select( symbol => new SymbolAnalysis( symbol, isReferenced: _referencedSymbols.Contains( symbol ) ) )
-				.Where( symbolAnalysis => !symbolAnalysis.IsReferenced )
+				.Select( symbolAnalysis => (symbolAnalysis, rule: _rule, isViolated: _isViolated( symbolAnalysis )) )
+				.Where( symbolRuleResult => symbolRuleResult.isViolated )
 				.ForEach
 				(
 					(self: this, reportDiagnosticAction),
-					( ctx, symbolAnalysis ) => ctx.self.ReportDiagnostic( symbolAnalysis.Symbol, _unusedSymbolRule, ctx.reportDiagnosticAction )
+					( ctx, symbolRuleResult ) => ctx.self.ReportDiagnostic( symbolRuleResult.symbolAnalysis.Symbol, symbolRuleResult.rule, ctx.reportDiagnosticAction )
 				);
 
 			private void ReportDiagnostic( ISymbol unusedSymbol, DiagnosticDescriptor rule, Action<Diagnostic> reportDiagnosticAction )
