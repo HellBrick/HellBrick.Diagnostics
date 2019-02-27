@@ -67,8 +67,7 @@ namespace HellBrick.Diagnostics.DeadCode
 
 				if ( CanReportOnSemanticModelBuilt( symbol ) )
 				{
-					SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
-					_symbolsToReportOnSemanticModelBuilt.GetOrAdd( declaringTree, _ => new HashSet<ISymbol>() ).Add( symbol );
+					_symbolsToReportOnSemanticModelBuilt.GetOrAdd( symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree, _ => new HashSet<ISymbol>() ).Add( symbol );
 				}
 				else
 					_symbolsToReportOnCompilationEnd.Add( symbol );
