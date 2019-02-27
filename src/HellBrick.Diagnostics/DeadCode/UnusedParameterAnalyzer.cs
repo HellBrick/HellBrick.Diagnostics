@@ -29,6 +29,7 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		public override void Initialize( AnalysisContext context )
 		{
+			context.EnableConcurrentExecution();
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
 			context.RegisterCodeBlockAction( codeBlockContext => AnalyzeCodeBlock( codeBlockContext ) );
 		}

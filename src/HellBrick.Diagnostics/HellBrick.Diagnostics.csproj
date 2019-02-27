@@ -23,6 +23,7 @@
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v3.3.0:
+      - Enabled concurrent analysis for most of analyzers
 
       v3.2.0:
       - Changed GetHashCode() and Equals() generators to delegate their logic to tuples of struct fields
