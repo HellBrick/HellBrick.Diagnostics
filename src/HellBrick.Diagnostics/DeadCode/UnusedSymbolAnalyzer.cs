@@ -44,14 +44,14 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private void StartAnalysis( CompilationStartAnalysisContext context )
 		{
-			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
+			SymbolReferenceAnalysisContext analysisContext = new SymbolReferenceAnalysisContext();
 			context.RegisterSyntaxNodeAction( nodeContext => analysisContext.DisableInternalTrackingIfInteralsVisibleToIsDeclared( nodeContext ), SyntaxKind.Attribute );
 			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
 			context.RegisterSemanticModelAction( semanticContext => analysisContext.TrackReferencedSymbols( semanticContext ) );
 			context.RegisterCompilationEndAction( compilationContext => analysisContext.ReportDiagnosticsForUnusedSymbols( compilationContext ) );
 		}
 
-		private class UnusedSymbolAnalysisContext
+		private class SymbolReferenceAnalysisContext
 		{
 			private readonly Dictionary<SyntaxTree, HashSet<ISymbol>> _symbolsToReportOnSemanticModelBuilt = new Dictionary<SyntaxTree, HashSet<ISymbol>>();
 			private readonly HashSet<ISymbol> _symbolsToReportOnCompilationEnd = new HashSet<ISymbol>();
