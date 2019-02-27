@@ -85,8 +85,6 @@ namespace HellBrick.Diagnostics.Test
 	{
 		private readonly StructNullComparisonAnalyzerVerifier _verifier;
 
-		private readonly string _equalityOperator;
-
 		protected StructToNullComparingTest( string equalityOperator )
 			=> _verifier = new StructNullComparisonAnalyzerVerifier( equalityOperator );
 
