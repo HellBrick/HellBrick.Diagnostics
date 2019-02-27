@@ -35,7 +35,7 @@
 
       v3.1.1:
       - Fixed Equals() generator to support generic structs
-      
+
       v3.1.0:
       - Removed the unused references analyzer (it has never worked properly anyway)
       - Made generated GetHashCode() and Equals() less verbose
