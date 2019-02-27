@@ -9,11 +9,11 @@ namespace HellBrick.Diagnostics.Utils
 			using ( IEnumerator<T> enumerator = sequence.GetEnumerator() )
 			{
 				if ( !enumerator.MoveNext() )
-					return default( T );
+					return default;
 
 				T onlyCandidate = enumerator.Current;
 				if ( enumerator.MoveNext() )
-					return default( T );
+					return default;
 
 				return onlyCandidate;
 			}

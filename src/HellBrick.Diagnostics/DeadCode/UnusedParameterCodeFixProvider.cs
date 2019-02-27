@@ -199,7 +199,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				public T SelectOrDefault<T>( Func<InvocationExpressionSyntax, T> ifMethod, Func<ConstructorInitializerSyntax, T> ifConstructor )
 					=> Node is InvocationExpressionSyntax method ? ifMethod( method )
 					: Node is ConstructorInitializerSyntax constructor ? ifConstructor( constructor )
-					: default( T );
+					: default;
 
 				public override int GetHashCode() => Node?.GetHashCode() ?? 0;
 				public bool Equals( Invocation other ) => EqualityComparer<SyntaxNode>.Default.Equals( Node, other.Node );
