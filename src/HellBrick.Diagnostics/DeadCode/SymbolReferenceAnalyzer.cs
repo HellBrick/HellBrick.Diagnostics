@@ -105,11 +105,11 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				HashSet<ISymbol> currentTreeSymbols = _symbolsToReportOnSemanticModelBuilt.GetValueOrDefault( semanticContext.SemanticModel.SyntaxTree );
 
-				ReferenceFinder.FindReferencedSymbols
+				ReferenceFinder.FindReferences
 				(
 					semanticContext.SemanticModel,
 					(_referencedSymbols, currentTreeSymbols),
-					( ctx, referencedSymbol ) =>
+					( ctx, referencedSymbol, _ ) =>
 					{
 						ctx._referencedSymbols.Add( referencedSymbol );
 						ctx.currentTreeSymbols?.Remove( referencedSymbol );
