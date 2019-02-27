@@ -1,6 +1,6 @@
-﻿using HellBrick.Diagnostics.EnforceReadOnly;
+﻿using HellBrick.Diagnostics.Assertions;
+using HellBrick.Diagnostics.EnforceReadOnly;
 using Xunit;
-using HellBrick.Diagnostics.Assertions;
 
 namespace HellBrick.Diagnostics.Test
 {

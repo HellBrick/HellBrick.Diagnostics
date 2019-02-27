@@ -1,5 +1,5 @@
-﻿using HellBrick.Diagnostics.StructDeclarations;
-using HellBrick.Diagnostics.Assertions;
+﻿using HellBrick.Diagnostics.Assertions;
+using HellBrick.Diagnostics.StructDeclarations;
 using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis.CodeStyle;
 using Xunit;
