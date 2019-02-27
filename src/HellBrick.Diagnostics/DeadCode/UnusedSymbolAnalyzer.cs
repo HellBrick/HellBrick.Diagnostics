@@ -79,24 +79,21 @@ namespace HellBrick.Diagnostics.DeadCode
 					_symbolsToReportOnCompilationEnd.Add( symbol );
 			}
 
-			private static bool IsCandidate( ISymbol symbol ) =>
-				( symbol.DeclaredAccessibility == Accessibility.Private || symbol.DeclaredAccessibility == Accessibility.Internal ) &&
-				!symbol.IsOverride &&
-				!IsIgnoredMethod( symbol ) &&
-				!symbol.ImplementsInterface();
+			private static bool IsCandidate( ISymbol symbol )
+				=> ( symbol.DeclaredAccessibility == Accessibility.Private || symbol.DeclaredAccessibility == Accessibility.Internal )
+				&& !symbol.IsOverride
+				&& !IsIgnoredMethod( symbol )
+				&& !symbol.ImplementsInterface();
 
 			private static bool IsIgnoredMethod( ISymbol symbol )
-			{
-				IMethodSymbol methodSymbol = symbol as IMethodSymbol;
-				return
-					methodSymbol != null &&
-					(
-						methodSymbol.MethodKind == MethodKind.PropertyGet ||
-						methodSymbol.MethodKind == MethodKind.PropertySet ||
-						methodSymbol.MetadataName == ".cctor" ||
-						methodSymbol.IsEntryPoint()
-					);
-			}
+				=> symbol is IMethodSymbol methodSymbol
+				&&
+				(
+					methodSymbol.MethodKind == MethodKind.PropertyGet
+					|| methodSymbol.MethodKind == MethodKind.PropertySet
+					|| methodSymbol.MetadataName == ".cctor"
+					|| methodSymbol.IsEntryPoint()
+				);
 
 			private static bool CanReportOnSemanticModelBuilt( ISymbol symbol )
 				=> symbol.DeclaredAccessibility == Accessibility.Private
