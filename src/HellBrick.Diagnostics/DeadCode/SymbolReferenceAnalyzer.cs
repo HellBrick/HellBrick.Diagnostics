@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -102,15 +102,11 @@ namespace HellBrick.Diagnostics.DeadCode
 				(
 					semanticContext.SemanticModel,
 					(_referencedSymbols, currentTreeSymbols),
-					( ctx, referencedSymbol, _ ) =>
-					{
-						ctx._referencedSymbols.Add( referencedSymbol );
-						ctx.currentTreeSymbols?.Remove( referencedSymbol );
-					}
+					( ctx, referencedSymbol, _ ) => ctx._referencedSymbols.Add( referencedSymbol )
 				);
 
 				if ( currentTreeSymbols != default )
-					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
+					ReportDiagnostics( currentTreeSymbols.Where( s => !_referencedSymbols.Contains( s ) ), d => semanticContext.ReportDiagnostic( d ) );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
@@ -118,8 +114,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( _hasInternalsVisibleTo )
 					_symbolsToReportOnCompilationEnd.RemoveWhere( s => s.DeclaredAccessibility == Accessibility.Internal );
 
-				_symbolsToReportOnCompilationEnd.ExceptWith( _referencedSymbols );
-				ReportDiagnostics( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
+				ReportDiagnostics( _symbolsToReportOnCompilationEnd.Where( s => !_referencedSymbols.Contains( s ) ), d => context.ReportDiagnostic( d ) );
 			}
 
 			private void ReportDiagnostics( IEnumerable<ISymbol> unusedSymbols, Action<Diagnostic> reportDiagnosticAction )
