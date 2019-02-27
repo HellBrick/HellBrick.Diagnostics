@@ -124,16 +124,16 @@ namespace HellBrick.Diagnostics.DeadCode
 				.ForEach
 				(
 					(self: this, reportDiagnosticAction),
-					( ctx, symbolAnalysis ) => ctx.self.ReportDiagnostic( symbolAnalysis.Symbol, ctx.reportDiagnosticAction )
+					( ctx, symbolAnalysis ) => ctx.self.ReportDiagnostic( symbolAnalysis.Symbol, _unusedSymbolRule, ctx.reportDiagnosticAction )
 				);
 
-			private void ReportDiagnostic( ISymbol unusedSymbol, Action<Diagnostic> reportDiagnosticAction )
+			private void ReportDiagnostic( ISymbol unusedSymbol, DiagnosticDescriptor rule, Action<Diagnostic> reportDiagnosticAction )
 			{
 				ISymbol definition = unusedSymbol.OriginalDefinition;
 				foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
 				{
 					Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
-					Diagnostic diagnostic = Diagnostic.Create( _unusedSymbolRule, diagnosticLocation, unusedSymbol.ToString() );
+					Diagnostic diagnostic = Diagnostic.Create( rule, diagnosticLocation, unusedSymbol.ToString() );
 					reportDiagnosticAction( diagnostic );
 				}
 			}
