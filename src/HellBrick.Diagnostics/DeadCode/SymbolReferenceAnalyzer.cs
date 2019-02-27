@@ -118,15 +118,13 @@ namespace HellBrick.Diagnostics.DeadCode
 			}
 
 			private void ReportSymbols( IEnumerable<ISymbol> symbols, Action<Diagnostic> reportDiagnosticAction )
-				=> ReportDiagnostics( symbols.Where( s => !_referencedSymbols.Contains( s ) ), reportDiagnosticAction );
-
-			private void ReportDiagnostics( IEnumerable<ISymbol> unusedSymbols, Action<Diagnostic> reportDiagnosticAction )
-			{
-				foreach ( ISymbol unusedSymbol in unusedSymbols )
-				{
-					ReportDiagnostic( unusedSymbol, reportDiagnosticAction );
-				}
-			}
+				=> symbols
+				.Where( s => !_referencedSymbols.Contains( s ) )
+				.ForEach
+				(
+					(self: this, reportDiagnosticAction),
+					( ctx, symbol ) => ctx.self.ReportDiagnostic( symbol, ctx.reportDiagnosticAction )
+				);
 
 			private void ReportDiagnostic( ISymbol unusedSymbol, Action<Diagnostic> reportDiagnosticAction )
 			{
