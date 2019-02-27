@@ -6,9 +6,9 @@ namespace HellBrick.Diagnostics.Test
 {
 	public class UnusedSymbolTest
 	{
-		private readonly AnalyzerVerifier<UnusedSymbolAnalyzer, UnusedSymbolCodeFixProvider> _verifier
+		private readonly AnalyzerVerifier<SymbolReferenceAnalyzer, UnusedSymbolCodeFixProvider> _verifier
 			= AnalyzerVerifier
-			.UseAnalyzer<UnusedSymbolAnalyzer>()
+			.UseAnalyzer<SymbolReferenceAnalyzer>()
 			.UseCodeFix<UnusedSymbolCodeFixProvider>();
 
 		[Fact]

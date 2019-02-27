@@ -17,7 +17,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		private const string _codeActionTitle = "Remove unused code";
 		private const SyntaxRemoveOptions _nodeRemovalOptions = SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.AddElasticMarker;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( UnusedSymbolAnalyzer.UnusedSymbolDiagnosticID );
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( SymbolReferenceAnalyzer.UnusedSymbolDiagnosticID );
 
 		private static readonly BatchFixer _batchFixer = new BatchFixer();
 		public sealed override FixAllProvider GetFixAllProvider() => _batchFixer;

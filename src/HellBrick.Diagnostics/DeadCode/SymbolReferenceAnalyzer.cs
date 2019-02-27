@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace HellBrick.Diagnostics.DeadCode
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
-	public class UnusedSymbolAnalyzer : DiagnosticAnalyzer
+	public class SymbolReferenceAnalyzer : DiagnosticAnalyzer
 	{
 		public const string UnusedSymbolDiagnosticID = IDPrefix.Value + "UnusedSymbol";
 		private static readonly ImmutableArray<SymbolKind> _symbolKindsToTrack =
