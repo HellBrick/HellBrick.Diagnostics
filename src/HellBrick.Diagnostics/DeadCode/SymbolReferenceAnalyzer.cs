@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -102,15 +103,16 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void TrackReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
-				IReadOnlyCollection<ISymbol> currentReferencedSymbols = ReferenceFinder.FindReferencedSymbols( semanticContext.SemanticModel );
-				foreach ( ISymbol referencedSymbol in currentReferencedSymbols )
-					_referencedSymbols.Add( referencedSymbol );
+				HashSet<ISymbol> currentTreeSymbols = _symbolsToReportOnSemanticModelBuilt.GetValueOrDefault( semanticContext.SemanticModel.SyntaxTree );
 
-				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out HashSet<ISymbol> currentTreeSymbols ) )
+				foreach ( ISymbol referencedSymbol in ReferenceFinder.FindReferencedSymbols( semanticContext.SemanticModel ) )
 				{
-					currentTreeSymbols.ExceptWith( currentReferencedSymbols );
-					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
+					_referencedSymbols.Add( referencedSymbol );
+					currentTreeSymbols?.Remove( referencedSymbol );
 				}
+
+				if ( currentTreeSymbols != default )
+					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
