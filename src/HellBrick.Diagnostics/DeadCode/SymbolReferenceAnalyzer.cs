@@ -65,12 +65,12 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( !IsCandidate( symbol ) )
 					return;
 
-				if ( CanReportOnSemanticModelBuilt( symbol ) )
-				{
-					_symbolsToReportOnSemanticModelBuilt.GetOrAdd( symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree, _ => new HashSet<ISymbol>() ).Add( symbol );
-				}
-				else
-					_symbolsToReportOnCompilationEnd.Add( symbol );
+				HashSet<ISymbol> reportSet
+					= CanReportOnSemanticModelBuilt( symbol )
+						? _symbolsToReportOnSemanticModelBuilt.GetOrAdd( symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree, _ => new HashSet<ISymbol>() )
+						: _symbolsToReportOnCompilationEnd;
+
+				reportSet.Add( symbol );
 			}
 
 			private static bool IsCandidate( ISymbol symbol )
