@@ -11,7 +11,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 {
 	internal class ImplementEquatableRule : IEquatabilityRule
 	{
-		private SyntaxTriviaList _endlineTriviaList = TriviaList( EndOfLine( Environment.NewLine ) );
+		private readonly SyntaxTriviaList _endlineTriviaList = TriviaList( EndOfLine( Environment.NewLine ) );
 		private readonly TypeSyntax _boolTypeName = ParseTypeName( "bool" );
 		private const string _otherArg = "other";
 

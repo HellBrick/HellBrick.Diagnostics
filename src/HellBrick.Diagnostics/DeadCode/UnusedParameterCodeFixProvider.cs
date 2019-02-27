@@ -190,7 +190,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				=> argumentList.Arguments.FirstOrDefault( arg => arg.NameColon?.Name.Identifier.ValueText == _parameterName )
 				?? ( argumentList.Arguments.Count > _parameterIndex ? argumentList.Arguments[ _parameterIndex ] : null );
 
-			private struct Invocation
+			private readonly struct Invocation : IEquatable<Invocation>
 			{
 				public Invocation( SyntaxNode node ) => Node = node;
 
@@ -199,7 +199,14 @@ namespace HellBrick.Diagnostics.DeadCode
 				public T SelectOrDefault<T>( Func<InvocationExpressionSyntax, T> ifMethod, Func<ConstructorInitializerSyntax, T> ifConstructor )
 					=> Node is InvocationExpressionSyntax method ? ifMethod( method )
 					: Node is ConstructorInitializerSyntax constructor ? ifConstructor( constructor )
-					: default( T );
+					: default;
+
+				public override int GetHashCode() => Node?.GetHashCode() ?? 0;
+				public bool Equals( Invocation other ) => EqualityComparer<SyntaxNode>.Default.Equals( Node, other.Node );
+				public override bool Equals( object obj ) => obj is Invocation other && Equals( other );
+
+				public static bool operator ==( Invocation x, Invocation y ) => x.Equals( y );
+				public static bool operator !=( Invocation x, Invocation y ) => !x.Equals( y );
 			}
 		}
 	}

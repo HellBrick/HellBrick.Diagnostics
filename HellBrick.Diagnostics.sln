@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HellBrick.Diagnostics.Asser
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E8F1DDD3-0FBC-43E1-8DF6-492472D47C91}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.build.props = Directory.build.props
 		ReadMe.md = ReadMe.md
 	EndProjectSection
 EndProject

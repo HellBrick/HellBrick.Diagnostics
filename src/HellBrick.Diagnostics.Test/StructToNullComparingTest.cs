@@ -14,6 +14,7 @@ namespace HellBrick.Diagnostics.Test
 		public static object Operator { get; } = new object();
 	}
 
+#pragma warning disable HBStructEquatabilityMethodsMissing // Structs should provide equatability methods 
 	internal readonly struct StructNullComparisonAnalyzerVerifier
 	{
 		private readonly string _equalityOperator;
@@ -80,12 +81,11 @@ namespace HellBrick.Diagnostics.Test
 		public void ShouldHaveNoDiagnostics() => _verifier.ShouldHaveNoDiagnostics();
 		public void ShouldHaveNullReplacedWithDefault() => _verifier.ShouldHaveFix( _sourcesWithNullReplaced );
 	}
+#pragma warning restore HBStructEquatabilityMethodsMissing // Structs should provide equatability methods 
 
 	public abstract class StructToNullComparingTest
 	{
 		private readonly StructNullComparisonAnalyzerVerifier _verifier;
-
-		private readonly string _equalityOperator;
 
 		protected StructToNullComparingTest( string equalityOperator )
 			=> _verifier = new StructNullComparisonAnalyzerVerifier( equalityOperator );

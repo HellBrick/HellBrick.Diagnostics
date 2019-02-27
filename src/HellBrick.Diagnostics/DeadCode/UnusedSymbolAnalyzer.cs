@@ -153,7 +153,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( definitionNode.HasStructuredTrivia && definitionNode.HasLeadingTrivia )
 				{
 					SyntaxTrivia leadingTrivia = definitionNode.GetLeadingTrivia().FirstOrDefault( t => t.IsKind( SyntaxKind.SingleLineDocumentationCommentTrivia ) );
-					if ( leadingTrivia != default( SyntaxTrivia ) )
+					if ( leadingTrivia != default )
 						return Location.Create( declarationReference.SyntaxTree, TextSpan.FromBounds( leadingTrivia.FullSpan.Start, definitionNode.Span.End ) );
 				}
 

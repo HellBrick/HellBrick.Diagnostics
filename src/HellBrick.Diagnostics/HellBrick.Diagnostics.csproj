@@ -13,7 +13,22 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>HellBrick.Diagnostics</PackageId>
+    <FakePackageId>HellBrick.Diagnostics.FakePackageIdToBreakNugetRestoreCycle</FakePackageId>
+    <RealPackageId>HellBrick.Diagnostics</RealPackageId>
+  </PropertyGroup>
+
+  <!--
+    Nuget doesn't allow installing a package into the project that creates this package.
+    In order to work around this limitation, we set PackageId to a fake value, but replace it with the real one just before the package is created.
+  -->
+  <Target Name="_UpdatePackageId" BeforeTargets="$(PackDependsOn)" >
+    <PropertyGroup>
+      <PackageId>$(RealPackageId)</PackageId>
+    </PropertyGroup>
+  </Target>
+
+  <PropertyGroup>
+    <PackageId>$(FakePackageId)</PackageId>
     <PackageVersion>$(Version)</PackageVersion>
     <Authors>HellBrick</Authors>
     <PackageProjectUrl>https://github.com/HellBrick/HellBrick.Diagnostics</PackageProjectUrl>
@@ -31,7 +46,7 @@
 
       v3.1.1:
       - Fixed Equals() generator to support generic structs
-      
+
       v3.1.0:
       - Removed the unused references analyzer (it has never worked properly anyway)
       - Made generated GetHashCode() and Equals() less verbose
