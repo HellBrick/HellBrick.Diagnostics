@@ -106,7 +106,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				);
 
 				if ( currentTreeSymbols != default )
-					ReportDiagnostics( currentTreeSymbols.Where( s => !_referencedSymbols.Contains( s ) ), d => semanticContext.ReportDiagnostic( d ) );
+					ReportSymbols( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
@@ -114,8 +114,11 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( _hasInternalsVisibleTo )
 					_symbolsToReportOnCompilationEnd.RemoveWhere( s => s.DeclaredAccessibility == Accessibility.Internal );
 
-				ReportDiagnostics( _symbolsToReportOnCompilationEnd.Where( s => !_referencedSymbols.Contains( s ) ), d => context.ReportDiagnostic( d ) );
+				ReportSymbols( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
 			}
+
+			private void ReportSymbols( IEnumerable<ISymbol> symbols, Action<Diagnostic> reportDiagnosticAction )
+				=> ReportDiagnostics( symbols.Where( s => !_referencedSymbols.Contains( s ) ), reportDiagnosticAction );
 
 			private void ReportDiagnostics( IEnumerable<ISymbol> unusedSymbols, Action<Diagnostic> reportDiagnosticAction )
 			{
