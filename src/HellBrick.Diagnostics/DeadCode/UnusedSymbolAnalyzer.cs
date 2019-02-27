@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				SymbolKind.Property
 			);
 
-		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor
+		private static readonly DiagnosticDescriptor _unusedSymbolRule = new DiagnosticDescriptor
 		(
 			UnusedSymbolDiagnosticID,
 			"Unused member",
@@ -34,7 +34,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			customTags: WellKnownDiagnosticTags.Unnecessary
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _rule );
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _unusedSymbolRule );
 
 		public override void Initialize( AnalysisContext context )
 		{
@@ -131,7 +131,7 @@ namespace HellBrick.Diagnostics.DeadCode
 					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
 					{
 						Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
-						Diagnostic diagnostic = Diagnostic.Create( _rule, diagnosticLocation, unusedSymbol.ToString() );
+						Diagnostic diagnostic = Diagnostic.Create( _unusedSymbolRule, diagnosticLocation, unusedSymbol.ToString() );
 						reportDiagnosticAction( diagnostic );
 					}
 				}
