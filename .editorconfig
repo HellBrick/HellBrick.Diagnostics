@@ -10,6 +10,7 @@ end_of_line                                                              = crlf
 indent_style                                                             = tab
 
 csharp_style_conditional_delegate_call                                   = true : warning
+csharp_style_deconstructed_variable_declaration                          = true : suggestion
 csharp_style_expression_bodied_accessors                                 = true : warning
 csharp_style_expression_bodied_constructors                              = true : warning
 csharp_style_expression_bodied_indexers                                  = true : warning
@@ -60,6 +61,7 @@ csharp_space_between_empty_square_brackets                               = false
 csharp_space_between_square_brackets                                     = true
 csharp_space_after_colon_in_inheritance_clause                           = true
 csharp_space_before_colon_in_inheritance_clause                          = true
+csharp_prefer_simple_default_expression                                  = true : suggestion
 csharp_preserve_single_line_statements                                   = false
 csharp_preserve_single_line_blocks                                       = true
 
@@ -69,12 +71,24 @@ dotnet_style_collection_initializer                                      = true 
 dotnet_style_explicit_tuple_names                                        = true : warning
 dotnet_style_null_propagation                                            = true : warning
 dotnet_style_object_initializer                                          = true : suggestion
+dotnet_style_parentheses_in_arithmetic_binary_operators                  = never_if_unnecessary : suggestion
+dotnet_style_parentheses_in_other_binary_operators                       = never_if_unnecessary : suggestion
+dotnet_style_parentheses_in_other_operators                              = never_if_unnecessary : suggestion
+dotnet_style_parentheses_in_relational_binary_operators                  = never_if_unnecessary : suggestion
 dotnet_style_predefined_type_for_locals_parameters_members               = true : warning
 dotnet_style_predefined_type_for_member_access                           = false : warning
+dotnet_style_prefer_auto_properties                                      = true : suggestion
+dotnet_style_prefer_conditional_expression_over_assignment               = true
+dotnet_style_prefer_conditional_expression_over_return                   = true
+dotnet_style_prefer_inferred_anonymous_type_member_names                 = true : suggestion
+dotnet_style_prefer_inferred_tuple_names                                 = true : suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method         = true : suggestion
 dotnet_style_qualification_for_event                                     = false : warning
 dotnet_style_qualification_for_field                                     = false : warning
 dotnet_style_qualification_for_method                                    = false : warning
 dotnet_style_qualification_for_property                                  = false : warning
+dotnet_style_readonly_field                                              = true : warning
+dotnet_style_require_accessibility_modifiers                             = always : warning
 
 # IInterface
 
