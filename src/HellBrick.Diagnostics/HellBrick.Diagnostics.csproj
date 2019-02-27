@@ -148,6 +148,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.10.0" PrivateAssets="all" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
+    <PackageReference Include="HellBrick.NoCapture" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

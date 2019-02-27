@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,9 +12,9 @@ using Microsoft.CodeAnalysis.Text;
 namespace HellBrick.Diagnostics.DeadCode
 {
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
-	public class UnusedSymbolAnalyzer : DiagnosticAnalyzer
+	public class SymbolReferenceAnalyzer : DiagnosticAnalyzer
 	{
-		public const string DiagnosticID = IDPrefix.Value + "UnusedSymbol";
+		public const string UnusedSymbolDiagnosticID = IDPrefix.Value + "UnusedSymbol";
 		private static readonly ImmutableArray<SymbolKind> _symbolKindsToTrack =
 			ImmutableArray.Create
 			(
@@ -23,9 +24,9 @@ namespace HellBrick.Diagnostics.DeadCode
 				SymbolKind.Property
 			);
 
-		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor
+		private static readonly DiagnosticDescriptor _unusedSymbolRule = new DiagnosticDescriptor
 		(
-			DiagnosticID,
+			UnusedSymbolDiagnosticID,
 			"Unused member",
 			"'{0}' can be removed",
 			DiagnosticCategory.Design,
@@ -34,7 +35,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			customTags: WellKnownDiagnosticTags.Unnecessary
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _rule );
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create( _unusedSymbolRule );
 
 		public override void Initialize( AnalysisContext context )
 		{
@@ -44,59 +45,62 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private void StartAnalysis( CompilationStartAnalysisContext context )
 		{
-			UnusedSymbolAnalysisContext analysisContext = new UnusedSymbolAnalysisContext();
+			SymbolReferenceAnalysisContext analysisContext = new SymbolReferenceAnalysisContext
+			(
+				_unusedSymbolRule,
+				symbolAnalysis => !symbolAnalysis.IsReferenced
+			);
+
 			context.RegisterSyntaxNodeAction( nodeContext => analysisContext.DisableInternalTrackingIfInteralsVisibleToIsDeclared( nodeContext ), SyntaxKind.Attribute );
 			context.RegisterSymbolAction( symbolContext => analysisContext.TrackSymbol( symbolContext.Symbol ), _symbolKindsToTrack );
 			context.RegisterSemanticModelAction( semanticContext => analysisContext.TrackReferencedSymbols( semanticContext ) );
 			context.RegisterCompilationEndAction( compilationContext => analysisContext.ReportDiagnosticsForUnusedSymbols( compilationContext ) );
 		}
 
-		private class UnusedSymbolAnalysisContext
+		private class SymbolReferenceAnalysisContext
 		{
+			private readonly DiagnosticDescriptor _rule;
+			private readonly Func<SymbolAnalysis, bool> _isViolated;
 			private readonly Dictionary<SyntaxTree, HashSet<ISymbol>> _symbolsToReportOnSemanticModelBuilt = new Dictionary<SyntaxTree, HashSet<ISymbol>>();
 			private readonly HashSet<ISymbol> _symbolsToReportOnCompilationEnd = new HashSet<ISymbol>();
 			private readonly HashSet<ISymbol> _referencedSymbols = new HashSet<ISymbol>();
 
 			private bool _hasInternalsVisibleTo = false;
 
+			public SymbolReferenceAnalysisContext( DiagnosticDescriptor rule, Func<SymbolAnalysis, bool> isViolated )
+			{
+				_rule = rule;
+				_isViolated = isViolated;
+			}
+
 			public void TrackSymbol( ISymbol symbol )
 			{
 				if ( !IsCandidate( symbol ) )
 					return;
 
-				if ( CanReportOnSemanticModelBuilt( symbol ) )
-				{
-					SyntaxTree declaringTree = symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree;
-					if ( !_symbolsToReportOnSemanticModelBuilt.TryGetValue( declaringTree, out HashSet<ISymbol> currentTreeSymbols ) )
-					{
-						currentTreeSymbols = new HashSet<ISymbol>();
-						_symbolsToReportOnSemanticModelBuilt.Add( declaringTree, currentTreeSymbols );
-					}
+				HashSet<ISymbol> reportSet
+					= CanReportOnSemanticModelBuilt( symbol )
+						? _symbolsToReportOnSemanticModelBuilt.GetOrAdd( symbol.DeclaringSyntaxReferences[ 0 ].SyntaxTree, _ => new HashSet<ISymbol>() )
+						: _symbolsToReportOnCompilationEnd;
 
-					currentTreeSymbols.Add( symbol );
-				}
-				else
-					_symbolsToReportOnCompilationEnd.Add( symbol );
+				reportSet.Add( symbol );
 			}
 
-			private static bool IsCandidate( ISymbol symbol ) =>
-				( symbol.DeclaredAccessibility == Accessibility.Private || symbol.DeclaredAccessibility == Accessibility.Internal ) &&
-				!symbol.IsOverride &&
-				!IsIgnoredMethod( symbol ) &&
-				!symbol.ImplementsInterface();
+			private static bool IsCandidate( ISymbol symbol )
+				=> ( symbol.DeclaredAccessibility == Accessibility.Private || symbol.DeclaredAccessibility == Accessibility.Internal )
+				&& !symbol.IsOverride
+				&& !IsIgnoredMethod( symbol )
+				&& !symbol.ImplementsInterface();
 
 			private static bool IsIgnoredMethod( ISymbol symbol )
-			{
-				IMethodSymbol methodSymbol = symbol as IMethodSymbol;
-				return
-					methodSymbol != null &&
-					(
-						methodSymbol.MethodKind == MethodKind.PropertyGet ||
-						methodSymbol.MethodKind == MethodKind.PropertySet ||
-						methodSymbol.MetadataName == ".cctor" ||
-						methodSymbol.IsEntryPoint()
-					);
-			}
+				=> symbol is IMethodSymbol methodSymbol
+				&&
+				(
+					methodSymbol.MethodKind == MethodKind.PropertyGet
+					|| methodSymbol.MethodKind == MethodKind.PropertySet
+					|| methodSymbol.MetadataName == ".cctor"
+					|| methodSymbol.IsEntryPoint()
+				);
 
 			private static bool CanReportOnSemanticModelBuilt( ISymbol symbol )
 				=> symbol.DeclaredAccessibility == Accessibility.Private
@@ -105,16 +109,17 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void TrackReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
-				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
-				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
-				foreach ( ISymbol referencedSymbol in referenceFinder.ReferencedSymbols )
-					_referencedSymbols.Add( referencedSymbol );
+				HashSet<ISymbol> currentTreeSymbols = _symbolsToReportOnSemanticModelBuilt.GetValueOrDefault( semanticContext.SemanticModel.SyntaxTree );
 
-				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out HashSet<ISymbol> currentTreeSymbols ) )
-				{
-					currentTreeSymbols.ExceptWith( referenceFinder.ReferencedSymbols );
-					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
-				}
+				ReferenceFinder.FindReferences
+				(
+					semanticContext.SemanticModel,
+					(_referencedSymbols, currentTreeSymbols),
+					( ctx, referencedSymbol, _ ) => ctx._referencedSymbols.Add( referencedSymbol )
+				);
+
+				if ( currentTreeSymbols != default )
+					ReportSymbols( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
 			}
 
 			public void ReportDiagnosticsForUnusedSymbols( CompilationAnalysisContext context )
@@ -122,21 +127,28 @@ namespace HellBrick.Diagnostics.DeadCode
 				if ( _hasInternalsVisibleTo )
 					_symbolsToReportOnCompilationEnd.RemoveWhere( s => s.DeclaredAccessibility == Accessibility.Internal );
 
-				_symbolsToReportOnCompilationEnd.ExceptWith( _referencedSymbols );
-				ReportDiagnostics( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
+				ReportSymbols( _symbolsToReportOnCompilationEnd, d => context.ReportDiagnostic( d ) );
 			}
 
-			private void ReportDiagnostics( IEnumerable<ISymbol> unusedSymbols, Action<Diagnostic> reportDiagnosticAction )
+			private void ReportSymbols( IEnumerable<ISymbol> symbols, Action<Diagnostic> reportDiagnosticAction )
+				=> symbols
+				.Select( symbol => new SymbolAnalysis( symbol, isReferenced: _referencedSymbols.Contains( symbol ) ) )
+				.Select( symbolAnalysis => (symbolAnalysis, rule: _rule, isViolated: _isViolated( symbolAnalysis )) )
+				.Where( symbolRuleResult => symbolRuleResult.isViolated )
+				.ForEach
+				(
+					(self: this, reportDiagnosticAction),
+					( ctx, symbolRuleResult ) => ctx.self.ReportDiagnostic( symbolRuleResult.symbolAnalysis.Symbol, symbolRuleResult.rule, ctx.reportDiagnosticAction )
+				);
+
+			private void ReportDiagnostic( ISymbol unusedSymbol, DiagnosticDescriptor rule, Action<Diagnostic> reportDiagnosticAction )
 			{
-				foreach ( ISymbol unusedSymbol in unusedSymbols )
+				ISymbol definition = unusedSymbol.OriginalDefinition;
+				foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
 				{
-					ISymbol definition = unusedSymbol.OriginalDefinition;
-					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
-					{
-						Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
-						Diagnostic diagnostic = Diagnostic.Create( _rule, diagnosticLocation, unusedSymbol.ToString() );
-						reportDiagnosticAction( diagnostic );
-					}
+					Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
+					Diagnostic diagnostic = Diagnostic.Create( rule, diagnosticLocation, unusedSymbol.ToString() );
+					reportDiagnosticAction( diagnostic );
 				}
 			}
 
@@ -175,6 +187,25 @@ namespace HellBrick.Diagnostics.DeadCode
 				.Symbol
 				?.ContainingType
 				?.MetadataName;
+		}
+
+		private readonly struct SymbolAnalysis : IEquatable<SymbolAnalysis>
+		{
+			public SymbolAnalysis( ISymbol symbol, bool isReferenced )
+			{
+				Symbol = symbol;
+				IsReferenced = isReferenced;
+			}
+
+			public ISymbol Symbol { get; }
+			public bool IsReferenced { get; }
+
+			public override int GetHashCode() => (Symbol, IsReferenced).GetHashCode();
+			public bool Equals( SymbolAnalysis other ) => (Symbol, IsReferenced) == (other.Symbol, other.IsReferenced);
+			public override bool Equals( object obj ) => obj is SymbolAnalysis other && Equals( other );
+
+			public static bool operator ==( SymbolAnalysis x, SymbolAnalysis y ) => x.Equals( y );
+			public static bool operator !=( SymbolAnalysis x, SymbolAnalysis y ) => !x.Equals( y );
 		}
 	}
 }
