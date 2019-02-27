@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Collections.Immutable;
 using HellBrick.Diagnostics.Utils;
 using Microsoft.CodeAnalysis;
@@ -8,23 +8,30 @@ namespace HellBrick.Diagnostics.DeadCode
 {
 	internal static class ReferenceFinder
 	{
-		public static IReadOnlyCollection<ISymbol> FindReferencedSymbols( SemanticModel semanticModel )
+		[NoCapture]
+		public static void FindReferencedSymbols( SemanticModel semanticModel, Action<ISymbol> onReferenceFound )
+			=> FindReferencedSymbols( semanticModel, onReferenceFound, ( callback, symbol ) => callback( symbol ) );
+
+		[NoCapture]
+		public static void FindReferencedSymbols<TContext>( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol> onReferenceFound )
 		{
-			Walker walker = new Walker( semanticModel );
+			Walker<TContext> walker = new Walker<TContext>( semanticModel, context, onReferenceFound );
 			walker.Visit( semanticModel.SyntaxTree.GetRoot() );
-			return walker.ReferencedSymbols;
 		}
 
-		private class Walker : CSharpSyntaxWalker
+		private class Walker<TContext> : CSharpSyntaxWalker
 		{
-			private readonly HashSet<ISymbol> _referencedSymbols = new HashSet<ISymbol>();
 			private readonly SemanticModel _semanticModel;
+			private readonly TContext _context;
+			private readonly Action<TContext, ISymbol> _onReferenceFound;
 
-			public Walker( SemanticModel semanticModel )
+			public Walker( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol> onReferenceFound )
 				: base( SyntaxWalkerDepth.Node )
-				=> _semanticModel = semanticModel;
-
-			public IReadOnlyCollection<ISymbol> ReferencedSymbols => _referencedSymbols;
+			{
+				_semanticModel = semanticModel;
+				_context = context;
+				_onReferenceFound = onReferenceFound;
+			}
 
 			public override void DefaultVisit( SyntaxNode node )
 			{
@@ -46,7 +53,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				ISymbol definition = TryGetDefinition( symbol );
 				if ( definition != null )
-					_referencedSymbols.Add( definition );
+					_onReferenceFound( _context, definition );
 			}
 
 			private ISymbol TryGetDefinition( ISymbol symbol )
