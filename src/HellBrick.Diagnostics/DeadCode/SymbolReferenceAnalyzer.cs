@@ -124,13 +124,18 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				foreach ( ISymbol unusedSymbol in unusedSymbols )
 				{
-					ISymbol definition = unusedSymbol.OriginalDefinition;
-					foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
-					{
-						Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
-						Diagnostic diagnostic = Diagnostic.Create( _unusedSymbolRule, diagnosticLocation, unusedSymbol.ToString() );
-						reportDiagnosticAction( diagnostic );
-					}
+					ReportDiagnostic( unusedSymbol, reportDiagnosticAction );
+				}
+			}
+
+			private void ReportDiagnostic( ISymbol unusedSymbol, Action<Diagnostic> reportDiagnosticAction )
+			{
+				ISymbol definition = unusedSymbol.OriginalDefinition;
+				foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
+				{
+					Location diagnosticLocation = GetDiagnosticLocation( declarationReference );
+					Diagnostic diagnostic = Diagnostic.Create( _unusedSymbolRule, diagnosticLocation, unusedSymbol.ToString() );
+					reportDiagnosticAction( diagnostic );
 				}
 			}
 
