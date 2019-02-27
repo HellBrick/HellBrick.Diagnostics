@@ -14,6 +14,19 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		[NoCapture]
 		public static void FindReferencedSymbols<TContext>( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol> onReferenceFound )
+			=> FindReferences
+			(
+				semanticModel,
+				(context, onReferenceFound),
+				( ctx, symbol, _ ) => ctx.onReferenceFound( ctx.context, symbol )
+			);
+
+		[NoCapture]
+		public static void FindReferences( SemanticModel semanticModel, Action<ISymbol, SyntaxNode> onReferenceFound )
+			=> FindReferences( semanticModel, onReferenceFound, ( callback, symbol, referenceNode ) => callback( symbol, referenceNode ) );
+
+		[NoCapture]
+		public static void FindReferences<TContext>( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol, SyntaxNode> onReferenceFound )
 		{
 			Walker<TContext> walker = new Walker<TContext>( semanticModel, context, onReferenceFound );
 			walker.Visit( semanticModel.SyntaxTree.GetRoot() );
@@ -23,9 +36,9 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			private readonly SemanticModel _semanticModel;
 			private readonly TContext _context;
-			private readonly Action<TContext, ISymbol> _onReferenceFound;
+			private readonly Action<TContext, ISymbol, SyntaxNode> _onReferenceFound;
 
-			public Walker( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol> onReferenceFound )
+			public Walker( SemanticModel semanticModel, TContext context, Action<TContext, ISymbol, SyntaxNode> onReferenceFound )
 				: base( SyntaxWalkerDepth.Node )
 			{
 				_semanticModel = semanticModel;
@@ -37,23 +50,23 @@ namespace HellBrick.Diagnostics.DeadCode
 			{
 				SymbolInfo symbolInfo = _semanticModel.GetSymbolInfo( node );
 				ISymbol symbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.OnlyOrDefault();
-				TryAdd( symbol );
+				TryAdd( symbol, node );
 
 				ITypeSymbol returnTypeSymbol = ( symbol as IPropertySymbol )?.Type ?? ( symbol as IMethodSymbol )?.ReturnType;
-				TryAdd( returnTypeSymbol );
+				TryAdd( returnTypeSymbol, node );
 
 				ImmutableArray<ITypeSymbol> genericArgumentTypes = ( returnTypeSymbol as INamedTypeSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
 				foreach ( ITypeSymbol genericArgumentType in genericArgumentTypes )
-					TryAdd( genericArgumentType );
+					TryAdd( genericArgumentType, node );
 
 				base.DefaultVisit( node );
 			}
 
-			private void TryAdd( ISymbol symbol )
+			private void TryAdd( ISymbol symbol, SyntaxNode referenceNode )
 			{
 				ISymbol definition = TryGetDefinition( symbol );
 				if ( definition != null )
-					_onReferenceFound( _context, definition );
+					_onReferenceFound( _context, definition, referenceNode );
 			}
 
 			private ISymbol TryGetDefinition( ISymbol symbol )
