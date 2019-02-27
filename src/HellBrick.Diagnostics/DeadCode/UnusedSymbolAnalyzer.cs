@@ -13,7 +13,7 @@ namespace HellBrick.Diagnostics.DeadCode
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
 	public class UnusedSymbolAnalyzer : DiagnosticAnalyzer
 	{
-		public const string DiagnosticID = IDPrefix.Value + "UnusedSymbol";
+		public const string UnusedSymbolDiagnosticID = IDPrefix.Value + "UnusedSymbol";
 		private static readonly ImmutableArray<SymbolKind> _symbolKindsToTrack =
 			ImmutableArray.Create
 			(
@@ -25,7 +25,7 @@ namespace HellBrick.Diagnostics.DeadCode
 
 		private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor
 		(
-			DiagnosticID,
+			UnusedSymbolDiagnosticID,
 			"Unused member",
 			"'{0}' can be removed",
 			DiagnosticCategory.Design,
