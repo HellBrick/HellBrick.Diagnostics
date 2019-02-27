@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.2.0.0</Version>
+    <Version>3.3.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,6 +22,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v3.3.0:
+      - Enabled concurrent analysis for most of analyzers
+
       v3.2.0:
       - Changed GetHashCode() and Equals() generators to delegate their logic to tuples of struct fields
       - Changed ConfigureAwait() analyzer to underline only await keyword (instead of whole await expression) when reporting a warning
