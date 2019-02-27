@@ -10,17 +10,17 @@ namespace HellBrick.Diagnostics.DeadCode
 	{
 		public static IReadOnlyCollection<ISymbol> FindReferencedSymbols( SemanticModel semanticModel )
 		{
-			ReferencedSymbolFinder walker = new ReferencedSymbolFinder( semanticModel );
+			Walker walker = new Walker( semanticModel );
 			walker.Visit( semanticModel.SyntaxTree.GetRoot() );
 			return walker.ReferencedSymbols;
 		}
 
-		private class ReferencedSymbolFinder : CSharpSyntaxWalker
+		private class Walker : CSharpSyntaxWalker
 		{
 			private readonly HashSet<ISymbol> _referencedSymbols = new HashSet<ISymbol>();
 			private readonly SemanticModel _semanticModel;
 
-			public ReferencedSymbolFinder( SemanticModel semanticModel )
+			public Walker( SemanticModel semanticModel )
 				: base( SyntaxWalkerDepth.Node )
 				=> _semanticModel = semanticModel;
 
