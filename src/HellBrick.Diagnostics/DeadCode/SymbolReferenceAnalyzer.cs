@@ -102,14 +102,13 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public void TrackReferencedSymbols( SemanticModelAnalysisContext semanticContext )
 			{
-				ReferencedSymbolFinder referenceFinder = new ReferencedSymbolFinder( semanticContext.SemanticModel );
-				referenceFinder.Visit( semanticContext.SemanticModel.SyntaxTree.GetRoot() );
-				foreach ( ISymbol referencedSymbol in referenceFinder.ReferencedSymbols )
+				IReadOnlyCollection<ISymbol> currentReferencedSymbols = ReferenceFinder.FindReferencedSymbols( semanticContext.SemanticModel );
+				foreach ( ISymbol referencedSymbol in currentReferencedSymbols )
 					_referencedSymbols.Add( referencedSymbol );
 
 				if ( _symbolsToReportOnSemanticModelBuilt.TryGetValue( semanticContext.SemanticModel.SyntaxTree, out HashSet<ISymbol> currentTreeSymbols ) )
 				{
-					currentTreeSymbols.ExceptWith( referenceFinder.ReferencedSymbols );
+					currentTreeSymbols.ExceptWith( currentReferencedSymbols );
 					ReportDiagnostics( currentTreeSymbols, d => semanticContext.ReportDiagnostic( d ) );
 				}
 			}
