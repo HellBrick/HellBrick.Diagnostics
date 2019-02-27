@@ -119,11 +119,12 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			private void ReportSymbols( IEnumerable<ISymbol> symbols, Action<Diagnostic> reportDiagnosticAction )
 				=> symbols
-				.Where( s => !_referencedSymbols.Contains( s ) )
+				.Select( symbol => new SymbolAnalysis( symbol, isReferenced: _referencedSymbols.Contains( symbol ) ) )
+				.Where( symbolAnalysis => !symbolAnalysis.IsReferenced )
 				.ForEach
 				(
 					(self: this, reportDiagnosticAction),
-					( ctx, symbol ) => ctx.self.ReportDiagnostic( symbol, ctx.reportDiagnosticAction )
+					( ctx, symbolAnalysis ) => ctx.self.ReportDiagnostic( symbolAnalysis.Symbol, ctx.reportDiagnosticAction )
 				);
 
 			private void ReportDiagnostic( ISymbol unusedSymbol, Action<Diagnostic> reportDiagnosticAction )
@@ -172,6 +173,25 @@ namespace HellBrick.Diagnostics.DeadCode
 				.Symbol
 				?.ContainingType
 				?.MetadataName;
+		}
+
+		private readonly struct SymbolAnalysis : IEquatable<SymbolAnalysis>
+		{
+			public SymbolAnalysis( ISymbol symbol, bool isReferenced )
+			{
+				Symbol = symbol;
+				IsReferenced = isReferenced;
+			}
+
+			public ISymbol Symbol { get; }
+			public bool IsReferenced { get; }
+
+			public override int GetHashCode() => (Symbol, IsReferenced).GetHashCode();
+			public bool Equals( SymbolAnalysis other ) => (Symbol, IsReferenced) == (other.Symbol, other.IsReferenced);
+			public override bool Equals( object obj ) => obj is SymbolAnalysis other && Equals( other );
+
+			public static bool operator ==( SymbolAnalysis x, SymbolAnalysis y ) => x.Equals( y );
+			public static bool operator !=( SymbolAnalysis x, SymbolAnalysis y ) => !x.Equals( y );
 		}
 	}
 }
