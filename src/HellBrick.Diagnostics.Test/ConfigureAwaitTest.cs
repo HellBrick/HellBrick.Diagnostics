@@ -1,6 +1,6 @@
 ﻿using System;
-using HellBrick.Diagnostics.ConfigureAwait;
 using HellBrick.Diagnostics.Assertions;
+using HellBrick.Diagnostics.ConfigureAwait;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test

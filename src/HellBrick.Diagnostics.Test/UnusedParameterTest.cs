@@ -1,5 +1,5 @@
-﻿using HellBrick.Diagnostics.DeadCode;
-using HellBrick.Diagnostics.Assertions;
+﻿using HellBrick.Diagnostics.Assertions;
+using HellBrick.Diagnostics.DeadCode;
 using Xunit;
 
 namespace HellBrick.Diagnostics.Test
