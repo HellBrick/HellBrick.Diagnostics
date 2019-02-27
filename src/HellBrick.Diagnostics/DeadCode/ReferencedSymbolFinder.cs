@@ -15,7 +15,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			: base( SyntaxWalkerDepth.Node )
 			=> _semanticModel = semanticModel;
 
-		public IEnumerable<ISymbol> ReferencedSymbols => _referencedSymbols;
+		public IReadOnlyCollection<ISymbol> ReferencedSymbols => _referencedSymbols;
 
 		public override void DefaultVisit( SyntaxNode node )
 		{
