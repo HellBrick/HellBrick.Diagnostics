@@ -40,7 +40,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		public override void Initialize( AnalysisContext context )
 		{
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
-			context.RegisterCompilationStartAction( StartAnalysis );
+			context.RegisterCompilationStartAction( c => StartAnalysis( c ) );
 		}
 
 		private static void StartAnalysis( CompilationStartAnalysisContext context )

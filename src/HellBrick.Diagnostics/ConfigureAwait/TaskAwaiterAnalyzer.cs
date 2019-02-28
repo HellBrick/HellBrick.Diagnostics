@@ -33,7 +33,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 		{
 			context.EnableConcurrentExecution();
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
-			context.RegisterSyntaxNodeAction( EnsureConfigureAwait, SyntaxKind.AwaitExpression );
+			context.RegisterSyntaxNodeAction( c => EnsureConfigureAwait( c ), SyntaxKind.AwaitExpression );
 		}
 
 		private static void EnsureConfigureAwait( SyntaxNodeAnalysisContext context )

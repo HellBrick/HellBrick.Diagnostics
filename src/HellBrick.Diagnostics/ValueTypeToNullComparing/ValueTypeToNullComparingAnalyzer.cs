@@ -30,7 +30,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 		{
 			context.EnableConcurrentExecution();
 			context.ConfigureGeneratedCodeAnalysis( GeneratedCodeAnalysisFlags.None );
-			context.RegisterSyntaxNodeAction( FindFlagrantViolationOfCodeStyle, _analysisTarget );
+			context.RegisterSyntaxNodeAction( c => FindFlagrantViolationOfCodeStyle( c ), _analysisTarget );
 		}
 
 		private static void FindFlagrantViolationOfCodeStyle( SyntaxNodeAnalysisContext context )
