@@ -25,7 +25,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 			context.RegisterSyntaxNodeAction( FindMissingVisibilityModifiers, DeclarationHandlers.SupportedSyntaxKinds );
 		}
 
-		private void FindMissingVisibilityModifiers( SyntaxNodeAnalysisContext context )
+		private static void FindMissingVisibilityModifiers( SyntaxNodeAnalysisContext context )
 		{
 			if ( IsInterfaceMember( context.Node ) || IsExplicitInterfaceMember( context.Node ) || IsStaticConstructor( context.Node ) )
 				return;
@@ -40,7 +40,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 		private static bool IsInterfaceMember( SyntaxNode node ) => node.Ancestors().Any( n => n.IsKind( SyntaxKind.InterfaceDeclaration ) );
 		private static bool IsExplicitInterfaceMember( SyntaxNode node ) => node.DescendantNodes().Any( n => n.IsKind( SyntaxKind.ExplicitInterfaceSpecifier ) );
 
-		private bool IsStaticConstructor( SyntaxNode node ) =>
+		private static bool IsStaticConstructor( SyntaxNode node ) =>
 			node.IsKind( SyntaxKind.ConstructorDeclaration ) &&
 			( node as ConstructorDeclarationSyntax ).Modifiers.Any( SyntaxKind.StaticKeyword );
 

@@ -25,7 +25,7 @@ namespace HellBrick.Diagnostics.StructDeclarations
 			return Task.CompletedTask;
 		}
 
-		private async Task<Document> EnforceRulesAsync( CodeFixContext context, CancellationToken cancellationToken )
+		private static async Task<Document> EnforceRulesAsync( CodeFixContext context, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SemanticModel semanticModel = await context.Document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );

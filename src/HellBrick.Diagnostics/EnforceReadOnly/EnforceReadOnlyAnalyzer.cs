@@ -46,7 +46,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 			context.RegisterSemanticModelAction( EnforceReadOnlyOnClassFields );
 		}
 
-		private void EnforceReadOnlyOnClassFields( SemanticModelAnalysisContext context )
+		private static void EnforceReadOnlyOnClassFields( SemanticModelAnalysisContext context )
 		{
 			NonReadOnlyFieldFinder fieldFinder = new NonReadOnlyFieldFinder( context.SemanticModel, context.CancellationToken );
 			HashSet<IFieldSymbol> fieldCandidates = fieldFinder.RunAsync().GetAwaiter().GetResult();
@@ -93,14 +93,14 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				_fields.Add( fieldSymbol );
 			}
 
-			private bool ShouldIgnore( IFieldSymbol fieldSymbol )
+			private static bool ShouldIgnore( IFieldSymbol fieldSymbol )
 				=> fieldSymbol.IsReadOnly
 				|| fieldSymbol.IsConst
 				|| fieldSymbol.IsExtern
 				|| fieldSymbol.Type.IsValueType && !( IsPrimitiveValueType( fieldSymbol.Type ) || fieldSymbol.Type.IsReadOnlyStruct() )
 				|| fieldSymbol.DeclaredAccessibility > Accessibility.Private;
 
-			private bool IsPrimitiveValueType( ITypeSymbol type ) => _primitiveValueTypes.Any( t => type.SpecialType == t );
+			private static bool IsPrimitiveValueType( ITypeSymbol type ) => _primitiveValueTypes.Any( t => type.SpecialType == t );
 
 			public override void DefaultVisit( SyntaxNode node )
 			{
@@ -165,7 +165,7 @@ namespace HellBrick.Diagnostics.EnforceReadOnly
 				}
 			}
 
-			private ExpressionSyntax TryGetAccessedExpression( ExpressionSyntax assignmentTarget )
+			private static ExpressionSyntax TryGetAccessedExpression( ExpressionSyntax assignmentTarget )
 			{
 				switch ( assignmentTarget.Kind() )
 				{

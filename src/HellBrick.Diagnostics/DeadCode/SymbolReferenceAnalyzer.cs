@@ -43,7 +43,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			context.RegisterCompilationStartAction( StartAnalysis );
 		}
 
-		private void StartAnalysis( CompilationStartAnalysisContext context )
+		private static void StartAnalysis( CompilationStartAnalysisContext context )
 		{
 			SymbolReferenceAnalysisContext analysisContext = new SymbolReferenceAnalysisContext
 			(
@@ -138,10 +138,10 @@ namespace HellBrick.Diagnostics.DeadCode
 				.ForEach
 				(
 					(self: this, reportDiagnosticAction),
-					( ctx, symbolRuleResult ) => ctx.self.ReportDiagnostic( symbolRuleResult.symbolAnalysis.Symbol, symbolRuleResult.rule, ctx.reportDiagnosticAction )
+					( ctx, symbolRuleResult ) => ReportDiagnostic( symbolRuleResult.symbolAnalysis.Symbol, symbolRuleResult.rule, ctx.reportDiagnosticAction )
 				);
 
-			private void ReportDiagnostic( ISymbol unusedSymbol, DiagnosticDescriptor rule, Action<Diagnostic> reportDiagnosticAction )
+			private static void ReportDiagnostic( ISymbol unusedSymbol, DiagnosticDescriptor rule, Action<Diagnostic> reportDiagnosticAction )
 			{
 				ISymbol definition = unusedSymbol.OriginalDefinition;
 				foreach ( SyntaxReference declarationReference in definition.DeclaringSyntaxReferences )
@@ -152,7 +152,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				}
 			}
 
-			private Location GetDiagnosticLocation( SyntaxReference declarationReference )
+			private static Location GetDiagnosticLocation( SyntaxReference declarationReference )
 			{
 				SyntaxNode definitionNode = declarationReference.GetSyntax();
 				if ( definitionNode.IsKind( SyntaxKind.VariableDeclarator ) )

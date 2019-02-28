@@ -34,7 +34,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			context.RegisterCodeBlockAction( codeBlockContext => AnalyzeCodeBlock( codeBlockContext ) );
 		}
 
-		private void AnalyzeCodeBlock( CodeBlockAnalysisContext codeBlockContext )
+		private static void AnalyzeCodeBlock( CodeBlockAnalysisContext codeBlockContext )
 		{
 			if ( !codeBlockContext.CodeBlock.IsKind( SyntaxKind.MethodDeclaration ) && !codeBlockContext.CodeBlock.IsKind( SyntaxKind.ConstructorDeclaration ) )
 				return;
@@ -95,7 +95,7 @@ namespace HellBrick.Diagnostics.DeadCode
 					ReportUnusedParameter( codeBlockContext, unusedParameter );
 			}
 
-			private void ReportUnusedParameter( CodeBlockAnalysisContext codeBlockContext, IParameterSymbol unusedParameter )
+			private static void ReportUnusedParameter( CodeBlockAnalysisContext codeBlockContext, IParameterSymbol unusedParameter )
 			{
 				// I've seen it empty when the parameter list is being edited.
 				if ( unusedParameter.DeclaringSyntaxReferences.Length == 0 )

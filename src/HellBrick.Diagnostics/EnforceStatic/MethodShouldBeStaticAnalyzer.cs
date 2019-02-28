@@ -32,7 +32,7 @@ namespace HellBrick.Diagnostics.EnforceStatic
 			context.RegisterOperationBlockAction( c => ReportNonStaticMethodThatShouldBeStatic( c ) );
 		}
 
-		private void ReportNonStaticMethodThatShouldBeStatic( OperationBlockAnalysisContext context )
+		private static void ReportNonStaticMethodThatShouldBeStatic( OperationBlockAnalysisContext context )
 		{
 			if
 			(

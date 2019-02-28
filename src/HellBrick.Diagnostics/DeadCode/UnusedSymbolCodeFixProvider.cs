@@ -29,7 +29,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			return Task.CompletedTask;
 		}
 
-		private async Task<Document> UpdateDocumentAsync( CodeFixContext context, CancellationToken cancellationToken )
+		private static async Task<Document> UpdateDocumentAsync( CodeFixContext context, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode removedNode = root.FindNode( context.Span );
@@ -58,7 +58,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				}
 			}
 
-			private async Task<Document> UpdateDocumentAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
+			private static async Task<Document> UpdateDocumentAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
 			{
 				ImmutableArray<Diagnostic> diagnostics = await fixAllContext.GetDocumentDiagnosticsAsync( fixAllContext.Document ).ConfigureAwait( false );
 				SyntaxNode newRoot = await GetNewDocumentRootAsync( fixAllContext.Document, diagnostics, cancellationToken ).ConfigureAwait( false );
@@ -73,7 +73,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				return newRoot;
 			}
 
-			private async Task<Solution> UpdateProjectAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
+			private static async Task<Solution> UpdateProjectAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
 			{
 				ImmutableArray<Diagnostic> diagnostics = await fixAllContext.GetAllDiagnosticsAsync( fixAllContext.Project ).ConfigureAwait( false );
 				Solution newSolution = await UpdateProjectAsync( fixAllContext.Solution, fixAllContext.Project, diagnostics, cancellationToken ).ConfigureAwait( false );
@@ -93,7 +93,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				return newSolution;
 			}
 
-			private async Task<Solution> UpdateSolutionAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
+			private static async Task<Solution> UpdateSolutionAsync( FixAllContext fixAllContext, CancellationToken cancellationToken )
 			{
 				Solution newSolution = fixAllContext.Solution;
 				foreach ( Project project in fixAllContext.Solution.Projects )

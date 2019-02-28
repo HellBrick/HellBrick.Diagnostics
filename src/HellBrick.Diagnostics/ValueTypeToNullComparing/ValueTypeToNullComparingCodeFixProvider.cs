@@ -36,7 +36,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 			return Task.CompletedTask;
 		}
 
-		private async Task<Document> ReplaceNullWithDefalutSyntaxAsync( Document document, Diagnostic diagnostic, CancellationToken token )
+		private static async Task<Document> ReplaceNullWithDefalutSyntaxAsync( Document document, Diagnostic diagnostic, CancellationToken token )
 		{
 			SyntaxNode documentRoot = await document
 				.GetSyntaxRootAsync( token )

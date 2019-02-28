@@ -27,7 +27,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 			return Task.CompletedTask;
 		}
 
-		private void RegisterConfigureAwaitCodeFix( CodeFixContext context, bool captureContext )
+		private static void RegisterConfigureAwaitCodeFix( CodeFixContext context, bool captureContext )
 		{
 			CodeAction codeFix = CodeAction.Create
 			(
@@ -38,7 +38,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 			context.RegisterCodeFix( codeFix, context.Diagnostics[ 0 ] );
 		}
 
-		private async Task<Document> AddConfigureAwaitAsync( CodeFixContext context, bool captureContext, CancellationToken cancellationToken )
+		private static async Task<Document> AddConfigureAwaitAsync( CodeFixContext context, bool captureContext, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
 			ExpressionSyntax awaitedExpression = root.FindNode( context.Span ) as ExpressionSyntax;
