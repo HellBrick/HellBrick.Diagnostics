@@ -152,7 +152,7 @@ namespace HellBrick.Diagnostics.EnforceLambda
 				return name;
 			}
 
-			private IEnumerable<string> EnumerateNameCandidates( IParameterSymbol parameter )
+			private static IEnumerable<string> EnumerateNameCandidates( IParameterSymbol parameter )
 			{
 				yield return parameter.Name;
 
