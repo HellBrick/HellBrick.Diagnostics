@@ -17,14 +17,6 @@ There are two corresponding code fixes for inserting `ConfigureAwait( false )` o
 
 ![ConfigureAwait() code fix screenshot](https://i.imgur.com/1axBhX7.png)
 
-### `HBEnforceReadOnly`
-
-A diagnostic that's reported when a private field is never mutated, but doesn't have a `readonly` modifier and adding it wouldn't introduce a breaking change.
-
-A corresponding code fix marks the field as `readonly`.
-
-![Readonly field code fix screenshot](https://i.imgur.com/JVMgoi4.png)
-
 ### `HBStructImmutableNonReadonly`
 
 A diagnostic that's reported when struct fields are never mutated, but the struct doesn't have a `readonly` modifier.
@@ -64,14 +56,6 @@ A diagnostic that's reported when a private non-static method doesn't reference 
 A corresponding code fix makes the method static.
 
 ![Method should be static code fix screenshot](https://i.imgur.com/uC8FFd2.png)
-
-### `HBMissingAccessModifier`
-
-A diagnostic that's reported for the classes and members that don't have explicit access modifiers.
-
-A corresponding code fix adds default access modifier to the class or member definition.
-
-![Missing access modifier code fix screenshot](https://i.imgur.com/zAe2RZW.png)
 
 ### `ValueTypeNullComparison`
 
