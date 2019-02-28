@@ -57,6 +57,14 @@ A corresponding code fix makes the method static.
 
 ![Method should be static code fix screenshot](https://i.imgur.com/uC8FFd2.png)
 
+### `HBEnforceLambda`
+
+A diagnostic that's reported when a delegate is created from a method group instead of a lambda expression.
+
+A corresponding code fix converts method group to a lambda expression.
+
+![Convert to lambda code fix screenshot](https://i.imgur.com/VrNgM3v.png)
+
 ### `ValueTypeNullComparison`
 
 A diagnostic that's reported when an instance of value type is compared for (in)equality with `null`.

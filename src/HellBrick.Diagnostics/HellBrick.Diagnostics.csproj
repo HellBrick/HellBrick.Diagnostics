@@ -21,7 +21,7 @@
     Nuget doesn't allow installing a package into the project that creates this package.
     In order to work around this limitation, we set PackageId to a fake value, but replace it with the real one just before the package is created.
   -->
-  <Target Name="_UpdatePackageId" BeforeTargets="$(PackDependsOn)" >
+  <Target Name="_UpdatePackageId" BeforeTargets="$(PackDependsOn)">
     <PropertyGroup>
       <PackageId>$(RealPackageId)</PackageId>
     </PropertyGroup>
@@ -40,6 +40,7 @@
       v3.3.0:
       - Enabled concurrent analysis for most of analyzers
       - Added an analyzer that enforces methods that don't reference any instance members to be static
+      - Added an analyzer that reports and converts method groups to lambdas
       - Dropped HBMissingAccessModifier (it's been implemented by VS + .editorconfig's dotnet_style_require_accessibility_modifiers)
       - Dropped HBEnforceReadOnly (it's been implemented by VS + .editorconfig's dotnet_style_readonly_field)
 
