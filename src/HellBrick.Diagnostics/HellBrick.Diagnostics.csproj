@@ -41,6 +41,7 @@
       - Enabled concurrent analysis for most of analyzers
       - Added an analyzer that enforces methods that don't reference any instance members to be static
       - Dropped HBMissingAccessModifier (it's been implemented by VS + .editorconfig's dotnet_style_require_accessibility_modifiers)
+      - Dropped HBEnforceReadOnly (it's been implemented by VS + .editorconfig's dotnet_style_readonly_field)
 
       v3.2.0:
       - Changed GetHashCode() and Equals() generators to delegate their logic to tuples of struct fields
