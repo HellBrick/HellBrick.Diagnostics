@@ -65,14 +65,6 @@ A corresponding code fix makes the method static.
 
 ![Method should be static code fix screenshot](https://i.imgur.com/uC8FFd2.png)
 
-### `HBMissingAccessModifier`
-
-A diagnostic that's reported for the classes and members that don't have explicit access modifiers.
-
-A corresponding code fix adds default access modifier to the class or member definition.
-
-![Missing access modifier code fix screenshot](https://i.imgur.com/zAe2RZW.png)
-
 ### `ValueTypeNullComparison`
 
 A diagnostic that's reported when an instance of value type is compared for (in)equality with `null`.
