@@ -32,7 +32,7 @@ namespace HellBrick.Diagnostics.EnforceStatic
 			return Task.CompletedTask;
 		}
 
-		private async Task<Document> UpdateDocumentAsync( CodeFixContext context, CancellationToken cancellationToken )
+		private static async Task<Document> UpdateDocumentAsync( CodeFixContext context, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			DocumentOptionSet options = await context.Document.GetOptionsAsync( cancellationToken ).ConfigureAwait( false );

@@ -45,11 +45,11 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 
 		public StructDeclarationSyntax Enforce( StructDeclarationSyntax structDeclaration, INamedTypeSymbol structType, TypeSyntax structTypeName, SemanticModel semanticModel, ISymbol[] fieldsAndProperties, DocumentOptionSet options )
 		{
-			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties, options );
+			MethodDeclarationSyntax equalsOverrideDeclaration = BuldGetHashCodeOverrideDeclaration( fieldsAndProperties );
 			return structDeclaration.AddMembers( equalsOverrideDeclaration );
 		}
 
-		private MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties, DocumentOptionSet options )
+		private static MethodDeclarationSyntax BuldGetHashCodeOverrideDeclaration( ISymbol[] fieldsAndProperties )
 		{
 			MethodDeclarationSyntax method = MethodDeclaration( _intTypeName, "GetHashCode" );
 			method = method.WithModifiers( TokenList( Token( SyntaxKind.PublicKeyword ), Token( SyntaxKind.OverrideKeyword ) ) );
@@ -61,7 +61,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return method;
 		}
 
-		private ExpressionSyntax BuildExpressionBody( ISymbol[] fieldsAndProperties )
+		private static ExpressionSyntax BuildExpressionBody( ISymbol[] fieldsAndProperties )
 		{
 			if ( fieldsAndProperties.Length == 0 )
 				return LiteralExpression( SyntaxKind.NumericLiteralExpression, Literal( 0 ) );
@@ -72,7 +72,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 			return BuildTupleHashCodeCall( fieldsAndProperties );
 		}
 
-		private ExpressionSyntax BuildFieldHashCodeCall( ISymbol fieldSymbol )
+		private static ExpressionSyntax BuildFieldHashCodeCall( ISymbol fieldSymbol )
 		{
 			ITypeSymbol fieldType = ( fieldSymbol as IFieldSymbol )?.Type ?? ( fieldSymbol as IPropertySymbol ).Type;
 			return fieldType.IsValueType ? BuildValueTypeHashCodeCall() : BuildReferenceTypeHashCodeCall();
@@ -104,7 +104,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 				);
 		}
 
-		private ExpressionSyntax BuildTupleHashCodeCall( ISymbol[] fieldsAndProperties )
+		private static ExpressionSyntax BuildTupleHashCodeCall( ISymbol[] fieldsAndProperties )
 			=> InvocationExpression
 			(
 				MemberAccessExpression

@@ -23,7 +23,7 @@ namespace HellBrick.Diagnostics.AccessModifiers
 			return Task.CompletedTask;
 		}
 
-		private async Task<Document> AddAccessModifierAsync( CodeFixContext context, CancellationToken cancellationToken )
+		private static async Task<Document> AddAccessModifierAsync( CodeFixContext context, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			SyntaxNode node = root.FindNode( context.Span );

@@ -137,7 +137,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				}
 			}
 
-			private ArgumentListSyntax TryGetArgumentList( Invocation invocation )
+			private static ArgumentListSyntax TryGetArgumentList( Invocation invocation )
 				=> invocation
 				.SelectOrDefault
 				(

@@ -97,7 +97,7 @@ namespace HellBrick.Diagnostics.StructDeclarations.EquatabilityRules
 		/// <summary>
 		/// Builds the expression that's going to form the method body. The result is going to be attached to the method via an arrow expression.
 		/// </summary>
-		private ExpressionSyntax BuildEqualsBodyExpression( ISymbol[] fieldsAndProperties )
+		private static ExpressionSyntax BuildEqualsBodyExpression( ISymbol[] fieldsAndProperties )
 		{
 			//	If there are no fields, the method is as simple as 'bool Equals( T other ) => true;'
 			if ( fieldsAndProperties.Length == 0 )

@@ -56,7 +56,7 @@ namespace HellBrick.Diagnostics.DeadCode
 					_onReferenceFound( _context, definition, referenceNode );
 			}
 
-			private ISymbol TryGetDefinition( ISymbol symbol )
+			private static ISymbol TryGetDefinition( ISymbol symbol )
 			{
 				symbol = symbol?.OriginalDefinition;
 

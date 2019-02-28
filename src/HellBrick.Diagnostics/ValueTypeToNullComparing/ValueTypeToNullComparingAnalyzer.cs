@@ -33,7 +33,7 @@ namespace HellBrick.Diagnostics.ValueTypeToNullComparing
 			context.RegisterSyntaxNodeAction( FindFlagrantViolationOfCodeStyle, _analysisTarget );
 		}
 
-		private void FindFlagrantViolationOfCodeStyle( SyntaxNodeAnalysisContext context )
+		private static void FindFlagrantViolationOfCodeStyle( SyntaxNodeAnalysisContext context )
 		{
 			BinaryExpressionSyntax typedNode = (BinaryExpressionSyntax) context.Node;
 

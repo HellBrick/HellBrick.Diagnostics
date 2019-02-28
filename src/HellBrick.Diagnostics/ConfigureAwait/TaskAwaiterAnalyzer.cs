@@ -36,7 +36,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 			context.RegisterSyntaxNodeAction( EnsureConfigureAwait, SyntaxKind.AwaitExpression );
 		}
 
-		private void EnsureConfigureAwait( SyntaxNodeAnalysisContext context )
+		private static void EnsureConfigureAwait( SyntaxNodeAnalysisContext context )
 		{
 			AwaitExpressionSyntax awaitExpression = context.Node as AwaitExpressionSyntax;
 
