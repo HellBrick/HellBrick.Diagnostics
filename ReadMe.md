@@ -57,6 +57,14 @@ A corresponding code fix removes the unused member.
 
 ![Unused symbol code fix screenshot](https://i.imgur.com/t6VH0A6.png)
 
+### `HBMethodShouldBeStatic`
+
+A diagnostic that's reported when a private non-static method doesn't reference any instance members.
+
+A corresponding code fix makes the method static.
+
+![Method should be static code fix screenshot](https://i.imgur.com/uC8FFd2.png)
+
 ### `HBMissingAccessModifier`
 
 A diagnostic that's reported for the classes and members that don't have explicit access modifiers.

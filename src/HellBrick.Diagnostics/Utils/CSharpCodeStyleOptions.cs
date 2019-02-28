@@ -18,5 +18,11 @@ namespace HellBrick.Diagnostics.Utils
 			= _csharpCodeStyleOptionsType
 			.GetRuntimeField( nameof( UseImplicitTypeForIntrinsicTypes ) )
 			.GetValue( null ) as Option<CodeStyleOption<bool>>;
+
+		public static Option<CodeStyleOption<string>> PreferredModifierOrder { get; }
+			= _csharpCodeStyleOptionsType
+			.GetRuntimeField( nameof( PreferredModifierOrder ) )
+			.GetValue( null )
+			as Option<CodeStyleOption<string>>;
 	}
 }
