@@ -21,7 +21,7 @@
     Nuget doesn't allow installing a package into the project that creates this package.
     In order to work around this limitation, we set PackageId to a fake value, but replace it with the real one just before the package is created.
   -->
-  <Target Name="_UpdatePackageId" BeforeTargets="$(PackDependsOn)" >
+  <Target Name="_UpdatePackageId" BeforeTargets="$(PackDependsOn)">
     <PropertyGroup>
       <PackageId>$(RealPackageId)</PackageId>
     </PropertyGroup>
