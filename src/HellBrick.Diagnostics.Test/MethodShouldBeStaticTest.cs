@@ -469,5 +469,115 @@ namespace HellBrick.Diagnostics.Test
 	unsafe private static async void AsyncMethod() { }
 }"
 			);
+
+		[Fact]
+		public void CallSiteIsNotChangedIfMethodIsNotQualified()
+			=> _verifier
+			.Source
+			(
+@"public class C
+{
+	public void Main() => Method();
+
+	private void Method() { }
+}"
+			)
+			.ShouldHaveFix
+			(
+@"public class C
+{
+	public void Main() => Method();
+
+	private static void Method() { }
+}"
+			);
+
+		[Fact]
+		public void ThisQualifierIsRemoved()
+			=> _verifier
+			.Source
+			(
+@"public class C
+{
+	public void Main() => this.Method();
+
+	private void Method() { }
+}"
+			)
+			.ShouldHaveFix
+			(
+@"public class C
+{
+	public void Main() => Method();
+
+	private static void Method() { }
+}"
+			);
+
+		[Fact]
+		public void InstanceQualifierIsRemoved()
+			=> _verifier
+			.Source
+			(
+@"public class C
+{
+	public void Main() => new C().Method();
+
+	private void Method() { }
+}"
+			)
+			.ShouldHaveFix
+			(
+@"public class C
+{
+	public void Main() => Method();
+
+	private static void Method() { }
+}"
+			);
+
+		[Fact]
+		public void InstanceQualifierIsReplacedWithClassNameIfTypeArgumentsAreRequired()
+			=> _verifier
+			.Source
+			(
+@"public class Generic<T>
+{
+	public void Main() => new Generic<int>().Method();
+
+	private void Method() { }
+}"
+			)
+			.ShouldHaveFix
+			(
+@"public class Generic<T>
+{
+	public void Main() => Generic<int>.Method();
+
+	private static void Method() { }
+}"
+			);
+
+		[Fact]
+		public void InstanceQualifierIsRemovedIfTypeArgumentsAreNotRequired()
+			=> _verifier
+			.Source
+			(
+@"public class Generic<T>
+{
+	public void Main() => new Generic<T>().Method();
+
+	private void Method() { }
+}"
+			)
+			.ShouldHaveFix
+			(
+@"public class Generic<T>
+{
+	public void Main() => Method();
+
+	private static void Method() { }
+}"
+			);
 	}
 }

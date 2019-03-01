@@ -5,6 +5,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HellBrick.Diagnostics.Utils.MultiChanges;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -57,37 +58,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				.Repeat( new DeclarationChange( parameterList, parameter ), 1 )
 				.Concat( callSiteChanges );
 
-			solution
-				= allChanges
-				.GroupBy( change => change.ReplacedNode.SyntaxTree )
-				.Aggregate
-				(
-					solution,
-					( oldSolution, syntaxTreeChangeGroup ) =>
-					{
-						SyntaxTree syntaxTree = syntaxTreeChangeGroup.Key;
-						Dictionary<SyntaxNode, IChange> changeLookup = syntaxTreeChangeGroup.ToDictionary( change => change.ReplacedNode );
-						SyntaxNode oldRoot = syntaxTree.GetRoot( cancellationToken );
-						SyntaxNode newRoot
-							= oldRoot
-							.ReplaceNodes
-							(
-								changeLookup.Keys,
-								( originalNode, rewrittenNode ) => changeLookup[ originalNode ].ComputeReplacementNode( rewrittenNode )
-							);
-
-						DocumentId documentID = oldSolution.GetDocumentId( syntaxTree );
-						return oldSolution.WithDocumentSyntaxRoot( documentID, newRoot );
-					}
-				);
-
-			return solution;
-		}
-
-		private interface IChange
-		{
-			SyntaxNode ReplacedNode { get; }
-			SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode );
+			return solution.ApplyChanges( allChanges, cancellationToken );
 		}
 
 		private class DeclarationChange : IChange
