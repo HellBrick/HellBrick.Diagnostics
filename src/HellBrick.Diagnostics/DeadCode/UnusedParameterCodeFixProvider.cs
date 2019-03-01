@@ -58,31 +58,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				.Repeat( new DeclarationChange( parameterList, parameter ), 1 )
 				.Concat( callSiteChanges );
 
-			solution
-				= allChanges
-				.GroupBy( change => change.ReplacedNode.SyntaxTree )
-				.Aggregate
-				(
-					solution,
-					( oldSolution, syntaxTreeChangeGroup ) =>
-					{
-						SyntaxTree syntaxTree = syntaxTreeChangeGroup.Key;
-						Dictionary<SyntaxNode, IChange> changeLookup = syntaxTreeChangeGroup.ToDictionary( change => change.ReplacedNode );
-						SyntaxNode oldRoot = syntaxTree.GetRoot( cancellationToken );
-						SyntaxNode newRoot
-							= oldRoot
-							.ReplaceNodes
-							(
-								changeLookup.Keys,
-								( originalNode, rewrittenNode ) => changeLookup[ originalNode ].ComputeReplacementNode( rewrittenNode )
-							);
-
-						DocumentId documentID = oldSolution.GetDocumentId( syntaxTree );
-						return oldSolution.WithDocumentSyntaxRoot( documentID, newRoot );
-					}
-				);
-
-			return solution;
+			return solution.ApplyChanges( allChanges, cancellationToken );
 		}
 
 		private class DeclarationChange : IChange
