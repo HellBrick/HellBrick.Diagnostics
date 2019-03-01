@@ -114,6 +114,7 @@ namespace HellBrick.Diagnostics.DeadCode
 			private readonly string _parameterName;
 			private readonly int _invocationParentChildIndex;
 			private readonly ImmutableArray<ITypeSymbol> _typeArguments;
+			private readonly bool _typeArgumentsWereSpecifiedExplicitly;
 
 			public CallSiteChange( SemanticModel semanticModel, Location location, int parameterIndex, string parameterName )
 			{
@@ -143,6 +144,7 @@ namespace HellBrick.Diagnostics.DeadCode
 						.index;
 
 					_typeArguments = ( semanticModel.GetSymbolInfo( invocation.Node ).Symbol as IMethodSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
+					_typeArgumentsWereSpecifiedExplicitly = referenceNode.IsKind( SyntaxKind.GenericName );
 				}
 			}
 
@@ -167,7 +169,8 @@ namespace HellBrick.Diagnostics.DeadCode
 						ctor => RemoveArgumentFromConstructor( ctor )
 					);
 
-				SyntaxNode newParent = replacedNode.ReplaceNode( oldInvocation, newInvocation ).WithAdditionalAnnotations( Simplifier.Annotation );
+				SyntaxNode newParent = replacedNode.ReplaceNode( oldInvocation, newInvocation );
+				newParent = _typeArgumentsWereSpecifiedExplicitly ? newParent : newParent.WithAdditionalAnnotations( Simplifier.Annotation );
 
 				return newParent;
 
