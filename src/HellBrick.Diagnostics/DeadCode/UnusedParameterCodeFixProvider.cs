@@ -5,6 +5,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HellBrick.Diagnostics.Utils.MultiChanges;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -82,12 +83,6 @@ namespace HellBrick.Diagnostics.DeadCode
 				);
 
 			return solution;
-		}
-
-		private interface IChange
-		{
-			SyntaxNode ReplacedNode { get; }
-			SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode );
 		}
 
 		private class DeclarationChange : IChange
