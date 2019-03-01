@@ -121,8 +121,9 @@ namespace HellBrick.Diagnostics.DeadCode
 				_parameterIndex = parameterIndex;
 				_parameterName = parameterName;
 
+				SyntaxNode referenceNode = location.SourceTree.GetRoot().FindNode( location.SourceSpan );
 				(Invocation invocation, ArgumentListSyntax argumentList)
-					= location.SourceTree.GetRoot().FindNode( location.SourceSpan )
+					= referenceNode
 					.AncestorsAndSelf()
 					.Select( ancestor => new Invocation( ancestor ) )
 					.Select( methodOrCtor => (methodOrCtor, argList: TryGetArgumentList( methodOrCtor )) )
