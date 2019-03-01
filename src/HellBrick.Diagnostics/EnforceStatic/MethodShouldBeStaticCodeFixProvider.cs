@@ -13,7 +13,9 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace HellBrick.Diagnostics.EnforceStatic
@@ -39,11 +41,27 @@ namespace HellBrick.Diagnostics.EnforceStatic
 			Solution solution = context.Document.Project.Solution;
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
 			DocumentOptionSet options = await context.Document.GetOptionsAsync( cancellationToken ).ConfigureAwait( false );
+			SemanticModel semanticModel = await context.Document.GetSemanticModelAsync().ConfigureAwait( false );
 
 			MethodDeclarationSyntax oldDeclaration = (MethodDeclarationSyntax) root.FindNode( context.Span );
+			IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol( oldDeclaration );
+			TypeSyntax typeName = ParseTypeName( methodSymbol.ContainingType.ToDisplayString() );
 
 			IChange declarationChange = new DeclarationChange( oldDeclaration, options );
-			IEnumerable<IChange> allChanges = new[] { declarationChange };
+
+			IEnumerable<SymbolCallerInfo> callSites = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
+			IEnumerable<IChange> callSiteChanges
+				= callSites
+				.SelectMany( callSite => callSite.Locations )
+				.Where( location => location.IsInSource )
+				.Select( location => new CallSiteChange( location, semanticModel ) )
+				.Where( change => change.ReplacedNode != null );
+
+			IEnumerable<IChange> allChanges = Enumerable.Concat
+			(
+				new[] { declarationChange },
+				callSiteChanges
+			);
 
 			return solution.ApplyChanges( allChanges, cancellationToken );
 		}
@@ -97,6 +115,31 @@ namespace HellBrick.Diagnostics.EnforceStatic
 					);
 
 				return newDeclaration;
+			}
+		}
+
+		private class CallSiteChange : IChange
+		{
+			private readonly TypeSyntax _typeName;
+
+			public CallSiteChange( Location location, SemanticModel semanticModel )
+			{
+				SyntaxNode referenceNode = location.SourceTree.GetRoot().FindNode( location.SourceSpan );
+				if ( referenceNode.Parent is MemberAccessExpressionSyntax memberAccessNode )
+				{
+					ReplacedNode = memberAccessNode;
+
+					ISymbol methodSymbol = semanticModel.GetSymbolInfo( referenceNode ).Symbol;
+					_typeName = ParseTypeName( methodSymbol.ContainingType.ToDisplayString() );
+				}
+			}
+
+			public SyntaxNode ReplacedNode { get; }
+
+			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode )
+			{
+				MemberAccessExpressionSyntax memberAccessNode = (MemberAccessExpressionSyntax) replacedNode;
+				return memberAccessNode.WithExpression( _typeName ).WithAdditionalAnnotations( Simplifier.Annotation );
 			}
 		}
 	}
