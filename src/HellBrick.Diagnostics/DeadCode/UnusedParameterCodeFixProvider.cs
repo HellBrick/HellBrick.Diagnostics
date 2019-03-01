@@ -74,8 +74,7 @@ namespace HellBrick.Diagnostics.DeadCode
 							(
 								changeLookup.Keys,
 								( originalNode, rewrittenNode ) => changeLookup[ originalNode ].ComputeReplacementNode( rewrittenNode )
-							)
-							.WithAdditionalAnnotations( Simplifier.Annotation );
+							);
 
 						DocumentId documentID = oldSolution.GetDocumentId( syntaxTree );
 						return oldSolution.WithDocumentSyntaxRoot( documentID, newRoot );
@@ -168,7 +167,7 @@ namespace HellBrick.Diagnostics.DeadCode
 						ctor => RemoveArgumentFromConstructor( ctor )
 					);
 
-				SyntaxNode newParent = replacedNode.ReplaceNode( oldInvocation, newInvocation );
+				SyntaxNode newParent = replacedNode.ReplaceNode( oldInvocation, newInvocation ).WithAdditionalAnnotations( Simplifier.Annotation );
 
 				return newParent;
 

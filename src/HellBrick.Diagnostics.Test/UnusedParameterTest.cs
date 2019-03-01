@@ -544,5 +544,33 @@ public class Program
 }
 "
 			);
+
+		[Fact]
+		public void TypeArgumentsSimplificationDoesNotAffectUnrelatedCode()
+			=> _verifier
+			.Source
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( TIn arg, Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert( 42, ( int number ) => number.ToString() );
+	public static void Unrelated( System.Action action ) => action();
+}
+"
+			)
+			.ShouldHaveFix
+			(
+@"
+using System;
+public class C
+{
+	public static TOut Convert<TIn, TOut>( Func<TIn, TOut> converter ) => converter( default );
+	public static void CallSite() => Convert( ( int number ) => number.ToString() );
+	public static void Unrelated( System.Action action ) => action();
+}
+"
+			);
 	}
 }
