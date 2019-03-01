@@ -113,6 +113,7 @@ namespace HellBrick.Diagnostics.DeadCode
 		{
 			private readonly int _parameterIndex;
 			private readonly string _parameterName;
+			private readonly int _invocationParentChildIndex;
 			private readonly ImmutableArray<ITypeSymbol> _typeArguments;
 
 			public CallSiteChange( SemanticModel semanticModel, Location location, int parameterIndex, string parameterName )
@@ -132,7 +133,15 @@ namespace HellBrick.Diagnostics.DeadCode
 				/// This happens when the parameter is optional and not passed to the method.
 				if ( argumentList != null && FindArgument( argumentList ) != null )
 				{
-					ReplacedNode = invocation.Node;
+					// Type argument simplification doesn't work on an invocation itself, it needs its parent.
+					ReplacedNode = invocation.Node.Parent;
+					_invocationParentChildIndex
+						= ReplacedNode
+						.ChildNodes()
+						.Select( ( sibling, index ) => (sibling, index) )
+						.First( x => x.sibling == invocation.Node )
+						.index;
+
 					_typeArguments = ( semanticModel.GetSymbolInfo( invocation.Node ).Symbol as IMethodSymbol )?.TypeArguments ?? ImmutableArray<ITypeSymbol>.Empty;
 				}
 			}
@@ -149,13 +158,18 @@ namespace HellBrick.Diagnostics.DeadCode
 
 			public SyntaxNode ComputeReplacementNode( SyntaxNode replacedNode )
 			{
-				return
-					new Invocation( replacedNode )
+				SyntaxNode oldInvocation = replacedNode.ChildNodes().Skip( _invocationParentChildIndex ).First();
+				SyntaxNode newInvocation
+					= new Invocation( oldInvocation )
 					.SelectOrDefault<SyntaxNode>
 					(
 						method => RemoveArgumentFromMethod( method ),
 						ctor => RemoveArgumentFromConstructor( ctor )
 					);
+
+				SyntaxNode newParent = replacedNode.ReplaceNode( oldInvocation, newInvocation );
+
+				return newParent;
 
 				InvocationExpressionSyntax RemoveArgumentFromMethod( InvocationExpressionSyntax method )
 				{
