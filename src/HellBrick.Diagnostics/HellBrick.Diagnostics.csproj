@@ -39,6 +39,7 @@
     <PackageReleaseNotes>
       v3.3.0:
       - Enabled concurrent analysis for most of analyzers
+      - Added an analyzer that reports and removes the code that was commented out
       - Added an analyzer that enforces methods that don't reference any instance members to be static
       - Added an analyzer that reports and converts method groups to lambdas
       - Fixed an issue that caused the unused parameter code fix to simplify unrelated code near the call site
