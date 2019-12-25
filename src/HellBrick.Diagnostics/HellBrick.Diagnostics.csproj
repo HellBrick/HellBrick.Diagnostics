@@ -38,6 +38,7 @@
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v4.0.0:
+      - Migrated to Roslyn 3.0
 
       v3.3.0:
       - Enabled concurrent analysis for most of analyzers
@@ -155,7 +156,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.10.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" PrivateAssets="all" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
     <PackageReference Include="HellBrick.NoCapture" Version="1.0.3" />
   </ItemGroup>

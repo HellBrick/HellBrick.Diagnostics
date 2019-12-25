@@ -134,7 +134,7 @@ public readonly struct OneFieldStruct : IEquatable<OneFieldStruct>
 				o
 				=> o
 				.WithProperFormatting()
-				.WithChangedOption( CSharpCodeStyleOptions.UseImplicitTypeForIntrinsicTypes, new CodeStyleOption<bool>( false, NotificationOption.Warning ) )
+				.WithChangedOption( CSharpCodeStyleOptions.VarForBuiltInTypes, new CodeStyleOption<bool>( false, NotificationOption.Warning ) )
 			)
 			.Source
 			(
