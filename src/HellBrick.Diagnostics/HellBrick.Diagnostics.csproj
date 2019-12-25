@@ -39,6 +39,7 @@
     <PackageReleaseNotes>
       v4.0.0:
       - Migrated to Roslyn 3.0
+      - Dropped HBUnusedSymbol (it's been implemented by VS)
 
       v3.3.0:
       - Enabled concurrent analysis for most of analyzers

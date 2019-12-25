@@ -41,14 +41,6 @@ A corresponding code fix removes the parameter from the method definition and th
 
 ![Unused parameter code fix screenshot](https://i.imgur.com/UqggZuf.png)
 
-### `HBUnusedSymbol`
-
-A diagnostic that's reported when a non-public member is never used.
-
-A corresponding code fix removes the unused member.
-
-![Unused symbol code fix screenshot](https://i.imgur.com/t6VH0A6.png)
-
 ### `HBCommentedCode`
 
 A diagnostic that's reported when a commented out code is detected.
