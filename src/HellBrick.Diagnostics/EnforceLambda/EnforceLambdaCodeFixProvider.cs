@@ -102,10 +102,10 @@ namespace HellBrick.Diagnostics.EnforceLambda
 				=> SimpleLambdaExpression( parameters[ 0 ].parameter, lambdaBody );
 
 			LambdaExpressionSyntax MultiParameterLambda()
-				=> ParenthesizedLambdaExpression( lambdaBody )
-				.WithParameterList
+				=> ParenthesizedLambdaExpression
 				(
-					ParameterList( ToCommaSeparatedList( parameters.Select( x => x.parameter ) ) )
+					ParameterList( ToCommaSeparatedList( parameters.Select( x => x.parameter ) ) ),
+					lambdaBody
 				);
 
 			SeparatedSyntaxList<T> ToCommaSeparatedList<T>( IEnumerable<T> nodes )
