@@ -38,6 +38,7 @@
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v5.0.0:
+      - Dropped HBStructImmutableNonReadonly and HBStructEquatabilityMethodsMissing (now that we have readonly struct records, they are no longer needed)
 
       v4.0.0:
       - Migrated to Roslyn 3.0
