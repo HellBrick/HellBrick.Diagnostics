@@ -17,22 +17,6 @@ There are two corresponding code fixes for inserting `ConfigureAwait( false )` o
 
 ![ConfigureAwait() code fix screenshot](https://i.imgur.com/1axBhX7.png)
 
-### `HBStructImmutableNonReadonly`
-
-A diagnostic that's reported when struct fields are never mutated, but the struct doesn't have a `readonly` modifier.
-
-A corresponding code fix marks the struct as `readonly`.
-
-![Readonly struct code fix screenshot](https://i.imgur.com/zpb3TSd.png)
-
-### `HBStructEquatabilityMethodsMissing`
-
-A diagnostic that's reported when readonly struct doesn't provide all required equatability traits (implementing `IEquatable`, overriding `Equals()` and `GetHashCode()`, providing `==` and `!=` operators).
-
-A corresponding code fix generates the missing methods.
-
-![Struct equatability code fix screenshot](https://i.imgur.com/RG3FItb.png)
-
 ### `HBUnusedParameter`
 
 A diagnostic that's reported when a method contains a parameter that isn't used in the method body, unless the method is one of the obvious exception cases (is part of interface implementation, is a program entry point, etc.).
