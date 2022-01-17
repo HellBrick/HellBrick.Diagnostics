@@ -23,8 +23,6 @@ namespace HellBrick.Diagnostics.EnforceStatic
 	[ExportCodeFixProvider( LanguageNames.CSharp, Name = nameof( MethodShouldBeStaticCodeFixProvider ) ), Shared]
 	public class MethodShouldBeStaticCodeFixProvider : CodeFixProvider
 	{
-		private static readonly string[] _preferredModifierSeparator = new[] { "," };
-
 		public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create( MethodShouldBeStaticAnalyzer.DiagnosticId );
 
 		public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -40,14 +38,13 @@ namespace HellBrick.Diagnostics.EnforceStatic
 		{
 			Solution solution = context.Document.Project.Solution;
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
-			DocumentOptionSet options = await context.Document.GetOptionsAsync( cancellationToken ).ConfigureAwait( false );
 			SemanticModel semanticModel = await context.Document.GetSemanticModelAsync().ConfigureAwait( false );
 
 			MethodDeclarationSyntax oldDeclaration = (MethodDeclarationSyntax) root.FindNode( context.Span );
 			IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol( oldDeclaration );
 			TypeSyntax typeName = ParseTypeName( methodSymbol.ContainingType.ToDisplayString() );
 
-			IChange declarationChange = new DeclarationChange( oldDeclaration, options );
+			IChange declarationChange = new DeclarationChange( oldDeclaration );
 
 			IEnumerable<SymbolCallerInfo> callSites = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
 			IEnumerable<IChange> callSiteChanges
@@ -68,13 +65,19 @@ namespace HellBrick.Diagnostics.EnforceStatic
 
 		private class DeclarationChange : IChange
 		{
-			private readonly MethodDeclarationSyntax _methodDeclaration;
-			private readonly DocumentOptionSet _options;
+			private static readonly SyntaxKind[] _precedingModifiers = new[]
+			{
+				SyntaxKind.PublicKeyword,
+				SyntaxKind.PrivateKeyword,
+				SyntaxKind.ProtectedKeyword,
+				SyntaxKind.InternalKeyword
+			};
 
-			public DeclarationChange( MethodDeclarationSyntax methodDeclaration, DocumentOptionSet options )
+			private readonly MethodDeclarationSyntax _methodDeclaration;
+
+			public DeclarationChange( MethodDeclarationSyntax methodDeclaration )
 			{
 				_methodDeclaration = methodDeclaration;
-				_options = options;
 			}
 
 			public SyntaxNode ReplacedNode => _methodDeclaration;
@@ -84,17 +87,6 @@ namespace HellBrick.Diagnostics.EnforceStatic
 				MethodDeclarationSyntax oldDeclaration = (MethodDeclarationSyntax) replacedNode;
 				SyntaxTokenList modifierList = oldDeclaration.Modifiers;
 
-				CodeStyleOption<string> option = _options.GetOption( CSharpCodeStyleOptions.PreferredModifierOrder );
-
-				string[] orderedModifiers
-					= option
-					.Value
-					.Split( _preferredModifierSeparator, StringSplitOptions.RemoveEmptyEntries )
-					.Select( modifier => modifier.Trim() )
-					.ToArray();
-
-				int staticOrder = Array.IndexOf( orderedModifiers, "static" );
-
 				int indexOfLastModifierThatShouldPrecedeStatic
 					= modifierList
 					.Select( ( modifierToken, index ) => (modifierToken, index) )
@@ -102,7 +94,7 @@ namespace HellBrick.Diagnostics.EnforceStatic
 					(
 						-1,
 						( previousIndex, pair )
-							=> Array.IndexOf( orderedModifiers, pair.modifierToken.Text ) < staticOrder
+							=> _precedingModifiers.Contains( pair.modifierToken.Kind() )
 								? pair.index
 								: previousIndex
 					);

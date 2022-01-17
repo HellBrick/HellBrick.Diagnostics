@@ -419,42 +419,8 @@ namespace HellBrick.Diagnostics.Test
 			);
 
 		[Fact]
-		public void ModifierIsInsertedAtCorrectPlaceIfCustomOrderIsSpecified()
-			=> _verifier
-			.WithOptions
-			(
-				os => os.WithChangedOption
-				(
-					CSharpCodeStyleOptions.PreferredModifierOrder,
-					new CodeStyleOption<string>( "unsafe, async, private, static", NotificationOption.Silent )
-				)
-			)
-			.Source
-			(
-@"public class C
-{
-	unsafe async private void AsyncMethod() { }
-}"
-			)
-			.ShouldHaveFix
-			(
-@"public class C
-{
-	unsafe async private static void AsyncMethod() { }
-}"
-			);
-
-		[Fact]
 		public void ModifierIsInsertedAfterLastPrecedingModifierIfOrderIsMessedUp()
 			=> _verifier
-			.WithOptions
-			(
-				os => os.WithChangedOption
-				(
-					CSharpCodeStyleOptions.PreferredModifierOrder,
-					new CodeStyleOption<string>( "private, static, unsafe, async", NotificationOption.Silent )
-				)
-			)
 			.Source
 			(
 @"public class C
