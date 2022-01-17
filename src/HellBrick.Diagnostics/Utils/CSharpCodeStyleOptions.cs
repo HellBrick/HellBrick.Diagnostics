@@ -14,11 +14,6 @@ namespace HellBrick.Diagnostics.Utils
 			.Assembly
 			.GetType( "Microsoft.CodeAnalysis.CSharp.CodeStyle.CSharpCodeStyleOptions" );
 
-		public static Option<CodeStyleOption<bool>> VarForBuiltInTypes { get; }
-			= _csharpCodeStyleOptionsType
-			.GetRuntimeField( nameof( VarForBuiltInTypes ) )
-			.GetValue( null ) as Option<CodeStyleOption<bool>>;
-
 		public static Option<CodeStyleOption<string>> PreferredModifierOrder { get; }
 			= _csharpCodeStyleOptionsType
 			.GetRuntimeField( nameof( PreferredModifierOrder ) )
