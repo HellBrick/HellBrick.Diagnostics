@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>4.0.0.0</Version>
+    <Version>5.0.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,6 +37,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v5.0.0:
+
       v4.0.0:
       - Migrated to Roslyn 3.0
       - Dropped HBUnusedSymbol (it's been implemented by VS)
