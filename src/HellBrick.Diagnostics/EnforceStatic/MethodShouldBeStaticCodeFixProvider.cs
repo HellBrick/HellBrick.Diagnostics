@@ -75,10 +75,7 @@ namespace HellBrick.Diagnostics.EnforceStatic
 
 			private readonly MethodDeclarationSyntax _methodDeclaration;
 
-			public DeclarationChange( MethodDeclarationSyntax methodDeclaration )
-			{
-				_methodDeclaration = methodDeclaration;
-			}
+			public DeclarationChange( MethodDeclarationSyntax methodDeclaration ) => _methodDeclaration = methodDeclaration;
 
 			public SyntaxNode ReplacedNode => _methodDeclaration;
 
