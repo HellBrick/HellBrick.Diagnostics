@@ -40,8 +40,8 @@ namespace HellBrick.Diagnostics.DeadCode
 			ParameterListSyntax parameterList = parameter.Parent as ParameterListSyntax;
 			int parameterIndex = parameterList.Parameters.IndexOf( parameter );
 			BaseMethodDeclarationSyntax methodDeclaration = parameter.FirstAncestorOrSelf<BaseMethodDeclarationSyntax>();
-			SemanticModel semanticModel = await document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );
-			IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol( methodDeclaration );
+			SemanticModel declarationDocSemanticModel = await document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );
+			IMethodSymbol methodSymbol = declarationDocSemanticModel.GetDeclaredSymbol( methodDeclaration );
 			Solution solution = document.Project.Solution;
 			IEnumerable<SymbolCallerInfo> callers = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
 
@@ -49,7 +49,7 @@ namespace HellBrick.Diagnostics.DeadCode
 				from caller in callers
 				from location in caller.Locations
 				where location.IsInSource
-				select new CallSiteChange( semanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
+				select new CallSiteChange( declarationDocSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
 				where change.ReplacedNode != null
 				select change;
 
