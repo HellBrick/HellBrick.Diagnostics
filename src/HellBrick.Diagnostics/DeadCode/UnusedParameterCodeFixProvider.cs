@@ -45,12 +45,29 @@ namespace HellBrick.Diagnostics.DeadCode
 			Solution solution = document.Project.Solution;
 			IEnumerable<SymbolCallerInfo> callers = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
 
-			IEnumerable<IChange> callSiteChanges
+			IEnumerable<Task<IEnumerable<CallSiteChange>>> callSiteChangeGroupTasks
 				= callers
 				.SelectMany( caller => caller.Locations )
 				.Where( location => location.IsInSource )
-				.Select( location => new CallSiteChange( declarationDocSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) )
-				.Where( change => change.ReplacedNode != null );
+				.GroupBy
+				(
+					location => location.SourceTree,
+					async ( sourceTree, locations ) =>
+					{
+						SemanticModel callSiteSemanticModel
+							= await solution
+							.GetDocument( sourceTree )
+							.GetSemanticModelAsync( cancellationToken )
+							.ConfigureAwait( false );
+
+						return locations
+							.Select( location => new CallSiteChange( callSiteSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) )
+							.Where( change => change.ReplacedNode != null );
+					}
+				);
+
+			IEnumerable<CallSiteChange>[] callSiteChangeGroups = await Task.WhenAll( callSiteChangeGroupTasks ).ConfigureAwait( false );
+			IEnumerable<IChange> callSiteChanges = callSiteChangeGroups.SelectMany( changes => changes );
 
 			IEnumerable<IChange> allChanges
 				= Enumerable

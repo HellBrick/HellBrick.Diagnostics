@@ -102,6 +102,43 @@ public class D
 			);
 
 		[Fact]
+		public void CorrespondingArgumentIsRemovedWhenCalledFromAnotherFile()
+			=> _verifier
+			.Sources
+			(
+@"public class C
+{
+	public void Something( int good1, string bad, int good2 )
+	{
+		var x = good1;
+		var y = good2;
+	}
+}",
+@"public class D
+{
+	public void Proxy() => new C().Something( 42, ""very important"", 0 );
+}"
+			)
+			.ShouldHaveFix
+			(
+				new[]
+				{
+@"public class C
+{
+	public void Something( int good1, int good2 )
+	{
+		var x = good1;
+		var y = good2;
+	}
+}",
+@"public class D
+{
+	public void Proxy() => new C().Something( 42, 0 );
+}"
+				}
+			);
+
+		[Fact]
 		public void UnusedThisParameterIsNotRemoved()
 			=> _verifier
 			.Source

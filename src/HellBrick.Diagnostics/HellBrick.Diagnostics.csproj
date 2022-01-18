@@ -38,6 +38,7 @@
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v5.0.1:
+      - Fixed HBUnusedParameter not to crash if call site is located in another file
 
       v5.0.0:
       - Migrated to Roslyn 4.0
