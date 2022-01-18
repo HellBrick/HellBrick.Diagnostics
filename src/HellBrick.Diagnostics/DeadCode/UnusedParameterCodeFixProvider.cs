@@ -45,13 +45,12 @@ namespace HellBrick.Diagnostics.DeadCode
 			Solution solution = document.Project.Solution;
 			IEnumerable<SymbolCallerInfo> callers = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
 
-			IEnumerable<IChange> callSiteChanges =
-				from caller in callers
-				from location in caller.Locations
-				where location.IsInSource
-				select new CallSiteChange( declarationDocSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
-				where change.ReplacedNode != null
-				select change;
+			IEnumerable<IChange> callSiteChanges
+				= callers
+				.SelectMany( caller => caller.Locations )
+				.Where( location => location.IsInSource )
+				.Select( location => new CallSiteChange( declarationDocSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) )
+				.Where( change => change.ReplacedNode != null );
 
 			IEnumerable<IChange> allChanges
 				= Enumerable
