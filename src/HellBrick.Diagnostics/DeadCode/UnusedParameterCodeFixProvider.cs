@@ -40,18 +40,34 @@ namespace HellBrick.Diagnostics.DeadCode
 			ParameterListSyntax parameterList = parameter.Parent as ParameterListSyntax;
 			int parameterIndex = parameterList.Parameters.IndexOf( parameter );
 			BaseMethodDeclarationSyntax methodDeclaration = parameter.FirstAncestorOrSelf<BaseMethodDeclarationSyntax>();
-			SemanticModel semanticModel = await document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );
-			IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol( methodDeclaration );
+			SemanticModel declarationDocSemanticModel = await document.GetSemanticModelAsync( cancellationToken ).ConfigureAwait( false );
+			IMethodSymbol methodSymbol = declarationDocSemanticModel.GetDeclaredSymbol( methodDeclaration );
 			Solution solution = document.Project.Solution;
 			IEnumerable<SymbolCallerInfo> callers = await SymbolFinder.FindCallersAsync( methodSymbol, solution, cancellationToken ).ConfigureAwait( false );
 
-			IEnumerable<IChange> callSiteChanges =
-				from caller in callers
-				from location in caller.Locations
-				where location.IsInSource
-				select new CallSiteChange( semanticModel, location, parameterIndex, parameter.Identifier.ValueText ) into change
-				where change.ReplacedNode != null
-				select change;
+			IEnumerable<Task<IEnumerable<CallSiteChange>>> callSiteChangeGroupTasks
+				= callers
+				.SelectMany( caller => caller.Locations )
+				.Where( location => location.IsInSource )
+				.GroupBy
+				(
+					location => location.SourceTree,
+					async ( sourceTree, locations ) =>
+					{
+						SemanticModel callSiteSemanticModel
+							= await solution
+							.GetDocument( sourceTree )
+							.GetSemanticModelAsync( cancellationToken )
+							.ConfigureAwait( false );
+
+						return locations
+							.Select( location => new CallSiteChange( callSiteSemanticModel, location, parameterIndex, parameter.Identifier.ValueText ) )
+							.Where( change => change.ReplacedNode != null );
+					}
+				);
+
+			IEnumerable<CallSiteChange>[] callSiteChangeGroups = await Task.WhenAll( callSiteChangeGroupTasks ).ConfigureAwait( false );
+			IEnumerable<IChange> callSiteChanges = callSiteChangeGroups.SelectMany( changes => changes );
 
 			IEnumerable<IChange> allChanges
 				= Enumerable

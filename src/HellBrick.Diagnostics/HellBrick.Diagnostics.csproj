@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.0.0.0</Version>
+    <Version>5.0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,6 +37,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v5.0.1:
+      - Fixed HBUnusedParameter not to crash if call site is located in another file
+
       v5.0.0:
       - Migrated to Roslyn 4.0
       - Dropped HBStructImmutableNonReadonly and HBStructEquatabilityMethodsMissing (now that we have readonly struct records, they are no longer needed)
