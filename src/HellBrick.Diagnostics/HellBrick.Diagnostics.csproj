@@ -39,6 +39,7 @@
     <PackageReleaseNotes>
       v5.0.2:
        - Removed HellBrick.NoCapture reference
+       - Removed HBEnforceLambda (it's no longer relevant due to upcoming compiler changes)
 
       v5.0.1:
       - Fixed HBUnusedParameter not to crash if call site is located in another file
