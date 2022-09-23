@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.0.1.0</Version>
+    <Version>5.0.2.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,6 +37,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
+      v5.0.2:
+
       v5.0.1:
       - Fixed HBUnusedParameter not to crash if call site is located in another file
 
