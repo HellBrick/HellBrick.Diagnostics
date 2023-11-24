@@ -41,7 +41,7 @@ namespace HellBrick.Diagnostics.ConfigureAwait
 		private static async Task<Document> AddConfigureAwaitAsync( CodeFixContext context, bool captureContext, CancellationToken cancellationToken )
 		{
 			SyntaxNode root = await context.Document.GetSyntaxRootAsync( context.CancellationToken ).ConfigureAwait( false );
-			ExpressionSyntax awaitedExpression = root.FindNode( context.Span ) as ExpressionSyntax;
+			ExpressionSyntax awaitedExpression = ((AwaitExpressionSyntax)root.FindNode( context.Span )).Expression;
 			MemberAccessExpressionSyntax configureAwaitMember = MemberAccessExpression( SyntaxKind.SimpleMemberAccessExpression, awaitedExpression, IdentifierName( "ConfigureAwait" ) );
 			ArgumentSyntax argument = captureContext ? _trueArgument : _falseArgument;
 			InvocationExpressionSyntax configureAwaitInvocation = InvocationExpression( configureAwaitMember ).AddArgumentListArguments( argument );
