@@ -38,6 +38,7 @@
     <Description>Diagnostics</Description>
     <PackageReleaseNotes>
       v6.0.0:
+       - Removed HBValueTypeNullComparison
 
       v5.0.2:
        - Removed HellBrick.NoCapture reference
