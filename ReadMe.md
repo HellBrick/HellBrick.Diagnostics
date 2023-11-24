@@ -32,19 +32,3 @@ A diagnostic that's reported when a commented out code is detected.
 A corresponding code fix removes the comment block that contains the code.
 
 ![Commented code fix screenshot](https://i.imgur.com/u0hrpcE.png)
-
-### `HBMethodShouldBeStatic`
-
-A diagnostic that's reported when a private non-static method doesn't reference any instance members.
-
-A corresponding code fix makes the method static.
-
-![Method should be static code fix screenshot](https://i.imgur.com/uC8FFd2.png)
-
-### `ValueTypeNullComparison`
-
-A diagnostic that's reported when an instance of value type is compared for (in)equality with `null`.
-
-A corresponding code fix replaces `null` with `default`.
-
-![Value type == null code fix screenshot](https://i.imgur.com/8F1IyD7.png)
